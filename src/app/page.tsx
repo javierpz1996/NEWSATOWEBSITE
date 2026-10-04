@@ -6,9 +6,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { HomeAnimations } from "@/components/layout/home-animations";
 import { HomeArtistLockup } from "@/components/layout/home-artist-lockup";
+import { HomeContact } from "@/components/layout/home-contact";
 import { HomeCommissionsOpen } from "@/components/layout/home-commissions-open";
 import { HomeFaq } from "@/components/layout/home-faq";
 import { HomePageIntro } from "@/components/layout/home-page-intro";
+import { HomePageTop } from "@/components/layout/home-page-top";
 import { HomePortalMenuModal } from "@/components/layout/home-portal-menu-modal";
 import {
   HomePortalMenuTrigger,
@@ -21,6 +23,7 @@ import {
   useHomeHeroReplay,
 } from "@/hooks/use-home-hero-replay";
 import { SATO_LOGO_HEIGHT, SATO_LOGO_SRC, SATO_LOGO_WIDTH } from "@/lib/brand-assets";
+import { HOME_FOOTER_NAV } from "@/lib/home-footer-nav";
 
 const HERO_EDITORIAL_TILE = "/works/placeholder/dibujo-1.png" as const;
 
@@ -302,26 +305,12 @@ export default function Home() {
         </div>
       ) : null}
 
-      <section id="contacto" className="home-contact">
-        <div className="home-contact-row">
-          <div className="home-contact-copy">
-            <h2>
-              ¿Hablamos
-              <br />
-              <em>de una idea?</em>
-            </h2>
-            <p className="home-contact-subtitle">
-              Ya sea un proyecto, una colaboración o alguna idea interesante, contactame.
-            </p>
-          </div>
-          <a className="home-contact-button" href="mailto:hola@example.com">
-            Escribir un mensaje <span>↗</span>
-          </a>
-        </div>
-      </section>
+      <HomeContact />
+
+      <HomePageTop headerFocusRef={headerFocusRef} />
 
       <footer className="home-footer">
-        <Link href="/" className="home-logo" aria-label="Inicio">
+        <Link href="/" className="home-logo home-footer-brand" aria-label="Inicio">
           <Image
             className="home-logo-mark home-logo-mark--footer"
             src={SATO_LOGO_SRC}
@@ -331,11 +320,13 @@ export default function Home() {
             unoptimized
           />
         </Link>
-        <span>UN ESPACIO PARA LA OBRA</span>
-        <div>
-          <Link href="/desing-system">Sistema visual ↗</Link>
-          <a href="#inicio">Volver arriba ↑</a>
-        </div>
+        <nav className="home-footer-nav" aria-label="Secciones de la página">
+          {HOME_FOOTER_NAV.map((item) => (
+            <a key={item.href} href={item.href}>
+              {item.label}
+            </a>
+          ))}
+        </nav>
       </footer>
     </main>
     </>

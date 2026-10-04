@@ -723,6 +723,7 @@ export function HomeServices() {
   return (
     <section
       ref={sectionRef}
+      id="servicios"
       className={sectionScrollRevealClassName("home-services", reveal)}
       aria-labelledby="home-services-title"
       aria-describedby="home-services-subtitle"

@@ -29,6 +29,7 @@
     calc(100% - clamp(8px, 1.2vw, 20px)),
     var(--home-section-rail-max)
   );
+  --home-footer-logo-mark-filter: brightness(0);
 }
 
 .home-hero-backdrop {
@@ -80,7 +81,7 @@
   max-width: clamp(88px, 10vw, 132px);
   width: 100%;
   height: auto;
-  filter: var(--home-logo-mark-filter);
+  filter: var(--home-footer-logo-mark-filter);
 }
 
 .home-intro-overlay__logo.home-logo-mark {
@@ -1456,6 +1457,55 @@
   }
 }
 
+/* Contact — scroll reveal (title, subtitle, CTA). */
+.home-section-scroll-reveal:not(.home-section-scroll-reveal--active) .home-contact-reveal-item {
+  opacity: 0;
+}
+
+.home-section-scroll-reveal:not(.home-section-scroll-reveal--active) .home-contact-reveal-item--title {
+  transform: translate3d(0, 1.75rem, 0);
+}
+
+.home-section-scroll-reveal:not(.home-section-scroll-reveal--active) .home-contact-reveal-item--subtitle {
+  transform: translate3d(0, 1.25rem, 0);
+}
+
+.home-section-scroll-reveal:not(.home-section-scroll-reveal--active) .home-contact-reveal-item--cta {
+  transform: translate3d(1.5rem, 0, 0);
+}
+
+.home-section-scroll-reveal--active .home-contact-reveal-item {
+  animation-duration: 720ms;
+  animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  animation-fill-mode: both;
+}
+
+.home-section-scroll-reveal--active .home-contact-reveal-item--title {
+  animation-name: home-commissions-reveal-rise;
+  animation-delay: 0ms;
+}
+
+.home-section-scroll-reveal--active .home-contact-reveal-item--subtitle {
+  animation-name: home-commissions-reveal-rise;
+  animation-delay: 130ms;
+}
+
+.home-section-scroll-reveal--active .home-contact-reveal-item--cta {
+  animation-name: home-commissions-reveal-from-left;
+  animation-delay: 260ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-section-scroll-reveal:not(.home-section-scroll-reveal--active) .home-contact-reveal-item {
+    opacity: 1;
+    transform: none;
+  }
+
+  .home-section-scroll-reveal--active .home-contact-reveal-item {
+    animation: none;
+  }
+}
+
 .home-page .home-commissions-open-header {
   max-width: var(--home-section-rail-width);
   margin: 0 auto clamp(26px, 3.6vh, 40px);
@@ -2126,5 +2176,90 @@
 
   .home-portal-menu-modal__link:hover {
     transform: none;
+  }
+}
+
+/* Page top — Teo + scroll control (visible after 50% scroll). */
+.home-page-top {
+  position: fixed;
+  z-index: 20;
+  right: clamp(4px, 1vw, 12px);
+  bottom: clamp(12px, 2.5vw, 28px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(4px, 0.8vw, 8px);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition:
+    opacity 320ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 320ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.home-page-top--visible {
+  pointer-events: auto;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.home-page-top__figure {
+  display: flex;
+  justify-content: center;
+  width: clamp(72px, 11vw, 112px);
+  line-height: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.home-page-top__teo {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.home-page-top__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--background);
+  color: var(--foreground);
+  font: 9px var(--font-jetbrains-mono), monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 12%);
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.home-page-top__button:hover {
+  background: var(--foreground);
+  color: var(--background);
+  border-color: var(--foreground);
+}
+
+.home-page-top__button:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
+}
+
+.home-page-top__arrow {
+  display: inline-flex;
+  color: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page-top {
+    transform: none;
+    transition: opacity 120ms ease;
   }
 }
