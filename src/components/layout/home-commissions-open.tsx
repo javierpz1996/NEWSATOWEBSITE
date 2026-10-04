@@ -1,3 +1,11 @@
+"use client";
+
+import { useRef } from "react";
+import {
+  sectionScrollRevealClassName,
+  useSectionScrollReveal,
+} from "@/hooks/use-section-scroll-reveal";
+
 type CommissionStep = {
   number: string;
   title: string;
@@ -32,23 +40,37 @@ const commissionSteps: CommissionStep[] = [
 ];
 
 export function HomeCommissionsOpen() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const reveal = useSectionScrollReveal(sectionRef);
+
   return (
     <section
+      ref={sectionRef}
       id="comisiones"
-      className="home-commissions-open"
+      className={sectionScrollRevealClassName("home-commissions-open", reveal)}
       aria-labelledby="home-commissions-open-title"
       aria-describedby="home-commissions-open-subtitle"
     >
-      <header className="home-commissions-open-header">
-        <h2 id="home-commissions-open-title">Comisiones abiertas</h2>
-        <p id="home-commissions-open-subtitle" className="home-commissions-open-subtitle">
+      <header className="home-commissions-open-header home-commissions-reveal-item home-commissions-reveal-item--header">
+        <h2
+          id="home-commissions-open-title"
+          className="home-commissions-reveal-item home-commissions-reveal-item--title"
+        >
+          Comisiones abiertas
+        </h2>
+        <p
+          id="home-commissions-open-subtitle"
+          className="home-commissions-open-subtitle home-commissions-reveal-item home-commissions-reveal-item--subtitle"
+        >
           Convertí tu idea en una ilustración
         </p>
       </header>
       <ol className="home-commissions-steps">
-        {commissionSteps.map((step) => (
+        {commissionSteps.map((step, index) => (
           <li key={step.number}>
-            <article className="home-commissions-step">
+            <article
+              className={`home-commissions-step home-commissions-reveal-item home-commissions-reveal-item--step home-commissions-reveal-item--step-${index + 1}`}
+            >
               <div className="home-commissions-step-frame" aria-hidden="true">
                 <span className="home-commissions-step-corner home-commissions-step-corner-tl" />
                 <span className="home-commissions-step-corner home-commissions-step-corner-tr" />
@@ -64,7 +86,10 @@ export function HomeCommissionsOpen() {
           </li>
         ))}
       </ol>
-      <div className="home-commissions-rules-notice" role="note">
+      <div
+        className="home-commissions-rules-notice home-commissions-reveal-item home-commissions-reveal-item--notice"
+        role="note"
+      >
         <div className="home-commissions-step-frame" aria-hidden="true">
           <span className="home-commissions-step-corner home-commissions-step-corner-tl" />
           <span className="home-commissions-step-corner home-commissions-step-corner-tr" />

@@ -5,8 +5,13 @@ import { ArtworkCarousel } from "@/components/artwork-carousel";
 import { HomeServicesNsfwGate } from "@/components/layout/home-services-nsfw-gate";
 import { motion, type Variants } from "motion/react";
 import {
+  sectionScrollRevealClassName,
+  useSectionScrollReveal,
+} from "@/hooks/use-section-scroll-reveal";
+import {
   useId,
   useMemo,
+  useRef,
   useState,
   useSyncExternalStore,
   type ReactNode,
@@ -508,7 +513,13 @@ function ServiceCardDetailsSection({
   );
 }
 
-function ServiceCardItem({ service }: { service: ServiceCard }) {
+function ServiceCardItem({
+  service,
+  revealIndex,
+}: {
+  service: ServiceCard;
+  revealIndex: number;
+}) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isOrderOpen, setIsOrderOpen] = useState(false);
   const [orderResetKey, setOrderResetKey] = useState(0);
@@ -529,7 +540,9 @@ function ServiceCardItem({ service }: { service: ServiceCard }) {
   };
 
   return (
-    <li>
+    <li
+      className={`home-services-reveal-item home-services-reveal-item--card home-services-reveal-item--card-${revealIndex}`}
+    >
       <article className="home-service-card">
         <div className="home-commissions-step-frame" aria-hidden="true">
           <span className="home-commissions-step-corner home-commissions-step-corner-tl" />
@@ -685,6 +698,8 @@ function ServiceCardItem({ service }: { service: ServiceCard }) {
 }
 
 export function HomeServices() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const reveal = useSectionScrollReveal(sectionRef);
   const [contentRating, setContentRating] = useState<ContentRating>("sfw");
   const [nsfwGateOpen, setNsfwGateOpen] = useState(false);
   const [nsfwAccessGranted, setNsfwAccessGranted] = useState(false);
@@ -707,18 +722,27 @@ export function HomeServices() {
 
   return (
     <section
-      className="home-services"
+      ref={sectionRef}
+      className={sectionScrollRevealClassName("home-services", reveal)}
       aria-labelledby="home-services-title"
       aria-describedby="home-services-subtitle"
     >
       <header className="home-services-header">
         <div className="home-services-header-copy">
-          <h2 id="home-services-title">Servicios</h2>
-          <p id="home-services-subtitle" className="home-services-subtitle">
+          <h2
+            id="home-services-title"
+            className="home-services-reveal-item home-services-reveal-item--title"
+          >
+            Servicios
+          </h2>
+          <p
+            id="home-services-subtitle"
+            className="home-services-subtitle home-services-reveal-item home-services-reveal-item--subtitle"
+          >
             Tipos de encargo disponibles
           </p>
         </div>
-        <div className="home-services-rating-control">
+        <div className="home-services-rating-control home-services-reveal-item home-services-reveal-item--controls">
           <div className="home-services-rating-age-row" aria-hidden="true">
             <span className="home-services-rating-age-spacer" />
             <span className="home-services-rating-age-badge">+18</span>
@@ -753,12 +777,16 @@ export function HomeServices() {
       />
       {visibleServices.length > 0 ? (
         <ul className="home-services-grid">
-          {visibleServices.map((service) => (
-            <ServiceCardItem key={service.id} service={service} />
+          {visibleServices.map((service, index) => (
+            <ServiceCardItem
+              key={service.id}
+              service={service}
+              revealIndex={Math.min(index + 1, 4)}
+            />
           ))}
         </ul>
       ) : (
-        <p className="home-services-empty">
+        <p className="home-services-empty home-services-reveal-item home-services-reveal-item--empty">
           No hay servicios NSFW publicados todavía. Volvé a SFW o consultá por encargos personalizados.
         </p>
       )}

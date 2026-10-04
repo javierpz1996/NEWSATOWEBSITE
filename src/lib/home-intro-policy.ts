@@ -11,10 +11,7 @@ function introSearchParams(): URLSearchParams | null {
 }
 
 /**
- * Infinite intro preview:
- * - `pnpm dev` → loop automático en `/`
- * - `?intro=loop` → loop en cualquier entorno
- * - `?intro=off` → apaga el loop en dev
+ * Infinite intro preview only with `?intro=loop` (or `HOME_INTRO_DEV_AUTO_LOOP`).
  */
 export function resolveHomeIntroLoopPreview(): boolean {
   const params = introSearchParams();

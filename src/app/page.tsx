@@ -1,20 +1,46 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { PORTAL_MENU_AUTO_OPEN_DELAY_MS } from "@/components/layout/home-portal-menu-stretch";
 import Link from "next/link";
 import Image from "next/image";
 import { HomeAnimations } from "@/components/layout/home-animations";
+import { HomeArtistLockup } from "@/components/layout/home-artist-lockup";
 import { HomeCommissionsOpen } from "@/components/layout/home-commissions-open";
+import { HomeFaq } from "@/components/layout/home-faq";
 import { HomePageIntro } from "@/components/layout/home-page-intro";
+import { HomePortalMenuModal } from "@/components/layout/home-portal-menu-modal";
+import {
+  HomePortalMenuTrigger,
+  type HomePortalMenuTriggerHandle,
+} from "@/components/layout/home-portal-menu-trigger";
 import { HomeServices } from "@/components/layout/home-services";
 import { HomeSnsBar } from "@/components/layout/home-sns-bar";
+import {
+  homeHeroReplayRowClassName,
+  useHomeHeroReplay,
+} from "@/hooks/use-home-hero-replay";
 import { SATO_LOGO_HEIGHT, SATO_LOGO_SRC, SATO_LOGO_WIDTH } from "@/lib/brand-assets";
+
+const HERO_EDITORIAL_TILE = "/works/placeholder/dibujo-1.png" as const;
+
+const HERO_EDITORIAL_TILES = [
+  { id: "01", src: HERO_EDITORIAL_TILE },
+  { id: "02", src: HERO_EDITORIAL_TILE },
+  { id: "03", src: HERO_EDITORIAL_TILE },
+] as const;
+
+/** Temporary: hide header nav links until routes/sections are ready for launch. */
+const HOME_HEADER_NAV_VISIBLE = false;
 
 export default function Home() {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isPortalMenuOpen, setIsPortalMenuOpen] = useState(false);
   const [activeWork, setActiveWork] = useState(0);
   const [isFullScreenStripActive, setIsFullScreenStripActive] = useState(false);
   const editorialShiftRef = useRef<HTMLDivElement>(null);
+  const heroSectionRef = useRef<HTMLElement>(null);
+  const heroReplay = useHomeHeroReplay(heroSectionRef);
   const pageRef = useRef<HTMLElement>(null);
   const headerFocusRef = useRef<HTMLElement>(null);
 
@@ -61,10 +87,51 @@ export default function Home() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isGalleryOpen]);
 
+  const portalMenuOpenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const portalMenuTriggerRef = useRef<HomePortalMenuTriggerHandle>(null);
+
+  const clearPortalMenuOpenTimer = useCallback(() => {
+    if (portalMenuOpenTimerRef.current !== null) {
+      clearTimeout(portalMenuOpenTimerRef.current);
+      portalMenuOpenTimerRef.current = null;
+    }
+  }, []);
+
+  const beginPortalMenuOpen = useCallback(() => {
+    portalMenuTriggerRef.current?.resetRuleToMinWidth();
+    setIsPortalMenuOpen(true);
+  }, []);
+
+  const openPortalMenu = useCallback(() => {
+    clearPortalMenuOpenTimer();
+    beginPortalMenuOpen();
+  }, [beginPortalMenuOpen, clearPortalMenuOpenTimer]);
+
+  const schedulePortalMenuOpen = useCallback(() => {
+    clearPortalMenuOpenTimer();
+    if (isPortalMenuOpen) return;
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const delayMs = reducedMotion ? 80 : PORTAL_MENU_AUTO_OPEN_DELAY_MS;
+
+    portalMenuOpenTimerRef.current = setTimeout(() => {
+      portalMenuOpenTimerRef.current = null;
+      beginPortalMenuOpen();
+    }, delayMs);
+  }, [beginPortalMenuOpen, clearPortalMenuOpenTimer, isPortalMenuOpen]);
+
+  const closePortalMenu = useCallback(() => {
+    clearPortalMenuOpenTimer();
+    setIsPortalMenuOpen(false);
+  }, [clearPortalMenuOpenTimer]);
+
+  useEffect(() => () => clearPortalMenuOpenTimer(), [clearPortalMenuOpenTimer]);
+
   return (
     <>
       <HomePageIntro pageRef={pageRef} headerFocusRef={headerFocusRef} />
       <main ref={pageRef} className="home-page">
+      <div className="home-hero-backdrop">
       <header
         ref={headerFocusRef}
         className="home-header home-intro-reveal-header"
@@ -82,64 +149,61 @@ export default function Home() {
               unoptimized
             />
           </Link>
-          <nav aria-label="Navegación principal" className="home-nav">
-            <a className="is-selected" href="#animaciones" aria-current="page">
-              Trabajos
-            </a>
-            <a href="#inicio">Acerca</a>
-            <a href="#comisiones">Comisiones</a>
-            <a href="#contacto">Contacto</a>
-          </nav>
+          {HOME_HEADER_NAV_VISIBLE ? (
+            <nav aria-label="Navegación principal" className="home-nav">
+              <a className="is-selected" href="#animaciones" aria-current="page">
+                Trabajos
+              </a>
+              <a href="#inicio">Acerca</a>
+              <a href="#comisiones">Comisiones</a>
+              <a href="#contacto">Contacto</a>
+            </nav>
+          ) : null}
+          <div className="home-header-portal-cluster">
+            <div className="home-header-portal-stack">
+              <HomePortalMenuTrigger
+                ref={portalMenuTriggerRef}
+                onClick={schedulePortalMenuOpen}
+                onReachMaxStretch={openPortalMenu}
+              />
+            </div>
+          </div>
         </div>
       </header>
 
-      <section id="inicio" className="home-hero">
+      <section id="inicio" ref={heroSectionRef} className="home-hero">
         <div className="home-hero-copy">
           <div
-            className={`home-hero-top-row${
-              isFullScreenStripActive ? " is-fullscreen-strip-active is-images-shifted" : ""
-            }`}
+            className={homeHeroReplayRowClassName(
+              heroReplay,
+              `home-hero-top-row${
+                isFullScreenStripActive ? " is-fullscreen-strip-active is-images-shifted" : ""
+              }`,
+            )}
           >
-            <div className="home-artist-lockup home-intro-reveal-lockup">
-              <div className="home-artist-lockup-stack">
-                <p className="home-artist-name">SATO</p>
-                <h1 className="home-artist-kanji">佐藤</h1>
-                <p className="home-artist-role">Anime &amp; Illustration Artist</p>
-                <p className="home-artist-location">
-                  <span className="home-artist-location-pin" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11z"
-                        stroke="currentColor"
-                        strokeWidth="1.75"
-                        strokeLinejoin="round"
-                      />
-                      <circle cx="12" cy="10" r="2.25" stroke="currentColor" strokeWidth="1.75" fill="none" />
-                    </svg>
-                  </span>
-                  <span className="home-artist-location-flag" aria-hidden="true">
-                    🇦🇷
-                  </span>
-                  <span className="home-artist-location-label">Argentina</span>
-                </p>
-              </div>
-            </div>
+            <HomeArtistLockup />
             <div
               ref={editorialShiftRef}
               className="home-hero-bar-media home-intro-reveal-editorial"
             >
-              <div className="home-editorial-strip home-editorial-strip-left" aria-hidden="true">
+              <div
+                className="home-editorial-strip home-editorial-strip-left home-hero-replay-item home-hero-replay-item--strip-left"
+                aria-hidden="true"
+              >
                 <span>SATO WORKS</span>
                 <span>SATO WORKS</span>
                 <span>SATO WORKS</span>
               </div>
               <div className="home-editorial-tiles">
-                {["01", "02", "03"].map((number) => (
-                  <div className="home-editorial-tile" key={number}>
+                {HERO_EDITORIAL_TILES.map((tile, index) => (
+                  <div
+                    className={`home-editorial-tile home-hero-replay-item home-hero-replay-item--tile home-hero-replay-item--tile-${index + 1}`}
+                    key={tile.id}
+                  >
                     <Image
                       className="home-editorial-tile-image"
-                      src="/works/placeholder/dibujo-1.png"
-                      alt={`Obra de muestra ${number}`}
+                      src={tile.src}
+                      alt={`Obra de muestra ${tile.id}`}
                       fill
                       unoptimized
                       sizes="(max-width: 760px) 28vw, 13vw"
@@ -149,7 +213,7 @@ export default function Home() {
               </div>
             </div>
             <button
-              className="home-editorial-strip home-editorial-strip-right home-editorial-strip-hazard home-intro-reveal-hazard"
+              className="home-editorial-strip home-editorial-strip-right home-editorial-strip-hazard home-intro-reveal-hazard home-hero-replay-item home-hero-replay-item--strip-right"
               type="button"
               aria-label="Ver las obras en pantalla completa"
               onPointerEnter={() => setIsFullScreenStripActive(true)}
@@ -178,14 +242,17 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </div>
 
       <HomeSnsBar />
 
       <HomeCommissionsOpen />
-
       <HomeServices />
-
       <HomeAnimations />
+
+      <HomeFaq />
+
+      {isPortalMenuOpen ? <HomePortalMenuModal onClose={closePortalMenu} /> : null}
 
       {isGalleryOpen ? (
         <div
@@ -235,7 +302,23 @@ export default function Home() {
         </div>
       ) : null}
 
-      <section id="contacto" className="home-contact"><p className="home-eyebrow">04 / CONTACTO</p><div className="home-contact-row"><h2>¿Hablamos<br /><em>de una idea?</em></h2><a className="home-contact-button" href="mailto:hola@example.com">Escribir un mensaje <span>↗</span></a></div><p className="home-placeholder-note">Dirección de correo temporal: reemplazar por el contacto real.</p></section>
+      <section id="contacto" className="home-contact">
+        <div className="home-contact-row">
+          <div className="home-contact-copy">
+            <h2>
+              ¿Hablamos
+              <br />
+              <em>de una idea?</em>
+            </h2>
+            <p className="home-contact-subtitle">
+              Ya sea un proyecto, una colaboración o alguna idea interesante, contactame.
+            </p>
+          </div>
+          <a className="home-contact-button" href="mailto:hola@example.com">
+            Escribir un mensaje <span>↗</span>
+          </a>
+        </div>
+      </section>
 
       <footer className="home-footer">
         <Link href="/" className="home-logo" aria-label="Inicio">

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   HOME_INTRO_LOADING_GIF,
   HOME_INTRO_LOADING_HINT,
@@ -12,6 +11,8 @@ import {
   HOME_INTRO_SECOND_LAYER_ENABLED,
   HOME_INTRO_WATCHDOG_MS,
   animateHomeIntroSplatterOpen,
+  clearHomeIntroInkMask,
+  forceHomeIntroOpenMask,
   preloadHomeIntroAssets,
   resolveHomeIntroMinLoadingMs,
   waitMs,
@@ -21,7 +22,6 @@ import {
   markHomeIntroSeen,
   resolveHomeIntroLoopPreview,
   resolveHomeIntroPolicy,
-  shouldForceHomeIntroMotionPreview,
 } from "@/lib/home-intro-policy";
 import {
   useCallback,
@@ -89,6 +89,7 @@ function HomePageIntroCycle({ pageRef, loopPreview, onCycleComplete }: IntroCycl
   const assetsLoadedRef = useRef(0);
   const assetsTotalRef = useRef(1);
   const gateCompleteRef = useRef(false);
+  const wipeRunRef = useRef(0);
 
   const clearProgressTimer = useCallback(() => {
     if (progressTimerRef.current !== null) {
@@ -119,7 +120,10 @@ function HomePageIntroCycle({ pageRef, loopPreview, onCycleComplete }: IntroCycl
     const isActiveRun = () => runGenerationRef.current === runGeneration;
 
     document.documentElement.classList.add("home-intro-play");
-    document.documentElement.classList.remove("home-intro-reveal-active");
+    document.documentElement.classList.remove(
+      "home-intro-reveal-active",
+      "home-intro-splatter-motion",
+    );
     document.body.style.overflow = "hidden";
     const page = pageRef.current;
     if (page) {
@@ -133,17 +137,13 @@ function HomePageIntroCycle({ pageRef, loopPreview, onCycleComplete }: IntroCycl
     const run = async () => {
       const startedAt = performance.now();
       const minLoadingMs = resolveHomeIntroMinLoadingMs();
-      const forceMotion = shouldForceHomeIntroMotionPreview();
-      const splatterOptions = { signal: controller.signal, forceMotion };
-
-      inkPrimaryRef.current?.classList.remove(
-        "home-intro-overlay__ink--spent",
-        "home-intro-overlay__ink--open",
-      );
-      inkBackdropRef.current?.classList.remove(
-        "home-intro-overlay__ink--active",
-        "home-intro-overlay__ink--open",
-      );
+      if (inkPrimaryRef.current) {
+        clearHomeIntroInkMask(inkPrimaryRef.current);
+      }
+      if (inkBackdropRef.current) {
+        clearHomeIntroInkMask(inkBackdropRef.current);
+        inkBackdropRef.current.classList.remove("home-intro-overlay__ink--active");
+      }
 
       const assetsPromise = preloadHomeIntroAssets((loaded, total) => {
         assetsLoadedRef.current = loaded;
@@ -206,52 +206,6 @@ function HomePageIntroCycle({ pageRef, loopPreview, onCycleComplete }: IntroCycl
         page.removeAttribute("aria-hidden");
       }
       setPhase("wipe");
-
-      await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => resolve());
-      });
-      if (!isActiveRun()) return;
-
-      const inkPrimary = inkPrimaryRef.current;
-      if (!inkPrimary) {
-        finishCycle(!loopPreview);
-        return;
-      }
-
-      try {
-        await animateHomeIntroSplatterOpen(inkPrimary, splatterOptions);
-      } catch {
-        return;
-      }
-      if (!isActiveRun()) return;
-
-      inkPrimary.classList.add("home-intro-overlay__ink--spent");
-
-      if (HOME_INTRO_SECOND_LAYER_ENABLED) {
-        const inkBackdrop = inkBackdropRef.current;
-        if (!inkBackdrop) {
-          finishCycle(!loopPreview);
-          return;
-        }
-        inkBackdrop.classList.add("home-intro-overlay__ink--active");
-        try {
-          await animateHomeIntroSplatterOpen(inkBackdrop, splatterOptions);
-        } catch {
-          return;
-        }
-        if (!isActiveRun()) return;
-      }
-
-      setPhase("reveal");
-
-      try {
-        await waitMs(HOME_INTRO_POST_WIPE_MS, controller.signal);
-      } catch {
-        return;
-      }
-      if (!isActiveRun()) return;
-
-      finishCycle(!loopPreview);
     };
 
     void run();
@@ -268,6 +222,73 @@ function HomePageIntroCycle({ pageRef, loopPreview, onCycleComplete }: IntroCycl
       runGenerationRef.current += 1;
     };
   }, [clearProgressTimer, finishCycle, loopPreview, pageRef]);
+
+  useLayoutEffect(() => {
+    if (phase !== "wipe") return;
+
+    const wipeRun = wipeRunRef.current + 1;
+    wipeRunRef.current = wipeRun;
+    const runGeneration = runGenerationRef.current;
+    const isActiveRun = () =>
+      wipeRunRef.current === wipeRun && runGenerationRef.current === runGeneration;
+
+    const controller = abortRef.current;
+    if (!controller) return;
+
+    document.documentElement.classList.add("home-intro-splatter-motion");
+
+    const runWipe = async () => {
+      const splatterOptions = { signal: controller.signal, forceMotion: true };
+      const inkPrimary = inkPrimaryRef.current;
+      if (!inkPrimary) {
+        finishCycle(!loopPreview);
+        return;
+      }
+
+      try {
+        await animateHomeIntroSplatterOpen(inkPrimary, splatterOptions);
+      } catch {
+        if (controller.signal.aborted || !isActiveRun()) return;
+        forceHomeIntroOpenMask(inkPrimary);
+      }
+      if (!isActiveRun()) return;
+
+      inkPrimary.classList.add("home-intro-overlay__ink--spent");
+
+      if (HOME_INTRO_SECOND_LAYER_ENABLED) {
+        const inkBackdrop = inkBackdropRef.current;
+        if (!inkBackdrop) {
+          finishCycle(!loopPreview);
+          return;
+        }
+        inkBackdrop.classList.add("home-intro-overlay__ink--active");
+        try {
+          await animateHomeIntroSplatterOpen(inkBackdrop, splatterOptions);
+        } catch {
+          if (controller.signal.aborted || !isActiveRun()) return;
+          forceHomeIntroOpenMask(inkBackdrop);
+        }
+        if (!isActiveRun()) return;
+      }
+
+      setPhase("reveal");
+
+      try {
+        await waitMs(HOME_INTRO_POST_WIPE_MS, controller.signal);
+      } catch {
+        return;
+      }
+      if (!isActiveRun()) return;
+
+      finishCycle(!loopPreview);
+    };
+
+    void runWipe();
+
+    return () => {
+      wipeRunRef.current += 1;
+    };
+  }, [finishCycle, loopPreview, phase]);
 
   useEffect(() => {
     if (phase !== "loading" && phase !== "loading-out" && phase !== "wipe" && phase !== "reveal") {
@@ -307,15 +328,16 @@ function HomePageIntroCycle({ pageRef, loopPreview, onCycleComplete }: IntroCycl
         {phase === "loading" || phase === "loading-out" ? (
           <div className="home-intro-overlay__loading-stack">
             <div className="home-intro-overlay__loading-gif-wrap">
-              <Image
+              {/* Native img keeps compositing simple; next/image layers can starve mask paints on Safari. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 className="home-intro-overlay__loading-gif"
                 src={HOME_INTRO_LOADING_GIF}
                 alt=""
                 width={480}
                 height={640}
-                priority
-                unoptimized
-                sizes="(max-width: 760px) 94vw, 520px"
+                decoding="async"
+                fetchPriority="high"
               />
             </div>
             <div className="home-intro-overlay__loading">
@@ -355,7 +377,11 @@ export function HomePageIntro({ pageRef, headerFocusRef }: HomePageIntroProps) {
   );
 
   const unlockPage = useCallback(() => {
-    document.documentElement.classList.remove("home-intro-play", "home-intro-reveal-active");
+    document.documentElement.classList.remove(
+      "home-intro-play",
+      "home-intro-reveal-active",
+      "home-intro-splatter-motion",
+    );
     document.body.style.overflow = "";
     const page = pageRef.current;
     if (page) {
