@@ -7014,6 +7014,7 @@ html.home-intro-play.home-intro-reveal-active .home-page {
 .home-intro-overlay--reveal .home-intro-overlay__ink--backdrop {
   z-index: 4;
 }
+.home-intro-overlay--wipe,
 .home-intro-overlay--reveal {
   pointer-events: none;
 }

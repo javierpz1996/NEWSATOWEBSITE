@@ -200,6 +200,7 @@ function HomePageIntroCycle({ pageRef, loopPreview, onCycleComplete }: IntroCycl
       }
 
       document.documentElement.classList.add("home-intro-reveal-active");
+      document.body.style.overflow = "";
       const page = pageRef.current;
       if (page) {
         page.removeAttribute("inert");

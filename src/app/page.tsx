@@ -54,20 +54,20 @@ export default function Home() {
     }
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const durationMs = reducedMotion ? 2000 : 7200;
+    const durationMs = reducedMotion ? 1600 : 2800;
 
     const animation = shift.animate(
       [
         { transform: "translate3d(0, 0, 0)" },
-        { transform: "translate3d(-36px, 0, 0)", offset: 0.35 },
-        { transform: "translate3d(-22px, 0, 0)", offset: 0.58 },
-        { transform: "translate3d(4px, 0, 0)", offset: 0.82 },
+        { transform: "translate3d(-34px, 0, 0)", offset: 0.38 },
+        { transform: "translate3d(8px, 0, 0)", offset: 0.62 },
+        { transform: "translate3d(-14px, 0, 0)", offset: 0.8 },
         { transform: "translate3d(0, 0, 0)" },
       ],
       {
         duration: durationMs,
         iterations: Infinity,
-        easing: "cubic-bezier(0.34, 1.25, 0.64, 1)",
+        easing: "cubic-bezier(0.34, 1.35, 0.55, 1)",
         fill: "auto",
       },
     );
