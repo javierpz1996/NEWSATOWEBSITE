@@ -90,7 +90,7 @@ function SocialLinkItem({ link }: { link: SocialLink }) {
 
 export function HomeSnsBar() {
   return (
-    <section className="home-sns" aria-label="Redes sociales">
+    <section id="home-sns" className="home-sns" aria-label="Redes sociales">
       <div className="home-sns-inner">
         <div className="home-sns-frame" aria-hidden="true">
           <span className="home-sns-corner home-sns-corner-tl" />

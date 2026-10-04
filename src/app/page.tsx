@@ -7,15 +7,20 @@ import Image from "next/image";
 import { HomeAnimations } from "@/components/layout/home-animations";
 import { HomeArtistLockup } from "@/components/layout/home-artist-lockup";
 import { HomeContact } from "@/components/layout/home-contact";
+import { HomeCookieConsent } from "@/components/layout/home-cookie-consent";
 import { HomeCommissionsOpen } from "@/components/layout/home-commissions-open";
 import { HomeFaq } from "@/components/layout/home-faq";
+import { HomeSectionsDotBook } from "@/components/layout/home-sections-dot-book";
+import { HomeSectionsDotBorders } from "@/components/layout/home-sections-dot-borders";
 import { HomePageIntro } from "@/components/layout/home-page-intro";
 import { HomePageTop } from "@/components/layout/home-page-top";
+import { HomeScrollRightSquare } from "@/components/layout/home-scroll-right-square";
 import { HomePortalMenuModal } from "@/components/layout/home-portal-menu-modal";
-import {
-  HomePortalMenuTrigger,
-  type HomePortalMenuTriggerHandle,
-} from "@/components/layout/home-portal-menu-trigger";
+import { HomeCartDrawer } from "@/components/layout/home-cart-drawer";
+import { HomeCartProvider } from "@/components/layout/home-cart-context";
+import { HomeStickyCart } from "@/components/layout/home-sticky-cart";
+import { HomeHeaderPortalCluster } from "@/components/layout/home-header-portal-cluster";
+import type { HomePortalMenuTriggerHandle } from "@/components/layout/home-portal-menu-trigger";
 import { HomeServices } from "@/components/layout/home-services";
 import { HomeSnsBar } from "@/components/layout/home-sns-bar";
 import {
@@ -35,6 +40,9 @@ const HERO_EDITORIAL_TILES = [
 
 /** Temporary: hide header nav links until routes/sections are ready for launch. */
 const HOME_HEADER_NAV_VISIBLE = false;
+
+/** Temporary: hide left dot strip + book stack on Comisiones → Animaciones. */
+const HOME_SECTIONS_LEFT_DECOR_VISIBLE = false;
 
 export default function Home() {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -133,6 +141,7 @@ export default function Home() {
   return (
     <>
       <HomePageIntro pageRef={pageRef} headerFocusRef={headerFocusRef} />
+      <HomeCartProvider>
       <main ref={pageRef} className="home-page">
       <div className="home-hero-backdrop">
       <header
@@ -164,9 +173,9 @@ export default function Home() {
           ) : null}
           <div className="home-header-portal-cluster">
             <div className="home-header-portal-stack">
-              <HomePortalMenuTrigger
+              <HomeHeaderPortalCluster
                 ref={portalMenuTriggerRef}
-                onClick={schedulePortalMenuOpen}
+                onMenuClick={schedulePortalMenuOpen}
                 onReachMaxStretch={openPortalMenu}
               />
             </div>
@@ -249,11 +258,24 @@ export default function Home() {
 
       <HomeSnsBar />
 
-      <HomeCommissionsOpen />
-      <HomeServices />
-      <HomeAnimations />
+      <div className="home-sections-sidebar-wrap">
+        {HOME_SECTIONS_LEFT_DECOR_VISIBLE ? (
+          <div className="home-sections-left-decor">
+            <HomeSectionsDotBorders />
+            <HomeSectionsDotBook />
+          </div>
+        ) : null}
+
+        <div className="home-sections-sidebar-wrap__main">
+          <HomeCommissionsOpen />
+          <HomeServices />
+          <HomeAnimations />
+        </div>
+      </div>
 
       <HomeFaq />
+
+      <HomeContact />
 
       {isPortalMenuOpen ? <HomePortalMenuModal onClose={closePortalMenu} /> : null}
 
@@ -305,10 +327,6 @@ export default function Home() {
         </div>
       ) : null}
 
-      <HomeContact />
-
-      <HomePageTop headerFocusRef={headerFocusRef} />
-
       <footer className="home-footer">
         <Link href="/" className="home-logo home-footer-brand" aria-label="Inicio">
           <Image
@@ -329,6 +347,12 @@ export default function Home() {
         </nav>
       </footer>
     </main>
+      <HomePageTop headerFocusRef={headerFocusRef} />
+      <HomeScrollRightSquare />
+      <HomeCookieConsent />
+      <HomeStickyCart />
+      <HomeCartDrawer />
+      </HomeCartProvider>
     </>
   );
 }

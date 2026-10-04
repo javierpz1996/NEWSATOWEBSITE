@@ -171,6 +171,11 @@ export function HomePortalMenuModal({ onClose }: HomePortalMenuModalProps) {
                   }`;
                   const content = (
                     <>
+                      {item.comingSoon ? (
+                        <span className="home-portal-menu-modal__coming-soon">
+                          {item.comingSoon}
+                        </span>
+                      ) : null}
                       <span className="home-portal-menu-modal__link-label">{item.label}</span>
                       <span className="home-portal-menu-modal__link-sublabel">{item.sublabel}</span>
                     </>
@@ -179,6 +184,19 @@ export function HomePortalMenuModal({ onClose }: HomePortalMenuModalProps) {
                   const itemStyle = {
                     "--portal-menu-item-delay": `${itemIndex * 42}ms`,
                   } as CSSProperties;
+
+                  if (item.comingSoon) {
+                    return (
+                      <li key={item.id} style={itemStyle}>
+                        <span
+                          className={`${className} is-coming-soon`}
+                          aria-disabled="true"
+                        >
+                          {content}
+                        </span>
+                      </li>
+                    );
+                  }
 
                   if (item.href.startsWith("/")) {
                     return (

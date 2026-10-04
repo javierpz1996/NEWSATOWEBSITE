@@ -5918,6 +5918,17 @@ a:focus-visible, button:focus-visible {
   min-width: 0;
 }
 
+/* Panel del calculador cerrado: sin margen ni píxel de borde/fondo asomando bajo el botón. */
+.home-service-card-calc-block .home-service-card-details-clip[aria-hidden="true"] {
+  margin-top: 0;
+}
+
+.home-service-card-calc-block .home-service-card-details-clip[aria-hidden="true"] .home-service-card-details-inner {
+  visibility: hidden;
+  min-height: 0;
+  padding-bottom: 0;
+}
+
 .home-service-card-calc:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
@@ -6041,9 +6052,8 @@ a:focus-visible, button:focus-visible {
   flex: 1;
   flex-direction: column;
   gap: clamp(14px, 1.8vh, 18px);
-  padding-top: clamp(12px, 1.5vh, 16px);
+  padding-top: clamp(8px, 1vh, 12px);
   padding-bottom: clamp(10px, 1.2vh, 14px);
-  border-top: 1px solid var(--border);
 }
 
 .home-service-card-details .home-service-card-calc {
@@ -6098,8 +6108,7 @@ a:focus-visible, button:focus-visible {
   flex: 1;
   flex-direction: column;
   gap: clamp(14px, 1.8vh, 18px);
-  padding-top: clamp(12px, 1.5vh, 16px);
-  border-top: 1px solid var(--border);
+  padding-top: clamp(8px, 1vh, 12px);
 }
 
 .home-service-card-details-separator {
@@ -6154,8 +6163,9 @@ a:focus-visible, button:focus-visible {
   background: color-mix(in srgb, var(--foreground) 5%, var(--background) 95%);
 }
 
-.home-service-card-details.home-service-order-panel {
-  border: 1px solid var(--border);
+.home-service-card-calc-block .home-service-card-details-clip:not([aria-hidden="true"]) .home-service-order-panel {
+  margin-top: clamp(8px, 1vh, 12px);
+  padding: clamp(12px, 1.5vh, 16px);
   background: color-mix(in srgb, var(--foreground) 3%, var(--background) 97%);
 }
 

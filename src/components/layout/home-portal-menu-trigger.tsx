@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { HomeCartIconButton } from "@/components/layout/home-cart-icon-button";
+import { HOME_CART_BUTTON_ID } from "@/lib/home-cart";
 import {
   forwardRef,
   useCallback,
@@ -61,7 +63,9 @@ export type HomePortalMenuTriggerHandle = {
 };
 
 type HomePortalMenuTriggerProps = {
-  onClick?: () => void;
+  onMenuClick?: () => void;
+  onCartClick?: () => void;
+  cartItemCount?: number;
   /** Fires once each time the bar reaches max stretch (cat2). */
   onReachMaxStretch?: () => void;
 };
@@ -69,7 +73,10 @@ type HomePortalMenuTriggerProps = {
 export const HomePortalMenuTrigger = forwardRef<
   HomePortalMenuTriggerHandle,
   HomePortalMenuTriggerProps
->(function HomePortalMenuTrigger({ onClick, onReachMaxStretch }, ref) {
+>(function HomePortalMenuTrigger(
+  { onMenuClick, onCartClick, cartItemCount = 0, onReachMaxStretch },
+  ref,
+) {
   const blotchPatternId = useId().replace(/:/g, "");
   const blotchEdgeFilterId = useId().replace(/:/g, "");
   const blockRef = useRef<HTMLDivElement>(null);
@@ -194,13 +201,13 @@ export const HomePortalMenuTrigger = forwardRef<
           } as CSSProperties
         }
       >
-        <button
-          type="button"
-          className="home-portal-menu-trigger"
-          aria-label="Portal menu"
-          onClick={onClick}
-        >
-          <span className="home-portal-menu-kanji-row">
+        <div className="home-portal-menu-kanji-row">
+          <button
+            type="button"
+            className="home-portal-menu-trigger"
+            aria-label="Portal menu"
+            onClick={onMenuClick}
+          >
             <span className="home-portal-menu-kanji-arrow" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -212,9 +219,14 @@ export const HomePortalMenuTrigger = forwardRef<
                 />
               </svg>
             </span>
-            <span className="home-portal-menu-kanji">案内</span>
-          </span>
-        </button>
+          </button>
+          <HomeCartIconButton
+            id={HOME_CART_BUTTON_ID}
+            className="home-portal-menu-cart-btn"
+            itemCount={cartItemCount}
+            onClick={() => onCartClick?.()}
+          />
+        </div>
         <div className="home-portal-menu-label-rule-row">
           <div
             className="home-portal-menu-label-rule"
@@ -259,7 +271,7 @@ export const HomePortalMenuTrigger = forwardRef<
             aria-hidden="true"
           />
         </div>
-        <button type="button" className="home-portal-menu-label" onClick={onClick}>
+        <button type="button" className="home-portal-menu-label" onClick={onMenuClick}>
           PORTAL MENU
         </button>
       </div>

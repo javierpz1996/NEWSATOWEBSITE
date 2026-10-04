@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArtworkCarousel } from "@/components/artwork-carousel";
+import { useHomeCart } from "@/components/layout/home-cart-context";
 import { HomeServicesNsfwGate } from "@/components/layout/home-services-nsfw-gate";
 import { motion, type Variants } from "motion/react";
 import {
@@ -76,8 +77,6 @@ const SIMPLISTA_POSE_SHEET_INCLUDES = [
   "1 chibi, cabeza o accesorios",
   "Fondo plano",
 ];
-
-const CONTACT_EMAIL = "hola@example.com";
 
 const simplistaColoreadoCard: ServiceCard = {
   id: "simplista-colored",
@@ -160,8 +159,9 @@ function SimplistaOrderBuilder({
   variants: Variants;
 }) {
   const [order, setOrder] = useState<SimplistaOrderState>(defaultSimplistaOrder);
+  const { addPurchaseToCart } = useHomeCart();
 
-  const { lineItems, totalUsd, purchaseHref } = useMemo(() => {
+  const { lineItems, totalUsd } = useMemo(() => {
     const base = SIMPLISTA_BASE_OPTIONS.find((option) => option.id === order.baseId)!;
     const items: { label: string; priceUsd: number }[] = [{ label: base.label, priceUsd: base.priceUsd }];
 
@@ -179,21 +179,19 @@ function SimplistaOrderBuilder({
     }
 
     const total = items.reduce((sum, item) => sum + item.priceUsd, 0);
-    const bodyLines = [
-      `Servicio: ${serviceTitle}`,
-      "",
-      "Pedido:",
-      ...items.map((item) => `- ${item.label}: ${formatUsd(item.priceUsd)}`),
-      "",
-      `Total estimado: ${formatUsd(total)}`,
-    ];
+    return { lineItems: items, totalUsd: total };
+  }, [bundle.title, order]);
 
-    const purchaseHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
-      `Comisión — ${serviceTitle}`,
-    )}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
-
-    return { lineItems: items, totalUsd: total, purchaseHref };
-  }, [bundle.title, order, serviceTitle]);
+  const handleAddToCart = () => {
+    addPurchaseToCart({
+      serviceTitle,
+      lines: lineItems.map((item) => ({
+        label: item.label,
+        priceUsd: item.priceUsd,
+      })),
+      totalUsd,
+    });
+  };
 
   const baseFieldName = useId();
 
@@ -334,12 +332,16 @@ function SimplistaOrderBuilder({
 
       <ServiceCardDetailsSection variants={variants}>
         <div className="home-service-order-actions">
-          <Link className="home-service-card-cta home-service-card-cta-primary" href={purchaseHref}>
+          <button
+            type="button"
+            className="home-service-card-cta home-service-card-cta-primary"
+            onClick={handleAddToCart}
+          >
             Comprar
             <span className="home-service-card-cta-arrow" aria-hidden="true">
               →
             </span>
-          </Link>
+          </button>
         </div>
       </ServiceCardDetailsSection>
     </>
@@ -350,17 +352,15 @@ function SimplistaOrderBuilder({
 const MOTION_EASE_OUT = [0.23, 1, 0.32, 1] as const;
 const MOTION_EASE_IN_OUT = [0.77, 0, 0.175, 1] as const;
 const MOTION_EASE_DRAWER = [0.32, 0.72, 0, 1] as const;
-/** Durations mirror `--motion-details-*` in globals.css. */
-const DETAILS_OPEN_GRID_DURATION = 18;
-const DETAILS_CLOSE_GRID_DURATION = 2.05;
-const DETAILS_ITEM_DURATION = 5.5;
-const DETAILS_STAGGER = 1.15;
-const DETAILS_DELAY_CHILDREN = 2.75;
+/** Accordion expand/collapse — keep under ~400ms for the grid; stagger stays subtle. */
+const DETAILS_OPEN_GRID_DURATION = 0.38;
+const DETAILS_CLOSE_GRID_DURATION = 0.28;
+const DETAILS_ITEM_DURATION = 0.26;
+const DETAILS_STAGGER = 0.055;
+const DETAILS_DELAY_CHILDREN = 0.06;
+const DETAILS_TOGGLE_ARROW_DURATION = 0.22;
 const DETAILS_ITEM_OFFSET = "translateY(0.4rem)";
 const DETAILS_ITEM_REST = "translateY(0)";
-
-/** ~clamp(8px, 1vh, 12px) — valor numérico para interpolar sin salto de layout. */
-const DETAILS_SEPARATOR_MARGIN_PX = 10;
 
 function getDetailsRevealTransition(reduceMotion: boolean, isOpen: boolean) {
   if (reduceMotion) {
@@ -370,18 +370,6 @@ function getDetailsRevealTransition(reduceMotion: boolean, isOpen: boolean) {
   const ease = isOpen ? MOTION_EASE_OUT : MOTION_EASE_DRAWER;
   return {
     gridTemplateRows: { duration, ease },
-  };
-}
-
-function getDetailsSeparatorTransition(reduceMotion: boolean, isOpen: boolean) {
-  if (reduceMotion) {
-    return { duration: 0.12, ease: MOTION_EASE_OUT };
-  }
-  const duration = isOpen ? DETAILS_OPEN_GRID_DURATION : DETAILS_CLOSE_GRID_DURATION;
-  const ease = isOpen ? MOTION_EASE_OUT : MOTION_EASE_DRAWER;
-  return {
-    gridTemplateRows: { duration, ease },
-    marginTop: { duration, ease },
   };
 }
 
@@ -427,29 +415,6 @@ function getDetailsContentMotion(reduceMotion: boolean) {
       },
     },
   };
-}
-
-function ServiceCardDetailsSeparator({
-  isOpen,
-  reduceMotion,
-}: {
-  isOpen: boolean;
-  reduceMotion: boolean;
-}) {
-  return (
-    <motion.div
-      className="home-service-card-details-separator"
-      aria-hidden={!isOpen}
-      initial={false}
-      animate={{
-        gridTemplateRows: isOpen ? "1fr" : "0fr",
-        marginTop: isOpen ? DETAILS_SEPARATOR_MARGIN_PX : 0,
-      }}
-      transition={getDetailsSeparatorTransition(reduceMotion, isOpen)}
-    >
-      <div className="home-service-card-details-separator-bar" />
-    </motion.div>
-  );
 }
 
 function ServiceCardDetailsReveal({
@@ -592,7 +557,7 @@ function ServiceCardItem({
                     transform: detailsOpen ? "rotate(-90deg)" : "rotate(0deg)",
                   }}
                   transition={{
-                    duration: reduceMotion ? 0 : detailsOpen ? 4.2 : 1.05,
+                    duration: reduceMotion ? 0 : DETAILS_TOGGLE_ARROW_DURATION,
                     ease: MOTION_EASE_OUT,
                   }}
                 >
@@ -600,7 +565,6 @@ function ServiceCardItem({
                 </motion.span>
               </button>
               <div className="home-service-card-details-expand">
-                <ServiceCardDetailsSeparator isOpen={detailsOpen} reduceMotion={reduceMotion} />
                 <ServiceCardDetailsReveal
                   panelId={detailsPanelId}
                   isOpen={detailsOpen}
@@ -652,7 +616,7 @@ function ServiceCardItem({
                           transform: isOrderOpen ? "rotate(-90deg)" : "rotate(0deg)",
                         }}
                         transition={{
-                          duration: reduceMotion ? 0 : isOrderOpen ? 4.2 : 1.05,
+                          duration: reduceMotion ? 0 : DETAILS_TOGGLE_ARROW_DURATION,
                           ease: MOTION_EASE_OUT,
                         }}
                       >
@@ -660,7 +624,6 @@ function ServiceCardItem({
                       </motion.span>
                     </button>
                     <div className="home-service-card-details-expand">
-                      <ServiceCardDetailsSeparator isOpen={isOrderOpen} reduceMotion={reduceMotion} />
                       <ServiceCardDetailsReveal
                         panelId={orderPanelId}
                         isOpen={isOrderOpen}
