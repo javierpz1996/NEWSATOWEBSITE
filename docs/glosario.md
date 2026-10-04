@@ -16,7 +16,7 @@ Es el que usamos (no el Pages Router).
 
 **Alternate links (`hreflang`)**
 Etiquetas en el `<head>` que le dicen al buscador qué URL corresponde a cada
-idioma (`/es/galeria` ↔ `/en/galeria`). Las genera next-intl.
+idioma (`/es/works` ↔ `/en/works`). Las genera next-intl.
 
 **Build estático (SSG)**
 Página compilada a HTML en el momento del deploy, no renderizada por request.

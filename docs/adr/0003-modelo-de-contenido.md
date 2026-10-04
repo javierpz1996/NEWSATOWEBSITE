@@ -9,7 +9,7 @@
 Hay tres tipos de contenido y cada uno tiene un origen distinto:
 
 1. **Obras / ilustraciones** — imágenes que crecen con el tiempo.
-2. **Textos narrativos** — home, commissions, sobre-mi, contacto, en dos idiomas.
+2. **Textos narrativos** — home, commissions, about, contact, en dos idiomas.
 3. **Strings de UI** — botones, labels, metaetiquetas, también en dos idiomas.
 
 ## Decisión
@@ -37,7 +37,7 @@ hay que migrar nada para adoptarlo.
 ### 2. Textos de páginas: MDX local
 
 ```
-src/content/<locale>/<pagina>.mdx     # es/ y en/
+src/content/<locale>/<page>.mdx     # es/ y en/
 ```
 
 - Colecciones por carpeta de locale (paralelo a `messages/`, para que la

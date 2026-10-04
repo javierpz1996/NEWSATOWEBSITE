@@ -27,6 +27,9 @@
 8. SEO completa (OG, sitemap, robots) — ADR-0005
 9. Contenido placeholder en ambos idiomas — ADR-0003
 10. Tooling: pnpm, `src/`, ESLint flat, TS estricto, React Compiler y Cache Components **apagados** — ADR-0001
+11. **Código, rutas y nombres de archivo en inglés** (`/works`, `/about`, `/contact`); `docs/` en español — AGENTS.md
+12. **Reglas permanentes centralizadas en `AGENTS.md`**, sin duplicarlas en `docs/` (2026-10-02)
+13. Verificación obligatoria `pnpm build && pnpm lint && pnpm typecheck`; sin tests ni CI — AGENTS.md
 
 ## Fases
 
@@ -35,7 +38,7 @@
 | 0 | Docs de decisión | ✅ | `PLAN.md`, `docs/adr/0001…0005`, `docs/glosario.md` |
 | 1 | Scaffold | ✅ | Next 16.3.8 + TS + Tailwind v4 + ESLint + `src/` + pnpm |
 | 2 | shadcn/ui | ⏳ | `shadcn init` + componentes base + `next-themes` |
-| 3 | i18n (next-intl) | ⏳ | `[locale]`, `proxy.ts`, dictionaries, redirect `/` → `/es` |
+| 3 | i18n (next-intl) | ⏳ | `[locale]`, `proxy.ts`, `messages/` es·en, redirect `/` → `/es` |
 | 4 | Layout y rutas | ⏳ | Header/nav + footer con redes + locale switcher + theme toggle + 5 páginas placeholder |
 | 5 | Galería | ⏳ | Escaneo de `public/works/**`, grid responsive, `Dialog` con zoom |
 | 6 | SEO | ⏳ | `generateMetadata` por locale, OG images, `sitemap.ts`, `robots.ts` |
@@ -49,10 +52,10 @@ src/
 │   ├── [locale]/
 │   │   ├── layout.tsx            # header, footer, providers
 │   │   ├── page.tsx              # home
-│   │   ├── galeria/page.tsx      # grid + modal zoom
+│   │   ├── works/page.tsx        # grid + modal zoom
 │   │   ├── commissions/page.tsx
-│   │   ├── sobre-mi/page.tsx
-│   │   └── contacto/page.tsx
+│   │   ├── about/page.tsx
+│   │   └── contact/page.tsx
 │   ├── layout.tsx                # root layout
 │   ├── sitemap.ts  robots.ts  opengraph-image.tsx  icon.tsx
 │   └── not-found.tsx / error.tsx / loading.tsx
@@ -60,9 +63,8 @@ src/
 │   ├── ui/                       # shadcn (código tuyo, editable)
 │   ├── layout/                   # header, footer, nav, locale-switcher, theme-toggle
 │   └── gallery/                  # gallery-grid, work-modal
-├── content/<locale>/             # MDX: home, commissions, sobre-mi, contacto
+├── content/<locale>/             # MDX: home, commissions, about, contact
 ├── i18n/                         # routing.ts, request.ts, navigation.ts
-├── dictionaries/ → messages/     # es.json, en.json (next-intl)
 ├── lib/  hooks/  styles/
 └── proxy.ts                      # antes middleware.ts (Next 16)
 messages/                         # es.json · en.json
@@ -96,6 +98,13 @@ pnpm typecheck  # tsc --noEmit
 - **`._*`** (resource forks de macOS, propios de este volumen) se limpian con
   `find . -name '._*' -not -path './node_modules/*' -not -path './.next/*' -delete`
   y ya están excluidos de git y de ESLint.
+- **El volumen es ExFAT** (`/Volumes/Disco exter`). Es la causa de los `._*` y de que
+  la caché de Turbopack se corrompiera: `next dev` o `next build` fallaban con
+  `Failed to open database … invalid digit found in string`.
+  **Solución aplicada (2026-10-02)**: `experimental.turbopackFileSystemCacheForDev` y
+  `…ForBuild` en `next.config.ts` quedaron en `false` (opt-out documentado en las docs
+  de Next 16.3). Consecuencia: arranques de `dev` y `build` un poco más lentos, pero sin
+  corrupción. Si algún día el proyecto se muda a un disco APFS, se pueden volver a `true`.
 - `pnpm dev` ocupó el puerto **3001** porque el **3000 estaba tomado** por el
   dev server de otro proyecto (`mi-trabajo`). Si 3001 no es el esperado, revisar
   qué más está corriendo.

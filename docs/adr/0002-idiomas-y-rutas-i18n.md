@@ -7,7 +7,7 @@
 ## Contexto
 
 El sitio tiene dos idiomas: español e inglés. Las URLs deben ser indexables y
-compartibles (`/es/galeria`, `/en/galeria`) y el visitante sin prefijo debe
+compartibles (`/es/works`, `/en/works`) y el visitante sin prefijo debe
 caer en un idioma razonable.
 
 ## Decisión

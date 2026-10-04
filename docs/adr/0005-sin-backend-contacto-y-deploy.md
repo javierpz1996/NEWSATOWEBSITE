@@ -22,7 +22,7 @@ definir el alcance de backend, la estrategia de contacto y dónde se deploya.
 
 ### 2. Contacto: email + redes directos
 
-- Botón `mailto:` con asunto precargado (`[Commission] …`) en `/[locale]/contacto`.
+- Botón `mailto:` con asunto precargado (`[Commission] …`) en `/[locale]/contact`.
 - Links a las redes de la artista en el footer y en la página de contacto.
 - **Sin formulario con backend** en esta base. Si más adelante se necesita, el
   camino previsto es un Route Handler + Resend (queda como ADR futuro).

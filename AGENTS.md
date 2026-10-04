@@ -1,3 +1,123 @@
+# AGENTS.md — NewSatoWeb
 
+Portfolio personal de una artista/dibujante. Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · shadcn/ui · ES/EN · 100% estático · deploy en Vercel.
+
+> **Qué versus por qué**: este archivo tiene reglas (qué hacer). El porqué vive en
+> [`docs/adr/`](docs/adr/). No se duplica información: si una regla choca con un ADR, se discute el ADR.
+
+## Cómo usar este archivo
+
+1. Las reglas de **Reglas permanentes** son inviolables.
+2. Antes de escribir código de Next.js, leé las **docs versionadas** al final de este archivo (las de tu memoria de entrenamiento pueden estar desactualizadas).
+3. Dudas de plan/estado → [`PLAN.md`](PLAN.md). Duda de un término → [`docs/glosario.md`](docs/glosario.md).
+
+---
+
+## Reglas permanentes
+
+### 1. Verificación — nada queda "terminado" sin esto
+
+```bash
+pnpm build && pnpm lint && pnpm typecheck
+```
+
+Los tres en verde. No hay CI ni tests: esta verificación **es** la puerta. Si hay UI nueva,
+además recorrerla en el navegador.
+
+### 2. Next.js
+
+- **No editar** el bloque `<!-- NEXT-AGENTS-MD-START … END -->` (lo genera `next dev` y el
+  codemod `agents-md`; si lo tocás se regenera igual). Todo lo propio va **fuera** del bloque.
+- **`src/proxy.ts`**, con `export function proxy()`. `middleware.ts` está deprecado en Next 16.
+- `params` y `searchParams` siempre se `await`an. Tipos: `PageProps<'/ruta'>`, `LayoutProps`.
+- **No habilitar** `cacheComponents`, PPR ni `reactCompiler` sin un ADR nuevo que lo justifique.
+- Toda imagen pasa por `next/image`. Nunca `<img>`.
+- No `output: 'export'`, no `next/legacy/image`, no Pages Router.
+
+### 3. Idiomas y rutas (next-intl)
+
+- Rutas **en inglés** bajo `[locale]`: `/[locale]/works` · `/about` · `/commissions` · `/contact`.
+  Locales: `es` (default) y `en`.
+- **Ningún texto visible hardcodeado en componentes**: todo sale de
+  `messages/es.json` y `messages/en.json`.
+- Navegación **solo** con los wrappers de [`src/i18n/navigation.ts`](src/i18n/navigation.ts)
+  (`Link`, `useRouter`, `usePathname`, `redirect`). Nunca `next/link` ni `next/navigation`
+  directamente dentro de `[locale]`.
+- Toda página/layout nuevo agrega `generateStaticParams` para `routing.locales` y valida el
+  locale con `hasLocale(routing.locales, locale)` → `notFound()` si no corresponde.
+- **Idioma del código**: inglés (identificadores, comentarios, nombres de archivo, rutas).
+  **Idioma de `docs/`**: español.
+
+### 4. UI, accesibilidad y motion
+
+- Solo **tokens semánticos**: `bg-background`, `text-foreground`, `border-border`, `ring-ring`,
+  `text-muted-foreground`. Nada de `text-black`, `bg-zinc-50` ni hex sueltos en componentes.
+- El design system **aún no existe**: no inventar estética nueva ni agregar paletas paralelas.
+  El checklist de lo que falta está en [`docs/DESIGN-SYSTEM.md`](docs/DESIGN-SYSTEM.md).
+- Accesibilidad no negociable: **foco visible** en todo lo interactivo · modal con **Esc**,
+  foco atrapado y `aria-label` · **alt descriptivo** en cada obra · **contraste AA** en los dos
+  temas · **mobile-first** (1 columna en móvil) · navegación completa por **teclado**.
+- Toda animación respeta **`prefers-reduced-motion`**.
+
+### 5. Componentes, estado y datos
+
+- `src/components/ui/*` es código **editable** (open code de shadcn): se ajusta directo para
+  acercarlo al DS. Componentes compartidos → `src/components/{layout,gallery}/`. Lógica de una
+  sola página → junto a esa página.
+- `'use client'` **solo** cuando hay interactividad real. Por defecto: Server Component.
+- **Sin librería de estado global**: Server Components + `useState`/`useRef` locales.
+- Sin API routes, base de datos, auth ni variables de entorno: el sitio es estático y el
+  contacto es `mailto:` + redes. Cambiar eso exige **un ADR nuevo** (ver
+  [ADR-0005](docs/adr/0005-sin-backend-contacto-y-deploy.md)).
+- **Dependencias**: justificar la nueva y anotarla en el ADR correspondiente **antes** de
+  instalarla.
+
+### 6. Contenido
+
+- Las obras son **archivos de imagen en `public/works/<series>/`**. Nada de obras en otra
+  carpeta, ni assets grandes fuera de ahí, ni URLs remotas sin configurar `remotePatterns`.
+- Todo el contenido actual es **placeholder**: **nunca inventar datos reales de la artista**
+  (nombre, biografía, redes, precios, obra real).
+- Textos largos de página: MDX en `src/content/<locale>/`. Strings de UI: `messages/`.
+
+### 7. Repo
+
+- **Sin secrets**: `.env*` está ignorado y no se commitea. Hoy el proyecto no tiene variables
+  de entorno.
+- Rama `main` directa, commits chicos y siempre con la verificación en verde.
+- Fuera del repo: `.agents/`, `._*` (resource forks de macOS), `.DS_Store`, `node_modules/`,
+  `.next/`, `*.tsbuildinfo`.
+
+---
+
+## Comandos
+
+| Comando | Qué hace |
+|---|---|
+| `pnpm dev` | Dev server con Turbopack (si el 3000 está ocupado arranca en 3001) |
+| `pnpm build` | Build de producción |
+| `pnpm lint` | ESLint (flat config) |
+| `pnpm typecheck` | `tsc --noEmit` |
+
+`pnpm` está en `~/.local/bin`. Si no lo encontrás:
+`export PATH="$HOME/.local/bin:$PATH"`
+
+## Dónde vive qué
+
+| Necesito… | Archivo |
+|---|---|
+| El plan, las fases y su estado | [`PLAN.md`](PLAN.md) |
+| Por qué se decidió algo | [`docs/adr/NNNN-*.md`](docs/adr/) |
+| Qué significa un término | [`docs/glosario.md`](docs/glosario.md) |
+| Reglas visuales / checklist del DS | [`docs/DESIGN-SYSTEM.md`](docs/DESIGN-SYSTEM.md) |
+| Cómo arrancar el proyecto y su entorno | [`PLAN.md`](PLAN.md) → *Notas del entorno* |
+| Docs oficiales de Next 16.3 | Bloque al final de este archivo (versionadas en `node_modules/next/dist/docs/`) |
+
+---
+
+## Docs de Next.js 16.3 — índice generado, no editar
+
+El contenido que sigue lo genera y reescribe Next. Si lo modificás, se restaura en el próximo
+`next dev`. Consultá los archivos en `node_modules/next/dist/docs/` antes de codear Next.
 
 <!-- NEXT-AGENTS-MD-START -->[Next.js Docs Index]|root: ./node_modules/next/dist/docs|STOP. What you remember about Next.js is WRONG for this project. Always search docs and read before any task.|If docs missing, run this command first: npx @next/codemod agents-md --output AGENTS.md|01-app:{._04-glossary.md,._index.md,04-glossary.md}|01-app/01-getting-started:{._01-installation.md,._02-project-structure.md,._03-layouts-and-pages.md,._04-linking-and-navigating.md,._05-server-and-client-components.md,._06-fetching-data.md,._07-mutating-data.md,._08-caching.md,._09-revalidating.md,._10-error-handling.md,._11-css.md,._12-images.md,._13-fonts.md,._14-metadata-and-og-images.md,._15-route-handlers.md,._16-proxy.md,._17-deploying.md,._18-upgrading.md,._index.md,01-installation.md,02-project-structure.md,03-layouts-and-pages.md,04-linking-and-navigating.md,05-server-and-client-components.md,06-fetching-data.md,07-mutating-data.md,08-caching.md,09-revalidating.md,10-error-handling.md,11-css.md,12-images.md,13-fonts.md,14-metadata-and-og-images.md,15-route-handlers.md,16-proxy.md,17-deploying.md,18-upgrading.md}|01-app/02-guides:{._adopting-partial-prefetching.md,._ai-agents.md,._analytics.md,._authentication-with-cache-components.md,._authentication.md,._backend-for-frontend.md,._building.md,._caching-without-cache-components.md,._cdn-caching.md,._ci-build-caching.md,._content-security-policy.md,._css-in-js.md,._custom-server.md,._data-security.md,._debugging.md,._deploying-to-platforms.md,._draft-mode.md,._environment-variables.md,._forms.md,._how-revalidation-works.md,._incremental-static-regeneration-cache-components.md,._incremental-static-regeneration.md,._index.md,._instant-navigation.md,._instrumentation.md,._interactive-apps.md,._internationalization.md,._json-ld.md,._lazy-loading.md,._local-development.md,._mcp.md,._mdx.md,._memory-usage.md,._migrating-to-cache-components.md,._multi-tenant.md,._multi-zones.md,._offline-support.md,._open-telemetry.md,._optimizing-prefetching.md,._package-bundling.md,._ppr-platform-guide.md,._prefetching.md,._preserving-ui-state.md,._preventing-flash-before-hydration.md,._production-checklist.md,._progressive-web-apps.md,._public-static-pages.md,._redirecting.md,._rendering-philosophy.md,._sass.md,._scripts.md,._self-hosting.md,._server-actions.md,._server-and-client-boundary.md,._single-page-applications.md,._static-exports.md,._streaming.md,._tailwind-v3-css.md,._third-party-libraries.md,._videos.md,._view-transitions.md,adopting-partial-prefetching.md,ai-agents.md,analytics.md,authentication-with-cache-components.md,authentication.md,backend-for-frontend.md,building.md,caching-without-cache-components.md,cdn-caching.md,ci-build-caching.md,content-security-policy.md,css-in-js.md,custom-server.md,data-security.md,debugging.md,deploying-to-platforms.md,draft-mode.md,environment-variables.md,forms.md,how-revalidation-works.md,incremental-static-regeneration-cache-components.md,incremental-static-regeneration.md,instant-navigation.md,instrumentation.md,interactive-apps.md,internationalization.md,json-ld.md,lazy-loading.md,local-development.md,mcp.md,mdx.md,memory-usage.md,migrating-to-cache-components.md,multi-tenant.md,multi-zones.md,offline-support.md,open-telemetry.md,optimizing-prefetching.md,package-bundling.md,ppr-platform-guide.md,prefetching.md,preserving-ui-state.md,preventing-flash-before-hydration.md,production-checklist.md,progressive-web-apps.md,public-static-pages.md,redirecting.md,rendering-philosophy.md,sass.md,scripts.md,self-hosting.md,server-actions.md,server-and-client-boundary.md,single-page-applications.md,static-exports.md,streaming.md,tailwind-v3-css.md,third-party-libraries.md,videos.md,view-transitions.md}|01-app/02-guides/client-side-data-fetching:{._index.md,._swr.md,._tanstack-query.md,swr.md,tanstack-query.md}|01-app/02-guides/migrating:{._app-router-migration.md,._from-create-react-app.md,._from-vite.md,._index.md,app-router-migration.md,from-create-react-app.md,from-vite.md}|01-app/02-guides/testing:{._cypress.md,._index.md,._jest.md,._playwright.md,._vitest.md,cypress.md,jest.md,playwright.md,vitest.md}|01-app/02-guides/upgrading:{._codemods.md,._index.md,._version-14.md,._version-15.md,._version-16.md,codemods.md,version-14.md,version-15.md,version-16.md}|01-app/03-api-reference:{._07-edge.md,._08-turbopack.md,._index.md,07-edge.md,08-turbopack.md}|01-app/03-api-reference/01-directives:{._index.md,._use-cache-private.md,._use-cache-remote.md,._use-cache.md,._use-client.md,._use-server.md,use-cache-private.md,use-cache-remote.md,use-cache.md,use-client.md,use-server.md}|01-app/03-api-reference/02-components:{._font.md,._form.md,._image.md,._index.md,._link.md,._script.md,font.md,form.md,image.md,link.md,script.md}|01-app/03-api-reference/03-file-conventions:{._default.md,._dynamic-routes.md,._error.md,._forbidden.md,._index.md,._instrumentation-client.md,._instrumentation.md,._intercepting-routes.md,._layout.md,._loading.md,._mdx-components.md,._middleware.md,._not-found.md,._page.md,._parallel-routes.md,._proxy.md,._public-folder.md,._route-groups.md,._route.md,._src-folder.md,._template.md,._unauthorized.md,default.md,dynamic-routes.md,error.md,forbidden.md,instrumentation-client.md,instrumentation.md,intercepting-routes.md,layout.md,loading.md,mdx-components.md,middleware.md,not-found.md,page.md,parallel-routes.md,proxy.md,public-folder.md,route-groups.md,route.md,src-folder.md,template.md,unauthorized.md}|01-app/03-api-reference/03-file-conventions/01-metadata:{._app-icons.md,._index.md,._manifest.md,._opengraph-image.md,._robots.md,._sitemap.md,app-icons.md,manifest.md,opengraph-image.md,robots.md,sitemap.md}|01-app/03-api-reference/03-file-conventions/02-route-segment-config:{._dynamicParams.md,._index.md,._instant.md,._maxDuration.md,._preferredRegion.md,._prefetch.md,._runtime.md,dynamicParams.md,instant.md,maxDuration.md,preferredRegion.md,prefetch.md,runtime.md}|01-app/03-api-reference/04-functions:{._after.md,._cacheLife.md,._cacheTag.md,._catchError.md,._connection.md,._cookies.md,._draft-mode.md,._fetch.md,._forbidden.md,._generate-image-metadata.md,._generate-metadata.md,._generate-sitemaps.md,._generate-static-params.md,._generate-viewport.md,._headers.md,._image-response.md,._index.md,._io.md,._next-request.md,._next-response.md,._next-root-params.md,._not-found.md,._permanentRedirect.md,._redirect.md,._refresh.md,._revalidatePath.md,._revalidateTag.md,._unauthorized.md,._unstable_cache.md,._unstable_noStore.md,._unstable_rethrow.md,._updateTag.md,._use-link-status.md,._use-offline.md,._use-params.md,._use-pathname.md,._use-report-web-vitals.md,._use-router.md,._use-search-params.md,._use-selected-layout-segment.md,._use-selected-layout-segments.md,._userAgent.md,after.md,cacheLife.md,cacheTag.md,catchError.md,connection.md,cookies.md,draft-mode.md,fetch.md,forbidden.md,generate-image-metadata.md,generate-metadata.md,generate-sitemaps.md,generate-static-params.md,generate-viewport.md,headers.md,image-response.md,io.md,next-request.md,next-response.md,next-root-params.md,not-found.md,permanentRedirect.md,redirect.md,refresh.md,revalidatePath.md,revalidateTag.md,unauthorized.md,unstable_cache.md,unstable_noStore.md,unstable_rethrow.md,updateTag.md,use-link-status.md,use-offline.md,use-params.md,use-pathname.md,use-report-web-vitals.md,use-router.md,use-search-params.md,use-selected-layout-segment.md,use-selected-layout-segments.md,userAgent.md}|01-app/03-api-reference/05-config:{._02-typescript.md,._03-eslint.md,._index.md,02-typescript.md,03-eslint.md}|01-app/03-api-reference/05-config/01-next-config-js:{._adapterPath.md,._allowedDevOrigins.md,._appDir.md,._assetPrefix.md,._authInterrupts.md,._basePath.md,._cacheComponents.md,._cacheHandlers.md,._cacheLife.md,._cacheMaxMemorySize.md,._compress.md,._crossOrigin.md,._cssChunking.md,._deploymentId.md,._devIndicators.md,._distDir.md,._env.md,._expireTime.md,._exportPathMap.md,._generateBuildId.md,._generateEtags.md,._headers.md,._htmlLimitedBots.md,._httpAgentOptions.md,._images.md,._incrementalCacheHandlerPath.md,._index.md,._inlineCss.md,._instrumentationClientInject.md,._logging.md,._mdxRs.md,._onDemandEntries.md,._optimizePackageImports.md,._output.md,._outputHashSalt.md,._pageExtensions.md,._partialPrefetching.md,._poweredByHeader.md,._prefetchInlining.md,._productionBrowserSourceMaps.md,._proxyClientMaxBodySize.md,._reactCompiler.md,._reactMaxHeadersLength.md,._reactStrictMode.md,._redirects.md,._rewrites.md,._sassOptions.md,._serverActions.md,._serverComponentsHmrCache.md,._serverExternalPackages.md,._skipProxyUrlNormalize.md,._skipTrailingSlashRedirect.md,._staleTimes.md,._staticGeneration.md,._supportsImmutableAssets.md,._taint.md,._trailingSlash.md,._transpilePackages.md,._turbopack.md,._turbopackChunking.md,._turbopackFileSystemCache.md,._turbopackIgnoreIssue.md,._turbopackLocalPostcssConfig.md,._turbopackMemoryEviction.md,._turbopackRustReactCompiler.md,._typedRoutes.md,._typescript.md,._urlImports.md,._useLightningcss.md,._useOffline.md,._useTypeScriptCli.md,._webVitalsAttribution.md,._webpack.md,adapterPath.md,allowedDevOrigins.md,appDir.md,assetPrefix.md,authInterrupts.md,basePath.md,cacheComponents.md,cacheHandlers.md,cacheLife.md,cacheMaxMemorySize.md,compress.md,crossOrigin.md,cssChunking.md,deploymentId.md,devIndicators.md,distDir.md,env.md,expireTime.md,exportPathMap.md,generateBuildId.md,generateEtags.md,headers.md,htmlLimitedBots.md,httpAgentOptions.md,images.md,incrementalCacheHandlerPath.md,inlineCss.md,instrumentationClientInject.md,logging.md,mdxRs.md,onDemandEntries.md,optimizePackageImports.md,output.md,outputHashSalt.md,pageExtensions.md,partialPrefetching.md,poweredByHeader.md,prefetchInlining.md,productionBrowserSourceMaps.md,proxyClientMaxBodySize.md,reactCompiler.md,reactMaxHeadersLength.md,reactStrictMode.md,redirects.md,rewrites.md,sassOptions.md,serverActions.md,serverComponentsHmrCache.md,serverExternalPackages.md,skipProxyUrlNormalize.md,skipTrailingSlashRedirect.md,staleTimes.md,staticGeneration.md,supportsImmutableAssets.md,taint.md,trailingSlash.md,transpilePackages.md,turbopack.md,turbopackChunking.md,turbopackFileSystemCache.md,turbopackIgnoreIssue.md,turbopackLocalPostcssConfig.md,turbopackMemoryEviction.md,turbopackRustReactCompiler.md,typedRoutes.md,typescript.md,urlImports.md,useLightningcss.md,useOffline.md,useTypeScriptCli.md,webVitalsAttribution.md,webpack.md}|01-app/03-api-reference/06-cli:{._create-next-app.md,._index.md,._next.md,create-next-app.md,next.md}|01-app/03-api-reference/07-adapters:{._01-configuration.md,._02-creating-an-adapter.md,._03-api-reference.md,._04-testing-adapters.md,._05-routing-with-next-routing.md,._06-implementing-ppr-in-an-adapter.md,._07-runtime-integration.md,._08-invoking-entrypoints.md,._09-output-types.md,._10-routing-information.md,._11-use-cases.md,._12-immutable-static-assets.md,._index.md,01-configuration.md,02-creating-an-adapter.md,03-api-reference.md,04-testing-adapters.md,05-routing-with-next-routing.md,06-implementing-ppr-in-an-adapter.md,07-runtime-integration.md,08-invoking-entrypoints.md,09-output-types.md,10-routing-information.md,11-use-cases.md,12-immutable-static-assets.md}|02-pages:{._index.md}|02-pages/01-getting-started:{._01-installation.md,._02-project-structure.md,._04-images.md,._05-fonts.md,._06-css.md,._11-deploying.md,._index.md,01-installation.md,02-project-structure.md,04-images.md,05-fonts.md,06-css.md,11-deploying.md}|02-pages/02-guides:{._analytics.md,._authentication.md,._babel.md,._ci-build-caching.md,._content-security-policy.md,._css-in-js.md,._custom-server.md,._debugging.md,._draft-mode.md,._environment-variables.md,._forms.md,._incremental-static-regeneration.md,._index.md,._instrumentation.md,._internationalization.md,._lazy-loading.md,._mdx.md,._multi-zones.md,._open-telemetry.md,._package-bundling.md,._post-css.md,._preview-mode.md,._production-checklist.md,._redirecting.md,._sass.md,._scripts.md,._self-hosting.md,._static-exports.md,._tailwind-v3-css.md,._third-party-libraries.md,analytics.md,authentication.md,babel.md,ci-build-caching.md,content-security-policy.md,css-in-js.md,custom-server.md,debugging.md,draft-mode.md,environment-variables.md,forms.md,incremental-static-regeneration.md,instrumentation.md,internationalization.md,lazy-loading.md,mdx.md,multi-zones.md,open-telemetry.md,package-bundling.md,post-css.md,preview-mode.md,production-checklist.md,redirecting.md,sass.md,scripts.md,self-hosting.md,static-exports.md,tailwind-v3-css.md,third-party-libraries.md}|02-pages/02-guides/migrating:{._app-router-migration.md,._from-create-react-app.md,._from-vite.md,._index.md,app-router-migration.md,from-create-react-app.md,from-vite.md}|02-pages/02-guides/testing:{._cypress.md,._index.md,._jest.md,._playwright.md,._vitest.md,cypress.md,jest.md,playwright.md,vitest.md}|02-pages/02-guides/upgrading:{._codemods.md,._index.md,._version-10.md,._version-11.md,._version-12.md,._version-13.md,._version-14.md,._version-9.md,codemods.md,version-10.md,version-11.md,version-12.md,version-13.md,version-14.md,version-9.md}|02-pages/03-building-your-application:{._index.md}|02-pages/03-building-your-application/01-routing:{._01-pages-and-layouts.md,._02-dynamic-routes.md,._03-linking-and-navigating.md,._05-custom-app.md,._06-custom-document.md,._07-api-routes.md,._08-custom-error.md,._index.md,01-pages-and-layouts.md,02-dynamic-routes.md,03-linking-and-navigating.md,05-custom-app.md,06-custom-document.md,07-api-routes.md,08-custom-error.md}|02-pages/03-building-your-application/02-rendering:{._01-server-side-rendering.md,._02-static-site-generation.md,._04-automatic-static-optimization.md,._05-client-side-rendering.md,._index.md,01-server-side-rendering.md,02-static-site-generation.md,04-automatic-static-optimization.md,05-client-side-rendering.md}|02-pages/03-building-your-application/03-data-fetching:{._01-get-static-props.md,._02-get-static-paths.md,._03-get-server-side-props.md,._05-client-side.md,._index.md,01-get-static-props.md,02-get-static-paths.md,03-get-server-side-props.md,05-client-side.md}|02-pages/03-building-your-application/06-configuring:{._12-error-handling.md,._index.md,12-error-handling.md}|02-pages/04-api-reference:{._06-edge.md,._08-turbopack.md,._index.md,06-edge.md,08-turbopack.md}|02-pages/04-api-reference/01-components:{._font.md,._form.md,._head.md,._image-legacy.md,._image.md,._index.md,._link.md,._script.md,font.md,form.md,head.md,image-legacy.md,image.md,link.md,script.md}|02-pages/04-api-reference/02-file-conventions:{._index.md,._instrumentation.md,._proxy.md,._public-folder.md,._src-folder.md,instrumentation.md,proxy.md,public-folder.md,src-folder.md}|02-pages/04-api-reference/03-functions:{._catchError.md,._get-initial-props.md,._get-server-side-props.md,._get-static-paths.md,._get-static-props.md,._index.md,._next-request.md,._next-response.md,._use-params.md,._use-report-web-vitals.md,._use-router.md,._use-search-params.md,._userAgent.md,catchError.md,get-initial-props.md,get-server-side-props.md,get-static-paths.md,get-static-props.md,next-request.md,next-response.md,use-params.md,use-report-web-vitals.md,use-router.md,use-search-params.md,userAgent.md}|02-pages/04-api-reference/04-config:{._01-typescript.md,._02-eslint.md,._index.md,01-typescript.md,02-eslint.md}|02-pages/04-api-reference/04-config/01-next-config-js:{._adapterPath.md,._allowedDevOrigins.md,._assetPrefix.md,._basePath.md,._bundlePagesRouterDependencies.md,._compress.md,._crossOrigin.md,._deploymentId.md,._devIndicators.md,._distDir.md,._env.md,._exportPathMap.md,._generateBuildId.md,._generateEtags.md,._headers.md,._httpAgentOptions.md,._images.md,._index.md,._logging.md,._onDemandEntries.md,._optimizePackageImports.md,._output.md,._pageExtensions.md,._poweredByHeader.md,._productionBrowserSourceMaps.md,._proxyClientMaxBodySize.md,._reactStrictMode.md,._redirects.md,._rewrites.md,._serverExternalPackages.md,._skipProxyUrlNormalize.md,._skipTrailingSlashRedirect.md,._trailingSlash.md,._transpilePackages.md,._turbopack.md,._turbopackChunking.md,._typescript.md,._urlImports.md,._useLightningcss.md,._useTypeScriptCli.md,._webVitalsAttribution.md,._webpack.md,adapterPath.md,allowedDevOrigins.md,assetPrefix.md,basePath.md,bundlePagesRouterDependencies.md,compress.md,crossOrigin.md,deploymentId.md,devIndicators.md,distDir.md,env.md,exportPathMap.md,generateBuildId.md,generateEtags.md,headers.md,httpAgentOptions.md,images.md,logging.md,onDemandEntries.md,optimizePackageImports.md,output.md,pageExtensions.md,poweredByHeader.md,productionBrowserSourceMaps.md,proxyClientMaxBodySize.md,reactStrictMode.md,redirects.md,rewrites.md,serverExternalPackages.md,skipProxyUrlNormalize.md,skipTrailingSlashRedirect.md,trailingSlash.md,transpilePackages.md,turbopack.md,turbopackChunking.md,typescript.md,urlImports.md,useLightningcss.md,useTypeScriptCli.md,webVitalsAttribution.md,webpack.md}|02-pages/04-api-reference/05-cli:{._create-next-app.md,._index.md,._next.md,create-next-app.md,next.md}|02-pages/04-api-reference/06-adapters:{._01-configuration.md,._02-creating-an-adapter.md,._03-api-reference.md,._04-testing-adapters.md,._05-routing-with-next-routing.md,._06-runtime-integration.md,._07-invoking-entrypoints.md,._08-output-types.md,._09-routing-information.md,._10-use-cases.md,._index.md,01-configuration.md,02-creating-an-adapter.md,03-api-reference.md,04-testing-adapters.md,05-routing-with-next-routing.md,06-runtime-integration.md,07-invoking-entrypoints.md,08-output-types.md,09-routing-information.md,10-use-cases.md}|03-architecture:{._accessibility.md,._fast-refresh.md,._index.md,._nextjs-compiler.md,._supported-browsers.md,accessibility.md,fast-refresh.md,nextjs-compiler.md,supported-browsers.md}|04-community:{._01-contribution-guide.md,._02-rspack.md,._index.md,01-contribution-guide.md,02-rspack.md}<!-- NEXT-AGENTS-MD-END -->
