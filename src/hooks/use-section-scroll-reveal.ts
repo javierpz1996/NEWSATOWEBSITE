@@ -22,8 +22,9 @@ export type SectionScrollRevealOptions = {
   rootMargin?: string;
 };
 
-const DESKTOP_ROOT_MARGIN = "-4% 0px 24% 0px";
-const MOBILE_ROOT_MARGIN = "-6% 0px 36% 0px";
+/** Bottom %: reveal before section enters. Top %: stay visible after section scrolls up (past Comisiones, etc.). */
+const DESKTOP_ROOT_MARGIN = "28% 0px 24% 0px";
+const MOBILE_ROOT_MARGIN = "42% 0px 36% 0px";
 const MOBILE_MEDIA = "(max-width: 760px)";
 
 function resolveRootMargin(override?: string): string {
