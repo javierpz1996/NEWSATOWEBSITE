@@ -100,15 +100,19 @@ export function HomeScrollRightSquare() {
           </button>
           <div className="home-scroll-right-square__balloon-content">
             <p id={`${balloonId}-title`} className="home-scroll-right-square__balloon-text">
-              No te olvides de leer los{" "}
-              <Link
-                className="home-scroll-right-square__balloon-rules"
-                href={COMMISSION_RULES_HREF}
-                onClick={() => setBalloonOpen(false)}
-              >
-                <strong>términos de servicio</strong>
-              </Link>
-              .
+              <span className="home-scroll-right-square__balloon-text-line">
+                No te olvides de leer los
+              </span>
+              <span className="home-scroll-right-square__balloon-text-line">
+                <Link
+                  className="home-scroll-right-square__balloon-rules"
+                  href={COMMISSION_RULES_HREF}
+                  onClick={() => setBalloonOpen(false)}
+                >
+                  términos de servicio
+                </Link>
+                .
+              </span>
             </p>
             <figure className="home-scroll-right-square__balloon-milo-figure" aria-hidden="true">
               <Image

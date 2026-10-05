@@ -2997,7 +2997,7 @@ a:focus-visible, button:focus-visible {
   font: 7px var(--font-jetbrains-mono),monospace;
 }
 .home-contact {
-  padding: 90px clamp(28px,13vw,190px) 76px;
+  padding: 56px clamp(28px,13vw,190px) 48px;
   background: #1c1b1d;
   color: #fff;
 }
@@ -3015,8 +3015,8 @@ a:focus-visible, button:focus-visible {
 }
 
 .home-contact h2 {
-  margin: 17px 0 0;
-  font-size: clamp(44px,6vw,73px);
+  margin: 17px 0 0 clamp(64px, 6.8vw, 80px);
+  font-size: clamp(32px, 4.2vw, 52px);
 }
 .home-contact h2 em {
   color: #9f9ca0;
@@ -3156,14 +3156,14 @@ a:focus-visible, button:focus-visible {
     font-size: 6px;
   }
   .home-contact {
-    padding: 65px 26px 58px;
+    padding: 44px 26px 40px;
   }
   .home-contact-row {
     align-items: start;
     flex-direction: column;
   }
   .home-contact h2 {
-    font-size: 54px;
+    font-size: 40px;
   }
   .home-footer {
     align-items: flex-start;

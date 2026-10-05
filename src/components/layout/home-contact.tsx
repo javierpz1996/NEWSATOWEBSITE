@@ -1,11 +1,17 @@
 "use client";
 
+import Image from "next/image";
 import { type FormEvent, useCallback, useRef, useState } from "react";
 import {
   sectionScrollRevealClassName,
   useSectionScrollReveal,
 } from "@/hooks/use-section-scroll-reveal";
 import { buildContactMailtoHref, CONTACT_EMAIL } from "@/lib/contact";
+
+const HOME_CONTACT_ILLUSTRATION_SRC =
+  "/works/placeholder/milo_teo_luki.png" as const;
+const HOME_CONTACT_ILLUSTRATION_WIDTH = 2532;
+const HOME_CONTACT_ILLUSTRATION_HEIGHT = 1908;
 
 export function HomeContact() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -44,19 +50,26 @@ export function HomeContact() {
             <br />
             <em>de una idea?</em>
           </h2>
-          <p
-            className="home-contact-subtitle home-contact-reveal-item home-contact-reveal-item--subtitle"
+          <figure
+            className="home-contact-illustration home-contact-reveal-item home-contact-reveal-item--illustration"
           >
-            Ya sea un proyecto, una colaboración o alguna idea interesante,
-            contactame.
-          </p>
+            <Image
+              className="home-contact-illustration__image"
+              src={HOME_CONTACT_ILLUSTRATION_SRC}
+              alt="Ilustración placeholder de Milo, Teo y Luki"
+              width={HOME_CONTACT_ILLUSTRATION_WIDTH}
+              height={HOME_CONTACT_ILLUSTRATION_HEIGHT}
+              unoptimized
+            />
+          </figure>
         </div>
 
-        <form
-          className="home-contact-form home-contact-reveal-item home-contact-reveal-item--cta"
-          onSubmit={handleSubmit}
-          noValidate
-        >
+        <div className="home-contact-form-slot">
+          <form
+            className="home-contact-form home-contact-reveal-item home-contact-reveal-item--cta"
+            onSubmit={handleSubmit}
+            noValidate
+          >
           <div className="home-contact-form__field">
             <label className="home-contact-form__label" htmlFor="home-contact-email">
               Email
@@ -100,7 +113,8 @@ export function HomeContact() {
               Se abrirá tu correo para confirmar el envío.
             </p>
           )}
-        </form>
+          </form>
+        </div>
       </div>
     </section>
   );
