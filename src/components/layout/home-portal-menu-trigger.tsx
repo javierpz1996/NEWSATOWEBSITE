@@ -1,7 +1,9 @@
 "use client";
 
+import { Menu } from "lucide-react";
 import Image from "next/image";
 import { HomeCartIconButton } from "@/components/layout/home-cart-icon-button";
+import { HomeLocaleSwitcher } from "@/components/layout/home-locale-switcher";
 import { HOME_CART_BUTTON_ID } from "@/lib/home-cart";
 import {
   forwardRef,
@@ -202,30 +204,25 @@ export const HomePortalMenuTrigger = forwardRef<
         }
       >
         <div className="home-portal-menu-kanji-row">
-          <button
-            type="button"
-            className="home-portal-menu-trigger"
-            aria-label="Portal menu"
-            onClick={onMenuClick}
-          >
-            <span className="home-portal-menu-kanji-arrow" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M15 7 L9 12 L15 17"
-                  stroke="currentColor"
-                  strokeWidth="4.25"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-          </button>
+          <HomeLocaleSwitcher />
           <HomeCartIconButton
             id={HOME_CART_BUTTON_ID}
             className="home-portal-menu-cart-btn"
+            variant="nav"
             itemCount={cartItemCount}
             onClick={() => onCartClick?.()}
           />
+          <button
+            type="button"
+            className="home-portal-menu-label home-portal-menu-label--toolbar"
+            aria-label="Abrir menú"
+            onClick={onMenuClick}
+          >
+            <span className="home-portal-menu-label__text">MENU</span>
+            <span className="home-portal-menu-label__icon" aria-hidden="true">
+              <Menu strokeWidth={2.5} />
+            </span>
+          </button>
         </div>
         <div className="home-portal-menu-label-rule-row">
           <div
@@ -258,9 +255,7 @@ export const HomePortalMenuTrigger = forwardRef<
             </svg>
           </div>
           <Image
-            className={`home-portal-menu-label-rule__cat${
-              isAtMaxStretch ? "" : " home-portal-menu-label-rule__cat--tremble"
-            }`}
+            className="home-portal-menu-label-rule__cat"
             src={catSrc}
             alt=""
             width={catWidth}
@@ -271,9 +266,6 @@ export const HomePortalMenuTrigger = forwardRef<
             aria-hidden="true"
           />
         </div>
-        <button type="button" className="home-portal-menu-label" onClick={onMenuClick}>
-          PORTAL MENU
-        </button>
       </div>
     </div>
   );

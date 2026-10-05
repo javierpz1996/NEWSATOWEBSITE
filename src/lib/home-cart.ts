@@ -1,8 +1,17 @@
 export const HOME_CART_STORAGE_KEY = "sato-home-cart" as const;
 export const HOME_CART_BUTTON_ID = "home-cart-button" as const;
 
-/** Scroll offset at or below which the post-purchase sticky cart hides. */
+/** Scroll offset at or below which the sticky cart hides (back at page top). */
 export const HOME_STICKY_CART_TOP_THRESHOLD_PX = 16;
+
+/** Home section: sticky cart appears after scrolling near here. */
+export const HOME_STICKY_CART_REVEAL_SECTION_ID = "comisiones";
+
+/**
+ * How far above the viewport bottom the reveal section’s top must be before showing sticky
+ * (0 = section top at bottom edge; higher = need to scroll more).
+ */
+export const HOME_STICKY_CART_REVEAL_VIEWPORT_RATIO = 0.62;
 
 const HOME_CART_CHANGE_EVENT = "sato-home-cart-change";
 

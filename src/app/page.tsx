@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PORTAL_MENU_AUTO_OPEN_DELAY_MS } from "@/components/layout/home-portal-menu-stretch";
 import Link from "next/link";
 import Image from "next/image";
 import { HomeAnimations } from "@/components/layout/home-animations";
@@ -19,7 +18,7 @@ import { HomePortalMenuModal } from "@/components/layout/home-portal-menu-modal"
 import { HomeCartDrawer } from "@/components/layout/home-cart-drawer";
 import { HomeCartProvider } from "@/components/layout/home-cart-context";
 import { HomeStickyCart } from "@/components/layout/home-sticky-cart";
-import { HomeHeaderPortalCluster } from "@/components/layout/home-header-portal-cluster";
+import { HomeHeaderPortalCluster } from "../components/layout/home-header-portal-cluster";
 import type { HomePortalMenuTriggerHandle } from "@/components/layout/home-portal-menu-trigger";
 import { HomeServices } from "@/components/layout/home-services";
 import { HomeSnsBar } from "@/components/layout/home-sns-bar";
@@ -98,45 +97,16 @@ export default function Home() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isGalleryOpen]);
 
-  const portalMenuOpenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const portalMenuTriggerRef = useRef<HomePortalMenuTriggerHandle>(null);
 
-  const clearPortalMenuOpenTimer = useCallback(() => {
-    if (portalMenuOpenTimerRef.current !== null) {
-      clearTimeout(portalMenuOpenTimerRef.current);
-      portalMenuOpenTimerRef.current = null;
-    }
-  }, []);
-
-  const beginPortalMenuOpen = useCallback(() => {
+  const openPortalMenu = useCallback(() => {
     portalMenuTriggerRef.current?.resetRuleToMinWidth();
     setIsPortalMenuOpen(true);
   }, []);
 
-  const openPortalMenu = useCallback(() => {
-    clearPortalMenuOpenTimer();
-    beginPortalMenuOpen();
-  }, [beginPortalMenuOpen, clearPortalMenuOpenTimer]);
-
-  const schedulePortalMenuOpen = useCallback(() => {
-    clearPortalMenuOpenTimer();
-    if (isPortalMenuOpen) return;
-
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const delayMs = reducedMotion ? 80 : PORTAL_MENU_AUTO_OPEN_DELAY_MS;
-
-    portalMenuOpenTimerRef.current = setTimeout(() => {
-      portalMenuOpenTimerRef.current = null;
-      beginPortalMenuOpen();
-    }, delayMs);
-  }, [beginPortalMenuOpen, clearPortalMenuOpenTimer, isPortalMenuOpen]);
-
   const closePortalMenu = useCallback(() => {
-    clearPortalMenuOpenTimer();
     setIsPortalMenuOpen(false);
-  }, [clearPortalMenuOpenTimer]);
-
-  useEffect(() => () => clearPortalMenuOpenTimer(), [clearPortalMenuOpenTimer]);
+  }, []);
 
   return (
     <>
@@ -175,7 +145,7 @@ export default function Home() {
             <div className="home-header-portal-stack">
               <HomeHeaderPortalCluster
                 ref={portalMenuTriggerRef}
-                onMenuClick={schedulePortalMenuOpen}
+                onMenuClick={openPortalMenu}
                 onReachMaxStretch={openPortalMenu}
               />
             </div>

@@ -5135,7 +5135,7 @@ a:focus-visible, button:focus-visible {
 }
 
 .home-faq-trigger:hover {
-  background: color-mix(in srgb, var(--pastel-rose) 22%, transparent);
+  background: transparent;
 }
 
 .home-faq-trigger:focus-visible {
@@ -5331,8 +5331,8 @@ a:focus-visible, button:focus-visible {
 }
 
 .home-commissions-rules-notice-warning {
-  --home-warning-sign-fill: #ebb72d;
-  --home-warning-sign-ink: #48311e;
+  --home-warning-sign-fill: #ffd400;
+  --home-warning-sign-ink: #5c3810;
   display: flex;
   flex-direction: column;
   align-items: center;

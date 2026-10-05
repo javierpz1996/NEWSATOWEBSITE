@@ -7,6 +7,7 @@ type HomeCartIconButtonProps = {
   onClick: () => void;
   className?: string;
   id?: string;
+  variant?: "default" | "sticky" | "nav";
 };
 
 export function HomeCartIconButton({
@@ -14,8 +15,18 @@ export function HomeCartIconButton({
   onClick,
   className,
   id,
+  variant = "default",
 }: HomeCartIconButtonProps) {
-  const classes = ["home-cart-icon-button", className].filter(Boolean).join(" ");
+  const isChip = variant === "sticky" || variant === "nav";
+  const classes = [
+    "home-cart-icon-button",
+    isChip ? "home-cart-icon-button--chip" : "",
+    variant === "sticky" ? "home-cart-icon-button--sticky" : "",
+    variant === "nav" ? "home-cart-icon-button--nav" : "",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <button
@@ -30,7 +41,7 @@ export function HomeCartIconButton({
       onClick={onClick}
     >
       <span className="home-cart-icon-button__icon" aria-hidden="true">
-        <ShoppingCart strokeWidth={2.25} />
+        <ShoppingCart strokeWidth={isChip ? 2 : 2.25} />
       </span>
       {itemCount > 0 ? (
         <span className="home-cart-icon-button__badge" aria-hidden="true">

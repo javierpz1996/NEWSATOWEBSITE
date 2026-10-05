@@ -5,39 +5,61 @@ import {
   sectionScrollRevealClassName,
   useSectionScrollReveal,
 } from "@/hooks/use-section-scroll-reveal";
+import { COMMISSION_RULES_HREF } from "@/lib/commission-rules-content";
+import {
+  homeCommissionsInProgressPlaceholders,
+  type HomeCommissionInProgress,
+} from "@/lib/home-commission-in-progress";
+import Link from "next/link";
 
-type CommissionStep = {
-  number: string;
-  title: string;
-  description: string;
+function CommissionStepFrame() {
+  return (
+    <div className="home-commissions-step-frame" aria-hidden="true">
+      <span className="home-commissions-step-corner home-commissions-step-corner-tl" />
+      <span className="home-commissions-step-corner home-commissions-step-corner-tr" />
+      <span className="home-commissions-step-corner home-commissions-step-corner-bl" />
+      <span className="home-commissions-step-corner home-commissions-step-corner-br" />
+    </div>
+  );
+}
+
+type CommissionInProgressCardProps = {
+  commission: HomeCommissionInProgress;
+  revealIndex: number;
 };
 
-const commissionSteps: CommissionStep[] = [
-  {
-    number: "01",
-    title: "Contacto",
-    description:
-      "Contactame a través de mis redes sociales y contame tu idea, qué comisión querés y enviame tus referencias.",
-  },
-  {
-    number: "02",
-    title: "Boceto",
-    description:
-      "Una vez aceptada la comisión y recibido el pago inicial, realizaré el boceto para que puedas revisarlo y solicitar correcciones.",
-  },
-  {
-    number: "03",
-    title: "Ilustración final",
-    description:
-      "Con el boceto aprobado, continuaré con el lineart, colores, sombras, iluminación y detalles finales.",
-  },
-  {
-    number: "04",
-    title: "Entrega",
-    description:
-      "Una vez terminado el trabajo y recibido el pago restante, recibirás los archivos finales de tu comisión.",
-  },
-];
+function CommissionInProgressCard({ commission, revealIndex }: CommissionInProgressCardProps) {
+  const titleId = `home-commission-in-progress-title-${commission.id}`;
+
+  return (
+    <article
+      className={`home-commissions-in-progress home-commissions-reveal-item home-commissions-reveal-item--step home-commissions-reveal-item--in-progress home-commissions-reveal-item--in-progress-${revealIndex}`}
+      aria-labelledby={titleId}
+    >
+      <CommissionStepFrame />
+      <div className="home-commissions-in-progress-header">
+        <p className="home-commissions-in-progress-eyebrow">Comisión en curso</p>
+        <div className="home-commissions-in-progress-heading-row">
+          <h3 id={titleId} className="home-commissions-in-progress-title">
+            {commission.serviceTitle}
+          </h3>
+          <span className="home-commissions-in-progress-status">{commission.statusLabel}</span>
+        </div>
+        <p className="home-commissions-in-progress-client">{commission.clientDisplay}</p>
+      </div>
+      <dl className="home-commissions-in-progress-meta">
+        <div className="home-commissions-in-progress-meta-row">
+          <dt>{commission.startedLabel}</dt>
+          <dd>{commission.startedOn}</dd>
+        </div>
+        <div className="home-commissions-in-progress-meta-row">
+          <dt>{commission.etaLabel}</dt>
+          <dd>{commission.etaOn}</dd>
+        </div>
+      </dl>
+    </article>
+  );
+}
 
 export function HomeCommissionsOpen() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -65,37 +87,18 @@ export function HomeCommissionsOpen() {
           Convertí tu idea en una ilustración
         </p>
       </header>
-      <ol className="home-commissions-steps">
-        {commissionSteps.map((step, index) => (
-          <li key={step.number}>
-            <article
-              className={`home-commissions-step home-commissions-reveal-item home-commissions-reveal-item--step home-commissions-reveal-item--step-${index + 1}`}
-            >
-              <div className="home-commissions-step-frame" aria-hidden="true">
-                <span className="home-commissions-step-corner home-commissions-step-corner-tl" />
-                <span className="home-commissions-step-corner home-commissions-step-corner-tr" />
-                <span className="home-commissions-step-corner home-commissions-step-corner-bl" />
-                <span className="home-commissions-step-corner home-commissions-step-corner-br" />
-              </div>
-              <div className="home-commissions-step-heading">
-                <p className="home-commissions-step-number">{step.number}</p>
-                <h3 className="home-commissions-step-title">{step.title}</h3>
-              </div>
-              <p className="home-commissions-step-description">{step.description}</p>
-            </article>
+      <ul className="home-commissions-in-progress-list">
+        {homeCommissionsInProgressPlaceholders.map((commission, index) => (
+          <li key={commission.id}>
+            <CommissionInProgressCard commission={commission} revealIndex={index + 1} />
           </li>
         ))}
-      </ol>
+      </ul>
       <div
         className="home-commissions-rules-notice home-commissions-reveal-item home-commissions-reveal-item--notice"
         role="note"
       >
-        <div className="home-commissions-step-frame" aria-hidden="true">
-          <span className="home-commissions-step-corner home-commissions-step-corner-tl" />
-          <span className="home-commissions-step-corner home-commissions-step-corner-tr" />
-          <span className="home-commissions-step-corner home-commissions-step-corner-bl" />
-          <span className="home-commissions-step-corner home-commissions-step-corner-br" />
-        </div>
+        <CommissionStepFrame />
         <div className="home-commissions-rules-notice-leading">
           <div className="home-commissions-rules-notice-warning" aria-hidden="true">
             <svg viewBox="0 0 96 82" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -116,19 +119,22 @@ export function HomeCommissionsOpen() {
               />
               <circle cx="48" cy="63.5" r="4.5" fill="var(--home-warning-sign-ink)" />
             </svg>
-            <span className="home-commissions-rules-notice-warning-label">危険</span>
           </div>
           <span className="home-commissions-rules-notice-divider" aria-hidden="true" />
         </div>
         <p className="home-commissions-rules-notice-text">
-          Antes de solicitar una comisión, revisá las <strong>reglas</strong> de comisiones.
+          Antes de solicitar una comisión, revisá las{" "}
+          <Link className="home-commissions-rules-notice-text-link" href={COMMISSION_RULES_HREF}>
+            <strong>reglas</strong>
+          </Link>{" "}
+          de comisiones.
         </p>
-        <a className="home-commissions-rules-notice-cta" href="#comisiones">
+        <Link className="home-commissions-rules-notice-cta" href={COMMISSION_RULES_HREF}>
           Ver reglas
           <span className="home-commissions-rules-notice-cta-arrow" aria-hidden="true">
             →
           </span>
-        </a>
+        </Link>
       </div>
     </section>
   );

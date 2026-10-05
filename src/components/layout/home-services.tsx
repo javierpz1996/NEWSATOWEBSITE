@@ -15,6 +15,7 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type MouseEvent,
   type ReactNode,
 } from "react";
 
@@ -159,7 +160,7 @@ function SimplistaOrderBuilder({
   variants: Variants;
 }) {
   const [order, setOrder] = useState<SimplistaOrderState>(defaultSimplistaOrder);
-  const { addPurchaseToCart } = useHomeCart();
+  const { addItem } = useHomeCart();
 
   const { lineItems, totalUsd } = useMemo(() => {
     const base = SIMPLISTA_BASE_OPTIONS.find((option) => option.id === order.baseId)!;
@@ -182,15 +183,18 @@ function SimplistaOrderBuilder({
     return { lineItems: items, totalUsd: total };
   }, [bundle.title, order]);
 
-  const handleAddToCart = () => {
-    addPurchaseToCart({
-      serviceTitle,
-      lines: lineItems.map((item) => ({
-        label: item.label,
-        priceUsd: item.priceUsd,
-      })),
-      totalUsd,
-    });
+  const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
+    addItem(
+      {
+        serviceTitle,
+        lines: lineItems.map((item) => ({
+          label: item.label,
+          priceUsd: item.priceUsd,
+        })),
+        totalUsd,
+      },
+      { flyFrom: event.currentTarget },
+    );
   };
 
   const baseFieldName = useId();
