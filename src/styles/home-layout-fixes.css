@@ -1439,10 +1439,10 @@
 @media (max-width: 760px) {
   .home-hero-backdrop {
     box-sizing: border-box;
-    /* svh = stable when mobile browser chrome shows/hides on scroll (dvh/vh jump). */
-    height: 100svh;
-    min-height: 100svh;
-    max-height: 100svh;
+    height: var(--home-hero-stable-height, 100svh);
+    min-height: var(--home-hero-stable-height, 100svh);
+    max-height: var(--home-hero-stable-height, 100svh);
+    overflow: hidden;
   }
 
   .home-page .home-hero,
@@ -1450,8 +1450,8 @@
     flex: 1 1 auto;
     min-height: 0;
     padding: 0;
-    padding-bottom: clamp(10px, 1.5svh, 16px);
-    overflow: visible;
+    padding-bottom: 12px;
+    overflow: hidden;
   }
 
   .home-page .home-sns {
@@ -1469,7 +1469,7 @@
   }
 
   .home-hero-top-row {
-    --home-hero-editorial-height: clamp(96px, min(17svh, 30vw), 140px);
+    --home-hero-editorial-height: clamp(96px, 28vw, 128px);
     grid-template-columns: minmax(92px, 29vw) minmax(0, 1fr) clamp(22px, 6vw, 28px);
     grid-template-rows: auto;
     min-height: var(--home-hero-editorial-height);
@@ -1574,6 +1574,15 @@
   .home-hero-top-row .home-editorial-strip-hazard .home-editorial-chevron {
     width: clamp(12px, 3.5vw, 15px);
     transform: rotate(90deg);
+  }
+
+  .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-artist-lockup-line,
+  .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-hero-replay-item,
+  .home-hero-top-row.home-hero-replay-active .home-artist-lockup-line,
+  .home-hero-top-row.home-hero-replay-active .home-hero-replay-item {
+    opacity: 1;
+    transform: none;
+    animation: none;
   }
 }
 

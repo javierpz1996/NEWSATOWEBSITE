@@ -26,6 +26,7 @@ import {
   homeHeroReplayRowClassName,
   useHomeHeroReplay,
 } from "@/hooks/use-home-hero-replay";
+import { useHomeHeroStableViewport } from "@/hooks/use-home-hero-stable-viewport";
 import { SATO_LOGO_HEIGHT, SATO_LOGO_SRC, SATO_LOGO_WIDTH } from "@/lib/brand-assets";
 import { HOME_FOOTER_NAV } from "@/lib/home-footer-nav";
 
@@ -51,6 +52,7 @@ export default function Home() {
   const editorialShiftRef = useRef<HTMLDivElement>(null);
   const heroSectionRef = useRef<HTMLElement>(null);
   const heroReplay = useHomeHeroReplay(heroSectionRef);
+  useHomeHeroStableViewport();
   const pageRef = useRef<HTMLElement>(null);
   const headerFocusRef = useRef<HTMLElement>(null);
 
