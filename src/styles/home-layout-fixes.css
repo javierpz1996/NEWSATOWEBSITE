@@ -1437,11 +1437,33 @@
 }
 
 @media (max-width: 760px) {
+  .home-hero-backdrop {
+    box-sizing: border-box;
+    min-height: 100svh;
+    min-height: 100dvh;
+  }
+
   .home-page .home-hero,
   .home-hero {
+    flex: 1 1 auto;
     min-height: 0;
     padding: 0;
-    padding-bottom: clamp(14px, 2.4vh, 28px);
+    padding-bottom: clamp(10px, 1.5vh, 16px);
+    overflow: visible;
+  }
+
+  .home-page .home-sns {
+    margin-top: 0;
+    margin-bottom: clamp(8px, 1.2vh, 14px);
+  }
+
+  .home-page .home-sns-inner {
+    min-height: clamp(72px, 10vh, 88px);
+  }
+
+  .home-page .home-sns-row {
+    min-height: clamp(72px, 10vh, 88px);
+    padding-block: clamp(18px, 2.4vh, 26px);
   }
 
   .home-hero-top-row {
