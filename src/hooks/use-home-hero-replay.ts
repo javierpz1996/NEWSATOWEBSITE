@@ -1,5 +1,6 @@
 "use client";
 
+import { HOME_INTRO_COMPLETE_EVENT } from "@/lib/home-intro-events";
 import { useEffect, useRef, useState, type RefObject } from "react";
 
 export type HomeHeroReplayState = {
@@ -39,11 +40,20 @@ export function useHomeHeroReplay(
       });
     };
 
-    const maybePlayInitialReplay = () => {
-      if (initialReplayDoneRef.current || isIntroPlaying()) return;
+    const tryPlayInitialReplay = (afterIntro: boolean) => {
+      if (initialReplayDoneRef.current) return;
+      if (!afterIntro && isIntroPlaying()) return;
       if (!isHeroSectionInView(node)) return;
       initialReplayDoneRef.current = true;
       playReplayFromHidden();
+    };
+
+    const scheduleAfterIntro = () => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          tryPlayInitialReplay(true);
+        });
+      });
     };
 
     const observer = new IntersectionObserver(
@@ -58,7 +68,7 @@ export function useHomeHeroReplay(
         }
 
         if (!initialReplayDoneRef.current) {
-          maybePlayInitialReplay();
+          tryPlayInitialReplay(false);
           return;
         }
 
@@ -78,7 +88,7 @@ export function useHomeHeroReplay(
     if (isIntroPlaying()) {
       introObserver = new MutationObserver(() => {
         if (!isIntroPlaying()) {
-          maybePlayInitialReplay();
+          scheduleAfterIntro();
         }
       });
       introObserver.observe(document.documentElement, {
@@ -86,12 +96,17 @@ export function useHomeHeroReplay(
         attributeFilter: ["class"],
       });
     } else {
-      requestAnimationFrame(maybePlayInitialReplay);
+      requestAnimationFrame(() => {
+        tryPlayInitialReplay(false);
+      });
     }
+
+    window.addEventListener(HOME_INTRO_COMPLETE_EVENT, scheduleAfterIntro);
 
     return () => {
       observer.disconnect();
       introObserver?.disconnect();
+      window.removeEventListener(HOME_INTRO_COMPLETE_EVENT, scheduleAfterIntro);
     };
   }, [targetRef]);
 

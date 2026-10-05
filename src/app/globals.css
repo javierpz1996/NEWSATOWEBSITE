@@ -6883,6 +6883,9 @@ a:focus-visible, button:focus-visible {
 .home-intro-overlay--loading-out {
   background: var(--home-intro-ink);
 }
+html.home-intro-play:not(.home-intro-reveal-active) {
+  background: var(--home-intro-ink);
+}
 html.home-intro-play:not(.home-intro-reveal-active) .home-page {
   visibility: hidden;
 }

@@ -18,6 +18,7 @@ import {
   waitMs,
 } from "@/lib/home-intro-assets";
 import { HomeIntroLoadingPaws } from "@/components/layout/home-intro-loading-paws";
+import { HOME_INTRO_COMPLETE_EVENT } from "@/lib/home-intro-events";
 import {
   markHomeIntroSeen,
   resolveHomeIntroLoopPreview,
@@ -389,6 +390,7 @@ export function HomePageIntro({ pageRef, headerFocusRef }: HomePageIntroProps) {
       page.removeAttribute("inert");
       page.removeAttribute("aria-hidden");
     }
+    window.dispatchEvent(new Event(HOME_INTRO_COMPLETE_EVENT));
   }, [pageRef]);
 
   const onCycleComplete = useCallback(

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
+import { HomeIntroBlockingScript } from "@/components/layout/home-intro-blocking-script";
 import "./globals.css";
 import "@/styles/home-layout-fixes.css";
 
@@ -29,6 +30,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
+      <head>
+        <HomeIntroBlockingScript />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
