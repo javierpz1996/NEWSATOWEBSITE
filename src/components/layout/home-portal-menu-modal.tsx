@@ -10,10 +10,7 @@ import {
   type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
-import {
-  HOME_PORTAL_MENU_NAV_COLUMNS,
-  HOME_PORTAL_MENU_SHARE_LINKS,
-} from "@/lib/home-portal-menu-nav";
+import { HOME_PORTAL_MENU_NAV_COLUMNS } from "@/lib/home-portal-menu-nav";
 import { SATO_LOGO_HEIGHT, SATO_LOGO_SRC, SATO_LOGO_WIDTH } from "@/lib/brand-assets";
 
 type HomePortalMenuModalProps = {
@@ -22,48 +19,6 @@ type HomePortalMenuModalProps = {
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
-
-function ShareIconX() {
-  return (
-    <svg viewBox="0 0 24 24" width={22} height={22} aria-hidden focusable="false">
-      <path
-        fill="currentColor"
-        d="M13.527 10.896 20.792 3h-2.065l-6.331 7.278L7.479 3H3.214l7.571 10.932L3.214 21h2.065l6.785-7.804 5.429 7.804h4.265l-7.231-10.004Zm-2.489 2.591-.776-1.12-6.241-8.987h2.652l5.038 7.224.776 1.12 6.203 8.883h-2.652l-5.1-7.32Z"
-      />
-    </svg>
-  );
-}
-
-function ShareIconInstagram() {
-  return (
-    <svg viewBox="0 0 24 24" width={22} height={22} aria-hidden focusable="false">
-      <rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" strokeWidth="2" />
-      <circle cx="12" cy="12" r="4.25" fill="none" stroke="currentColor" strokeWidth="2" />
-      <circle cx="17.2" cy="6.8" r="1.15" fill="currentColor" />
-    </svg>
-  );
-}
-
-function ShareIconMail() {
-  return (
-    <svg viewBox="0 0 24 24" width={22} height={22} aria-hidden focusable="false">
-      <path
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M4 7h16v10H4V7Zm0 0 8 6 8-6"
-      />
-    </svg>
-  );
-}
-
-function shareIconFor(id: string) {
-  if (id === "share-x") return <ShareIconX />;
-  if (id === "share-ig") return <ShareIconInstagram />;
-  return <ShareIconMail />;
-}
 
 export function HomePortalMenuModal({ onClose }: HomePortalMenuModalProps) {
   const titleId = useId();
@@ -219,24 +174,6 @@ export function HomePortalMenuModal({ onClose }: HomePortalMenuModalProps) {
               </ul>
             ))}
           </nav>
-        </div>
-
-        <div className="home-portal-menu-modal__share">
-          <span className="home-portal-menu-modal__share-heading">SHARE</span>
-          <ul className="home-portal-menu-modal__share-list">
-            {HOME_PORTAL_MENU_SHARE_LINKS.map((link) => (
-              <li key={link.id}>
-                <a
-                  className="home-portal-menu-modal__share-link"
-                  href={link.href}
-                  aria-label={link.label}
-                  onClick={link.href === "#" ? (event) => event.preventDefault() : undefined}
-                >
-                  {shareIconFor(link.id)}
-                </a>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     </div>

@@ -9,15 +9,10 @@ export type HomeHeroReplayState = {
   replayActive: boolean;
 };
 
-const HOME_HERO_MOBILE_MEDIA = "(max-width: 760px)";
 const HOME_COMMISSIONS_SECTION_ID = "comisiones";
 
 function isIntroPlaying(): boolean {
   return document.documentElement.classList.contains("home-intro-play");
-}
-
-function isMobileHeroViewport(): boolean {
-  return window.matchMedia(HOME_HERO_MOBILE_MEDIA).matches;
 }
 
 function isHeroSectionInView(node: HTMLElement): boolean {
@@ -28,7 +23,7 @@ function isHeroSectionInView(node: HTMLElement): boolean {
 }
 
 /**
- * Mobile: true once the user has scrolled past the bottom of Comisiones abiertas
+ * True once the user has scrolled past the bottom of Comisiones abiertas
  * (only then arm the hero for replay-hide).
  */
 function hasScrolledPastCommissionsEnd(): boolean {
@@ -38,8 +33,8 @@ function hasScrolledPastCommissionsEnd(): boolean {
   return rect.bottom < window.innerHeight * 0.18;
 }
 
-function shouldDeferHeroReplayArmOnMobile(): boolean {
-  return isMobileHeroViewport() && !hasScrolledPastCommissionsEnd();
+function shouldDeferHeroReplayArm(): boolean {
+  return !hasScrolledPastCommissionsEnd();
 }
 
 export function useHomeHeroReplay(
@@ -80,9 +75,9 @@ export function useHomeHeroReplay(
       playReplayFromHidden();
     };
 
-    /** Hide + arm replay (ready ∧ ¬active). On mobile, only after Comisiones ends. */
+    /** Hide + arm replay (ready ∧ ¬active). Only after Comisiones ends. */
     const applyHeroLeftViewport = () => {
-      if (shouldDeferHeroReplayArmOnMobile()) {
+      if (shouldDeferHeroReplayArm()) {
         setReplayActive(true);
         return;
       }
@@ -102,8 +97,8 @@ export function useHomeHeroReplay(
       }
     };
 
-    const evaluateMobileScroll = () => {
-      if (!isMobileHeroViewport() || isIntroPlaying()) return;
+    const evaluateScroll = () => {
+      if (isIntroPlaying()) return;
       if (isHeroSectionInView(node)) {
         applyHeroInViewport();
         return;
@@ -111,31 +106,18 @@ export function useHomeHeroReplay(
       applyHeroLeftViewport();
     };
 
-    let mobileRafId = 0;
-    const scheduleMobileEvaluate = () => {
-      if (!isMobileHeroViewport()) return;
-      if (mobileRafId !== 0) return;
-      mobileRafId = window.requestAnimationFrame(() => {
-        mobileRafId = 0;
-        evaluateMobileScroll();
+    let rafId = 0;
+    const scheduleEvaluate = () => {
+      if (rafId !== 0) return;
+      rafId = window.requestAnimationFrame(() => {
+        rafId = 0;
+        evaluateScroll();
       });
     };
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (isIntroPlaying()) return;
-
-        if (isMobileHeroViewport()) {
-          evaluateMobileScroll();
-          return;
-        }
-
-        if (!entry.isIntersecting) {
-          applyHeroLeftViewport();
-          return;
-        }
-
-        applyHeroInViewport();
+      () => {
+        scheduleEvaluate();
       },
       {
         threshold: 0.35,
@@ -145,9 +127,10 @@ export function useHomeHeroReplay(
 
     observer.observe(node);
 
-    window.addEventListener("scroll", scheduleMobileEvaluate, { passive: true });
-    window.visualViewport?.addEventListener("resize", scheduleMobileEvaluate);
-    window.visualViewport?.addEventListener("scroll", scheduleMobileEvaluate);
+    window.addEventListener("scroll", scheduleEvaluate, { passive: true });
+    window.addEventListener("resize", scheduleEvaluate);
+    window.visualViewport?.addEventListener("resize", scheduleEvaluate);
+    window.visualViewport?.addEventListener("scroll", scheduleEvaluate);
 
     let introObserver: MutationObserver | undefined;
     if (isIntroPlaying()) {
@@ -171,13 +154,16 @@ export function useHomeHeroReplay(
       prepareFirstVisitReplay,
     );
 
+    evaluateScroll();
+
     return () => {
       observer.disconnect();
       introObserver?.disconnect();
-      window.removeEventListener("scroll", scheduleMobileEvaluate);
-      window.visualViewport?.removeEventListener("resize", scheduleMobileEvaluate);
-      window.visualViewport?.removeEventListener("scroll", scheduleMobileEvaluate);
-      if (mobileRafId !== 0) window.cancelAnimationFrame(mobileRafId);
+      window.removeEventListener("scroll", scheduleEvaluate);
+      window.removeEventListener("resize", scheduleEvaluate);
+      window.visualViewport?.removeEventListener("resize", scheduleEvaluate);
+      window.visualViewport?.removeEventListener("scroll", scheduleEvaluate);
+      if (rafId !== 0) window.cancelAnimationFrame(rafId);
       window.removeEventListener(
         HOME_INTRO_PREPARE_FIRST_HERO_REPLAY_EVENT,
         prepareFirstVisitReplay,

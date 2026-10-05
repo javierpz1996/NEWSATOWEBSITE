@@ -196,7 +196,7 @@ export const HomePortalMenuTrigger = forwardRef<
     };
   }, [isAtMaxStretch]);
 
-  const catSrc = showMaxTeoSprite ? PORTAL_MENU_RULE_CAT_AT_MAX_SRC : PORTAL_MENU_RULE_CAT_SRC;
+  const showTeo2Layer = isAtMaxStretch && showMaxTeoSprite;
 
   useEffect(() => {
     const clearReachMaxOpenTimer = () => {
@@ -332,13 +332,26 @@ export const HomePortalMenuTrigger = forwardRef<
           </div>
           <span
             className={`home-portal-menu-label-rule__cat-slot${
-              showMaxTeoSprite ? " home-portal-menu-label-rule__cat-slot--at-max" : ""
+              showTeo2Layer ? " home-portal-menu-label-rule__cat-slot--at-max" : ""
             }`}
             aria-hidden="true"
           >
             <Image
-              className="home-portal-menu-label-rule__cat"
-              src={catSrc}
+              className="home-portal-menu-label-rule__cat home-portal-menu-label-rule__cat--default"
+              src={PORTAL_MENU_RULE_CAT_SRC}
+              alt=""
+              width={PORTAL_MENU_RULE_CAT_WIDTH}
+              height={PORTAL_MENU_RULE_CAT_HEIGHT}
+              style={{
+                aspectRatio: `${PORTAL_MENU_RULE_CAT_WIDTH} / ${PORTAL_MENU_RULE_CAT_HEIGHT}`,
+              }}
+              unoptimized
+              draggable={false}
+              aria-hidden="true"
+            />
+            <Image
+              className="home-portal-menu-label-rule__cat home-portal-menu-label-rule__cat--max"
+              src={PORTAL_MENU_RULE_CAT_AT_MAX_SRC}
               alt=""
               width={PORTAL_MENU_RULE_CAT_WIDTH}
               height={PORTAL_MENU_RULE_CAT_HEIGHT}

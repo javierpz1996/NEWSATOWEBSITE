@@ -22,9 +22,9 @@ export const HOME_PORTAL_MENU_NAV_COLUMNS: HomePortalMenuNavColumn[] = [
       href: "#animaciones",
       comingSoon: "Coming soon",
     },
+    { id: "services", label: "SERVICES", sublabel: "サービス", href: "#comisiones" },
   ],
   [
-    { id: "services", label: "SERVICES", sublabel: "サービス", href: "#comisiones" },
     {
       id: "about",
       label: "ABOUT",
@@ -33,16 +33,8 @@ export const HOME_PORTAL_MENU_NAV_COLUMNS: HomePortalMenuNavColumn[] = [
       comingSoon: "Coming soon",
     },
     { id: "sns", label: "SOCIAL", sublabel: "SNS", href: "#inicio" },
-  ],
-  [
     { id: "official-x", label: "X (Twitter)", sublabel: "公式X", href: "#" },
     { id: "official-ig", label: "INSTAGRAM", sublabel: "公式Instagram", href: "#" },
     { id: "official-yt", label: "YOUTUBE", sublabel: "公式YouTube", href: "#" },
   ],
 ];
-
-export const HOME_PORTAL_MENU_SHARE_LINKS = [
-  { id: "share-x", label: "X", href: "#" },
-  { id: "share-ig", label: "Instagram", href: "#" },
-  { id: "share-mail", label: "Email", href: "mailto:hola@example.com" },
-] as const;
