@@ -1,10 +1,8 @@
 "use client";
 
-import {
-  HOME_HERO_FIRST_REPLAY_ARMED_CLASS,
-  HOME_INTRO_COMPLETE_EVENT,
-} from "@/lib/home-intro-events";
+import { HOME_INTRO_PREPARE_FIRST_HERO_REPLAY_EVENT } from "@/lib/home-intro-events";
 import { useEffect, useRef, useState, type RefObject } from "react";
+import { flushSync } from "react-dom";
 
 export type HomeHeroReplayState = {
   replayReady: boolean;
@@ -34,23 +32,27 @@ export function useHomeHeroReplay(
     const node = targetRef.current;
     if (!node) return;
 
-    const clearFirstReplayArmed = () => {
-      document.documentElement.classList.remove(HOME_HERO_FIRST_REPLAY_ARMED_CLASS);
-    };
-
     const playReplayFromHidden = () => {
       replayReadyRef.current = true;
-      setReplayReady(true);
-      setReplayActive(false);
+      flushSync(() => {
+        setReplayReady(true);
+        setReplayActive(false);
+      });
       requestAnimationFrame(() => {
         setReplayActive(true);
-        clearFirstReplayArmed();
       });
     };
 
     const tryPlayInitialReplay = () => {
       if (initialReplayDoneRef.current) return;
       if (isIntroPlaying()) return;
+      if (!isHeroSectionInView(node)) return;
+      initialReplayDoneRef.current = true;
+      playReplayFromHidden();
+    };
+
+    const prepareFirstVisitReplay = () => {
+      if (initialReplayDoneRef.current) return;
       if (!isHeroSectionInView(node)) return;
       initialReplayDoneRef.current = true;
       playReplayFromHidden();
@@ -101,13 +103,18 @@ export function useHomeHeroReplay(
       });
     }
 
-    window.addEventListener(HOME_INTRO_COMPLETE_EVENT, tryPlayInitialReplay);
+    window.addEventListener(
+      HOME_INTRO_PREPARE_FIRST_HERO_REPLAY_EVENT,
+      prepareFirstVisitReplay,
+    );
 
     return () => {
       observer.disconnect();
       introObserver?.disconnect();
-      window.removeEventListener(HOME_INTRO_COMPLETE_EVENT, tryPlayInitialReplay);
-      clearFirstReplayArmed();
+      window.removeEventListener(
+        HOME_INTRO_PREPARE_FIRST_HERO_REPLAY_EVENT,
+        prepareFirstVisitReplay,
+      );
     };
   }, [targetRef]);
 

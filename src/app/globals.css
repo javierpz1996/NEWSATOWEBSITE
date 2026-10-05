@@ -6886,11 +6886,8 @@ a:focus-visible, button:focus-visible {
 html.home-intro-play:not(.home-intro-reveal-active) {
   background: var(--home-intro-ink);
 }
-html.home-intro-play:not(.home-intro-reveal-active) .home-page {
+html.home-intro-play .home-page {
   visibility: hidden;
-}
-html.home-intro-play.home-intro-reveal-active .home-page {
-  visibility: visible;
 }
 .home-intro-overlay__ink {
   position: absolute;
@@ -7102,17 +7099,12 @@ html.home-intro-reveal-active .home-intro-reveal-header {
   animation: home-intro-header-in 900ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
   animation-delay: 360ms;
 }
-/* Page sits at full opacity under the splatter mask while it opens (see-through holes). */
-html.home-intro-play.home-intro-reveal-active:not(.home-hero-first-replay-armed) .home-intro-reveal-lockup,
-html.home-intro-play.home-intro-reveal-active:not(.home-hero-first-replay-armed) .home-intro-reveal-editorial,
-html.home-intro-play.home-intro-reveal-active:not(.home-hero-first-replay-armed) .home-intro-reveal-hazard {
+/* Page stays hidden during wipe; hero uses scroll-replay after intro unlock. */
+html.home-intro-play.home-intro-reveal-active .home-intro-reveal-lockup,
+html.home-intro-play.home-intro-reveal-active .home-intro-reveal-editorial,
+html.home-intro-play.home-intro-reveal-active .home-intro-reveal-hazard {
   opacity: 1;
   transform: translate3d(0, 0, 0);
-  animation: none;
-}
-html.home-hero-first-replay-armed.home-intro-play .home-intro-reveal-lockup,
-html.home-hero-first-replay-armed.home-intro-play .home-intro-reveal-editorial,
-html.home-hero-first-replay-armed.home-intro-play .home-intro-reveal-hazard {
   animation: none;
 }
 html.home-intro-play.home-intro-reveal-active .home-intro-reveal-header {
