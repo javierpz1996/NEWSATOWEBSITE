@@ -18,28 +18,63 @@ export type SectionScrollRevealState = {
 };
 
 export type SectionScrollRevealOptions = {
-  threshold?: number | number[];
-  rootMargin?: string;
+  /** Viewport height multiplier — reveal before section reaches the fold. */
+  enterLeadVh?: number;
+  /** Extra scroll (in vh) after section bottom leaves the top edge before hiding. */
+  exitLagVh?: number;
+  /** Minimum extra scroll as a fraction of section height (tall blocks like Comisiones). */
+  exitSectionRatio?: number;
 };
 
-/** Bottom %: reveal before section enters. Top %: stay visible after section scrolls up (past Comisiones, etc.). */
-const DESKTOP_ROOT_MARGIN = "28% 0px 24% 0px";
-const MOBILE_ROOT_MARGIN = "42% 0px 36% 0px";
 const MOBILE_MEDIA = "(max-width: 760px)";
 
-function resolveRootMargin(override?: string): string {
-  if (override) return override;
-  if (typeof window === "undefined") return DESKTOP_ROOT_MARGIN;
-  return window.matchMedia(MOBILE_MEDIA).matches
-    ? MOBILE_ROOT_MARGIN
-    : DESKTOP_ROOT_MARGIN;
+const DEFAULT_ENTER_LEAD_VH = { mobile: 0.34, desktop: 0.22 };
+const DEFAULT_EXIT_LAG_VH = { mobile: 0.42, desktop: 0.3 };
+const DEFAULT_EXIT_SECTION_RATIO = { mobile: 0.55, desktop: 0.4 };
+
+function resolveRevealMetrics(options?: SectionScrollRevealOptions, mobile = false) {
+  const defaults = mobile ? DEFAULT_ENTER_LEAD_VH.mobile : DEFAULT_ENTER_LEAD_VH.desktop;
+  const exitDefaults = mobile ? DEFAULT_EXIT_LAG_VH.mobile : DEFAULT_EXIT_LAG_VH.desktop;
+  const exitSectionDefault = mobile
+    ? DEFAULT_EXIT_SECTION_RATIO.mobile
+    : DEFAULT_EXIT_SECTION_RATIO.desktop;
+  return {
+    enterLeadVh: options?.enterLeadVh ?? defaults,
+    exitLagVh: options?.exitLagVh ?? exitDefaults,
+    exitSectionRatio: options?.exitSectionRatio ?? exitSectionDefault,
+  };
+}
+
+/**
+ * Show while the section is approaching or on screen; keep visible after it scrolls up
+ * until the user has moved exitLagVh further down the page.
+ */
+export function computeSectionScrollRevealActive(
+  rect: DOMRect,
+  viewportHeight: number,
+  metrics: { enterLeadVh: number; exitLagVh: number; exitSectionRatio: number },
+): boolean {
+  if (viewportHeight <= 0) return false;
+
+  const enterLeadPx = viewportHeight * metrics.enterLeadVh;
+  const exitLagPx = Math.max(
+    viewportHeight * metrics.exitLagVh,
+    rect.height * metrics.exitSectionRatio,
+  );
+
+  const belowFold = rect.top >= viewportHeight;
+  if (belowFold) return false;
+
+  const approaching = rect.top < viewportHeight + enterLeadPx;
+  const notScrolledPast = rect.bottom > -exitLagPx;
+
+  return approaching && notScrolledPast;
 }
 
 export function useSectionScrollReveal(
   targetRef: RefObject<HTMLElement | null>,
   options?: SectionScrollRevealOptions,
 ): SectionScrollRevealState {
-  const { threshold = 0.05, rootMargin: rootMarginOverride } = options ?? {};
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -48,42 +83,65 @@ export function useSectionScrollReveal(
   const [active, setActive] = useState(false);
   const [ready, setReady] = useState(false);
   const wasActiveRef = useRef(false);
-  const [rootMargin, setRootMargin] = useState(() => resolveRootMargin(rootMarginOverride));
-
-  useEffect(() => {
-    if (rootMarginOverride) return;
-    const media = window.matchMedia(MOBILE_MEDIA);
-    const sync = () => setRootMargin(resolveRootMargin());
-    sync();
-    media.addEventListener("change", sync);
-    return () => media.removeEventListener("change", sync);
-  }, [rootMarginOverride]);
+  const { enterLeadVh, exitLagVh, exitSectionRatio } = options ?? {};
 
   useEffect(() => {
     if (!mounted) return;
     const node = targetRef.current;
     if (!node) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          wasActiveRef.current = true;
-          setActive(true);
-          return;
-        }
+    let rafId = 0;
+    const revealOptions: SectionScrollRevealOptions = {
+      enterLeadVh,
+      exitLagVh,
+      exitSectionRatio,
+    };
 
-        if (wasActiveRef.current) {
-          setReady(true);
-        }
-        setActive(false);
-      },
-      { threshold, rootMargin },
-    );
+    const evaluate = () => {
+      const mobile = window.matchMedia(MOBILE_MEDIA).matches;
+      const metrics = resolveRevealMetrics(revealOptions, mobile);
+      const vh = window.innerHeight;
+      const rect = node.getBoundingClientRect();
+      const nextActive = computeSectionScrollRevealActive(rect, vh, metrics);
 
-    observer.observe(node);
+      if (nextActive) {
+        wasActiveRef.current = true;
+        setActive(true);
+        return;
+      }
 
-    return () => observer.disconnect();
-  }, [mounted, rootMargin, targetRef, threshold]);
+      if (wasActiveRef.current) {
+        setReady(true);
+      }
+      setActive(false);
+    };
+
+    const scheduleEvaluate = () => {
+      if (rafId !== 0) return;
+      rafId = window.requestAnimationFrame(() => {
+        rafId = 0;
+        evaluate();
+      });
+    };
+
+    evaluate();
+    window.addEventListener("scroll", scheduleEvaluate, { passive: true });
+    window.addEventListener("resize", scheduleEvaluate);
+    window.visualViewport?.addEventListener("resize", scheduleEvaluate);
+    window.visualViewport?.addEventListener("scroll", scheduleEvaluate);
+
+    const resizeObserver = new ResizeObserver(scheduleEvaluate);
+    resizeObserver.observe(node);
+
+    return () => {
+      if (rafId !== 0) window.cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", scheduleEvaluate);
+      window.removeEventListener("resize", scheduleEvaluate);
+      window.visualViewport?.removeEventListener("resize", scheduleEvaluate);
+      window.visualViewport?.removeEventListener("scroll", scheduleEvaluate);
+      resizeObserver.disconnect();
+    };
+  }, [enterLeadVh, exitLagVh, exitSectionRatio, mounted, targetRef]);
 
   return { mounted, active, ready };
 }

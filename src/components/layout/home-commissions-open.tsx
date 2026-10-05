@@ -63,7 +63,10 @@ function CommissionInProgressCard({ commission, revealIndex }: CommissionInProgr
 
 export function HomeCommissionsOpen() {
   const sectionRef = useRef<HTMLElement>(null);
-  const reveal = useSectionScrollReveal(sectionRef);
+  const reveal = useSectionScrollReveal(sectionRef, {
+    exitLagVh: 0.48,
+    exitSectionRatio: 0.72,
+  });
 
   return (
     <section
