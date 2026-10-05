@@ -22,8 +22,8 @@ export type SectionScrollRevealOptions = {
   rootMargin?: string;
 };
 
-const DESKTOP_ROOT_MARGIN = "-10% 0px 24% 0px";
-const MOBILE_ROOT_MARGIN = "-16% 0px 36% 0px";
+const DESKTOP_ROOT_MARGIN = "-4% 0px 24% 0px";
+const MOBILE_ROOT_MARGIN = "-6% 0px 36% 0px";
 const MOBILE_MEDIA = "(max-width: 760px)";
 
 function resolveRootMargin(override?: string): string {
