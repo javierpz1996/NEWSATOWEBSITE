@@ -282,6 +282,7 @@ function HomePageIntroCycle({ pageRef, loopPreview, onCycleComplete }: IntroCycl
       }
       if (!isActiveRun()) return;
 
+      window.dispatchEvent(new Event(HOME_INTRO_PREPARE_FIRST_HERO_REPLAY_EVENT));
       finishCycle(!loopPreview);
     };
 

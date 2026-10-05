@@ -6886,8 +6886,14 @@ a:focus-visible, button:focus-visible {
 html.home-intro-play:not(.home-intro-reveal-active) {
   background: var(--home-intro-ink);
 }
-html.home-intro-play .home-page {
+html.home-intro-play.home-intro-reveal-active {
+  background: transparent;
+}
+html.home-intro-play:not(.home-intro-reveal-active) .home-page {
   visibility: hidden;
+}
+html.home-intro-play.home-intro-reveal-active .home-page {
+  visibility: visible;
 }
 .home-intro-overlay__ink {
   position: absolute;
