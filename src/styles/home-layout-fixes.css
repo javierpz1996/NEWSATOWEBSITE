@@ -1061,7 +1061,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: clamp(10px, 1.5vh, 18px);
+  gap: clamp(20px, 2.8vh, 36px);
   max-width: 100%;
   overflow-x: visible;
   overflow-y: hidden;
@@ -1265,7 +1265,7 @@
 .home-hero-top-row .home-artist-lockup .home-artist-name {
   margin: 0;
   font-family: var(--font-geist-sans), system-ui, sans-serif;
-  font-size: clamp(3.35rem, 7.2vw, 5.65rem);
+  font-size: clamp(3.85rem, 7.2vw, 6.25rem);
   font-weight: 800;
   line-height: 0.9;
   letter-spacing: 0.01em;
@@ -1523,7 +1523,7 @@
   .home-hero-top-row .home-artist-lockup .home-artist-name {
     width: 100%;
     max-width: 100%;
-    font-size: clamp(1.35rem, 12.5cqi, 2.35rem);
+    font-size: clamp(2.25rem, 20cqi, 3.85rem);
     line-height: 0.88;
     letter-spacing: 0.02em;
     text-align: center;
@@ -1624,7 +1624,7 @@
 
   .home-hero-top-row .home-artist-lockup-stack {
     align-items: center;
-    gap: clamp(6px, 1.1vh, 10px);
+    gap: clamp(12px, 2.4vh, 20px);
     width: 100%;
     overflow: visible;
   }
@@ -1632,7 +1632,7 @@
   .home-hero-top-row .home-artist-lockup .home-artist-name {
     width: 100%;
     max-width: 100%;
-    font-size: clamp(1.15rem, 13cqi, 1.65rem);
+    font-size: clamp(2.15rem, 24cqi, 3.1rem);
     line-height: 0.92;
     letter-spacing: 0.02em;
     text-align: center;
