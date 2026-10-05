@@ -3233,10 +3233,29 @@
 
 .home-scroll-right-square__balloon-content {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
+  gap: clamp(2px, 0.35vw, 4px);
   width: 100%;
   min-width: 0;
+}
+
+.home-scroll-right-square__balloon-milo-figure {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  width: clamp(64px, 7.5vw, 80px);
+  margin: 0;
+  line-height: 0;
+  transform: translateX(clamp(-30px, -2.4vw, -40px));
+}
+
+.home-scroll-right-square__balloon-milo {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 .home-scroll-right-square__balloon-text {

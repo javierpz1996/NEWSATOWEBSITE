@@ -1,8 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { COMMISSION_RULES_HREF } from "@/lib/commission-rules-content";
+
+const HOME_READ_BALLOON_MILO_SRC = "/works/placeholder/milo.png" as const;
+const HOME_READ_BALLOON_MILO_WIDTH = 716;
+const HOME_READ_BALLOON_MILO_HEIGHT = 809;
 
 const HOME_SNS_SECTION_ID = "home-sns";
 
@@ -72,7 +77,7 @@ export function HomeScrollRightSquare() {
         className="home-scroll-right-square"
         aria-expanded={balloonOpen}
         aria-controls={balloonId}
-        aria-label="Leer recordatorio de reglas"
+        aria-label="Leer recordatorio de términos de servicio"
         onClick={toggleBalloon}
       >
         <span className="home-scroll-right-square__label" aria-hidden="true">READ</span>
@@ -95,16 +100,26 @@ export function HomeScrollRightSquare() {
           </button>
           <div className="home-scroll-right-square__balloon-content">
             <p id={`${balloonId}-title`} className="home-scroll-right-square__balloon-text">
-              No quisiera molestar, pero no te olvides de leer{" "}
+              No te olvides de leer los{" "}
               <Link
                 className="home-scroll-right-square__balloon-rules"
                 href={COMMISSION_RULES_HREF}
                 onClick={() => setBalloonOpen(false)}
               >
-                las reglas
-              </Link>{" "}
-              por favor, gracias.
+                <strong>términos de servicio</strong>
+              </Link>
+              .
             </p>
+            <figure className="home-scroll-right-square__balloon-milo-figure" aria-hidden="true">
+              <Image
+                className="home-scroll-right-square__balloon-milo"
+                src={HOME_READ_BALLOON_MILO_SRC}
+                alt=""
+                width={HOME_READ_BALLOON_MILO_WIDTH}
+                height={HOME_READ_BALLOON_MILO_HEIGHT}
+                unoptimized
+              />
+            </figure>
           </div>
         </div>
       ) : null}
