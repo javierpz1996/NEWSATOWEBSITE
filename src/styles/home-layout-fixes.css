@@ -1011,7 +1011,7 @@
 
 .home-hero-top-row.home-hero-replay-active .home-artist-lockup-line,
 .home-hero-top-row.home-hero-replay-active .home-hero-replay-item {
-  animation-duration: 1500ms;
+  animation-duration: 1150ms;
   animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   animation-fill-mode: both;
 }
@@ -1021,35 +1021,35 @@
 }
 .home-hero-top-row.home-hero-replay-active .home-artist-lockup-line--kanji {
   animation-name: home-artist-lockup-from-left;
-  animation-delay: 200ms;
+  animation-delay: 150ms;
 }
 .home-hero-top-row.home-hero-replay-active .home-artist-lockup-line--role {
   animation-name: home-artist-lockup-from-left;
-  animation-delay: 400ms;
+  animation-delay: 300ms;
 }
 .home-hero-top-row.home-hero-replay-active .home-artist-lockup-line--location {
   animation-name: home-artist-lockup-rise;
-  animation-delay: 600ms;
+  animation-delay: 450ms;
 }
 .home-hero-top-row.home-hero-replay-active .home-hero-replay-item--strip-left {
   animation-name: home-hero-replay-from-left;
-  animation-delay: 120ms;
+  animation-delay: 90ms;
 }
 .home-hero-top-row.home-hero-replay-active .home-hero-replay-item--tile-1 {
   animation-name: home-hero-replay-tile-rise;
-  animation-delay: 280ms;
+  animation-delay: 210ms;
 }
 .home-hero-top-row.home-hero-replay-active .home-hero-replay-item--tile-2 {
   animation-name: home-hero-replay-tile-rise;
-  animation-delay: 440ms;
+  animation-delay: 330ms;
 }
 .home-hero-top-row.home-hero-replay-active .home-hero-replay-item--tile-3 {
   animation-name: home-hero-replay-tile-rise;
-  animation-delay: 600ms;
+  animation-delay: 450ms;
 }
 .home-hero-top-row.home-hero-replay-active .home-hero-replay-item--strip-right {
   animation-name: home-hero-replay-from-right;
-  animation-delay: 760ms;
+  animation-delay: 580ms;
 }
 
 @keyframes home-artist-lockup-rise {

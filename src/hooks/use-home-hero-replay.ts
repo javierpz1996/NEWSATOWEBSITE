@@ -50,9 +50,7 @@ export function useHomeHeroReplay(
 
     const scheduleAfterIntro = () => {
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          tryPlayInitialReplay(true);
-        });
+        tryPlayInitialReplay(true);
       });
     };
 

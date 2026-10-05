@@ -6933,7 +6933,7 @@ html.home-intro-play.home-intro-reveal-active .home-page {
 }
 .home-intro-overlay--loading-out .home-intro-overlay__stage {
   opacity: 0;
-  transition: opacity 150ms ease-out;
+  transition: opacity 100ms ease-out;
 }
 .home-intro-overlay__loading-stack {
   display: flex;
