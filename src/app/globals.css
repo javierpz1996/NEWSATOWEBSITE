@@ -7103,11 +7103,16 @@ html.home-intro-reveal-active .home-intro-reveal-header {
   animation-delay: 360ms;
 }
 /* Page sits at full opacity under the splatter mask while it opens (see-through holes). */
-html.home-intro-play.home-intro-reveal-active .home-intro-reveal-lockup,
-html.home-intro-play.home-intro-reveal-active .home-intro-reveal-editorial,
-html.home-intro-play.home-intro-reveal-active .home-intro-reveal-hazard {
+html.home-intro-play.home-intro-reveal-active:not(.home-hero-first-replay-armed) .home-intro-reveal-lockup,
+html.home-intro-play.home-intro-reveal-active:not(.home-hero-first-replay-armed) .home-intro-reveal-editorial,
+html.home-intro-play.home-intro-reveal-active:not(.home-hero-first-replay-armed) .home-intro-reveal-hazard {
   opacity: 1;
   transform: translate3d(0, 0, 0);
+  animation: none;
+}
+html.home-hero-first-replay-armed.home-intro-play .home-intro-reveal-lockup,
+html.home-hero-first-replay-armed.home-intro-play .home-intro-reveal-editorial,
+html.home-hero-first-replay-armed.home-intro-play .home-intro-reveal-hazard {
   animation: none;
 }
 html.home-intro-play.home-intro-reveal-active .home-intro-reveal-header {

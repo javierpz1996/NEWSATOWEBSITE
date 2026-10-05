@@ -18,7 +18,10 @@ import {
   waitMs,
 } from "@/lib/home-intro-assets";
 import { HomeIntroLoadingPaws } from "@/components/layout/home-intro-loading-paws";
-import { HOME_INTRO_COMPLETE_EVENT } from "@/lib/home-intro-events";
+import {
+  HOME_HERO_FIRST_REPLAY_ARMED_CLASS,
+  HOME_INTRO_COMPLETE_EVENT,
+} from "@/lib/home-intro-events";
 import {
   markHomeIntroSeen,
   resolveHomeIntroLoopPreview,
@@ -200,6 +203,7 @@ function HomePageIntroCycle({ pageRef, loopPreview, onCycleComplete }: IntroCycl
         if (!isActiveRun()) return;
       }
 
+      document.documentElement.classList.add(HOME_HERO_FIRST_REPLAY_ARMED_CLASS);
       document.documentElement.classList.add("home-intro-reveal-active");
       document.body.style.overflow = "";
       const page = pageRef.current;
@@ -399,6 +403,7 @@ export function HomePageIntro({ pageRef, headerFocusRef }: HomePageIntroProps) {
 
       if (isLoop) {
         setCycleMounted(false);
+        document.documentElement.classList.remove(HOME_HERO_FIRST_REPLAY_ARMED_CLASS);
         unlockPage();
         if (loopTimeoutRef.current !== null) {
           window.clearTimeout(loopTimeoutRef.current);

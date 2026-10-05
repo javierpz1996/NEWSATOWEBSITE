@@ -1,6 +1,9 @@
 "use client";
 
-import { HOME_INTRO_COMPLETE_EVENT } from "@/lib/home-intro-events";
+import {
+  HOME_HERO_FIRST_REPLAY_ARMED_CLASS,
+  HOME_INTRO_COMPLETE_EVENT,
+} from "@/lib/home-intro-events";
 import { useEffect, useRef, useState, type RefObject } from "react";
 
 export type HomeHeroReplayState = {
@@ -31,12 +34,17 @@ export function useHomeHeroReplay(
     const node = targetRef.current;
     if (!node) return;
 
+    const clearFirstReplayArmed = () => {
+      document.documentElement.classList.remove(HOME_HERO_FIRST_REPLAY_ARMED_CLASS);
+    };
+
     const playReplayFromHidden = () => {
       replayReadyRef.current = true;
       setReplayReady(true);
       setReplayActive(false);
       requestAnimationFrame(() => {
         setReplayActive(true);
+        clearFirstReplayArmed();
       });
     };
 
@@ -46,14 +54,6 @@ export function useHomeHeroReplay(
       if (!isHeroSectionInView(node)) return;
       initialReplayDoneRef.current = true;
       playReplayFromHidden();
-    };
-
-    const scheduleAfterIntroComplete = () => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          tryPlayInitialReplay();
-        });
-      });
     };
 
     const observer = new IntersectionObserver(
@@ -88,7 +88,7 @@ export function useHomeHeroReplay(
     if (isIntroPlaying()) {
       introObserver = new MutationObserver(() => {
         if (!isIntroPlaying()) {
-          scheduleAfterIntroComplete();
+          tryPlayInitialReplay();
         }
       });
       introObserver.observe(document.documentElement, {
@@ -101,12 +101,13 @@ export function useHomeHeroReplay(
       });
     }
 
-    window.addEventListener(HOME_INTRO_COMPLETE_EVENT, scheduleAfterIntroComplete);
+    window.addEventListener(HOME_INTRO_COMPLETE_EVENT, tryPlayInitialReplay);
 
     return () => {
       observer.disconnect();
       introObserver?.disconnect();
-      window.removeEventListener(HOME_INTRO_COMPLETE_EVENT, scheduleAfterIntroComplete);
+      window.removeEventListener(HOME_INTRO_COMPLETE_EVENT, tryPlayInitialReplay);
+      clearFirstReplayArmed();
     };
   }, [targetRef]);
 

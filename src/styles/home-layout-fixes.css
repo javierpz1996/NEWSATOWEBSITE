@@ -983,47 +983,44 @@
 }
 
 /* Hero scroll replay — lockup, editorial tiles, strips (after hero leaves viewport once). */
-html.home-intro-play .home-hero-top-row.home-hero-replay-ready .home-artist-lockup-line,
-html.home-intro-play .home-hero-top-row.home-hero-replay-ready .home-hero-replay-item,
-html.home-intro-play
-  .home-hero-top-row.home-hero-replay-ready
-  .home-hero-replay-item--strip-right
-  .home-editorial-strip-label,
-html.home-intro-play
-  .home-hero-top-row.home-hero-replay-ready
-  .home-hero-replay-item--strip-right
-  .home-editorial-chevron {
-  opacity: 1;
-  transform: none;
-  animation: none;
-}
+html.home-hero-first-replay-armed .home-hero-top-row .home-artist-lockup-line,
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-artist-lockup-line,
+html.home-hero-first-replay-armed .home-hero-top-row .home-hero-replay-item,
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-hero-replay-item {
   opacity: 0;
 }
+html.home-hero-first-replay-armed .home-hero-top-row .home-artist-lockup-line--name,
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-artist-lockup-line--name {
   transform: translate3d(0, 2rem, 0);
 }
+html.home-hero-first-replay-armed .home-hero-top-row .home-artist-lockup-line--kanji,
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-artist-lockup-line--kanji {
   transform: translate3d(-2.25rem, 0, 0);
 }
+html.home-hero-first-replay-armed .home-hero-top-row .home-artist-lockup-line--role,
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-artist-lockup-line--role {
   transform: translate3d(-2rem, 0, 0);
 }
+html.home-hero-first-replay-armed .home-hero-top-row .home-artist-lockup-line--location,
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-artist-lockup-line--location {
   transform: translate3d(0, 1.25rem, 0);
 }
+html.home-hero-first-replay-armed .home-hero-top-row .home-hero-replay-item--strip-left,
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-hero-replay-item--strip-left {
   transform: translate3d(-2rem, 0, 0);
 }
+html.home-hero-first-replay-armed .home-hero-top-row .home-hero-replay-item--tile,
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-hero-replay-item--tile {
   transform: translate3d(0, 1.75rem, 0) scale(0.97);
 }
 /* Hazard strip: keep white/grid panel opaque — only labels animate (avoids black flash on intro). */
+html.home-hero-first-replay-armed .home-hero-top-row .home-hero-replay-item--strip-right,
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-hero-replay-item--strip-right {
   opacity: 1;
   transform: translate3d(2rem, 0, 0);
 }
+html.home-hero-first-replay-armed .home-hero-top-row .home-hero-replay-item--strip-right .home-editorial-strip-label,
+html.home-hero-first-replay-armed .home-hero-top-row .home-hero-replay-item--strip-right .home-editorial-chevron,
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active)
   .home-hero-replay-item--strip-right
   .home-editorial-strip-label,
@@ -1169,6 +1166,8 @@ html.home-intro-play
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html.home-hero-first-replay-armed .home-hero-top-row .home-artist-lockup-line,
+  html.home-hero-first-replay-armed .home-hero-top-row .home-hero-replay-item,
   .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-artist-lockup-line,
   .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-hero-replay-item {
     opacity: 1;
