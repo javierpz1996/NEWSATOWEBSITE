@@ -983,6 +983,20 @@
 }
 
 /* Hero scroll replay — lockup, editorial tiles, strips (after hero leaves viewport once). */
+html.home-intro-play .home-hero-top-row.home-hero-replay-ready .home-artist-lockup-line,
+html.home-intro-play .home-hero-top-row.home-hero-replay-ready .home-hero-replay-item,
+html.home-intro-play
+  .home-hero-top-row.home-hero-replay-ready
+  .home-hero-replay-item--strip-right
+  .home-editorial-strip-label,
+html.home-intro-play
+  .home-hero-top-row.home-hero-replay-ready
+  .home-hero-replay-item--strip-right
+  .home-editorial-chevron {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-artist-lockup-line,
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-hero-replay-item {
   opacity: 0;

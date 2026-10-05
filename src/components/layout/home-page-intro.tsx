@@ -18,10 +18,7 @@ import {
   waitMs,
 } from "@/lib/home-intro-assets";
 import { HomeIntroLoadingPaws } from "@/components/layout/home-intro-loading-paws";
-import {
-  HOME_INTRO_COMPLETE_EVENT,
-  HOME_INTRO_REVEAL_START_EVENT,
-} from "@/lib/home-intro-events";
+import { HOME_INTRO_COMPLETE_EVENT } from "@/lib/home-intro-events";
 import {
   markHomeIntroSeen,
   resolveHomeIntroLoopPreview,
@@ -204,7 +201,6 @@ function HomePageIntroCycle({ pageRef, loopPreview, onCycleComplete }: IntroCycl
       }
 
       document.documentElement.classList.add("home-intro-reveal-active");
-      window.dispatchEvent(new Event(HOME_INTRO_REVEAL_START_EVENT));
       document.body.style.overflow = "";
       const page = pageRef.current;
       if (page) {

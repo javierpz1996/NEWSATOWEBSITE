@@ -16,6 +16,8 @@ export const HOME_INTRO_HERO_TILE_SRCS = [
   "/works/placeholder/dibujo-1.png",
 ] as const;
 
+export const HOME_INTRO_HERO_COVER_SRC = "/works/placeholder/herocover.jpg" as const;
+
 /** Luminance strip (source art). */
 export const HOME_INTRO_OPEN_MASK_SRC = "/intro/splatter-open-strip.png" as const;
 /** Alpha strip for CSS `-webkit-mask-image` (Safari ignores luminance on grayscale PNG). */
@@ -25,6 +27,7 @@ export const HOME_INTRO_OPEN_MASK_ALPHA_SRC =
 /** Critical hero assets for intro preload — excludes heavy animation GIFs. */
 export const HOME_INTRO_CRITICAL_ASSETS = [
   SATO_LOGO_SRC,
+  HOME_INTRO_HERO_COVER_SRC,
   ...HOME_INTRO_HERO_TILE_SRCS,
   HOME_INTRO_OPEN_MASK_ALPHA_SRC,
 ] as const;
