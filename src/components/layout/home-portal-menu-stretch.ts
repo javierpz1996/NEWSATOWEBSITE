@@ -1,7 +1,7 @@
 /** Default + drag minimum width of the portal menu bar block (px). */
-export const PORTAL_MENU_RULE_MIN_WIDTH_PX = 170;
+export const PORTAL_MENU_RULE_MIN_WIDTH_PX = 120;
 /** Hard maximum for drag-to-stretch (also clamped by free space before the logo). */
-export const PORTAL_MENU_RULE_MAX_STRETCH_PX = 280;
+export const PORTAL_MENU_RULE_MAX_STRETCH_PX = 200;
 /** Pause after hitting max stretch before opening the portal menu modal. */
 export const PORTAL_MENU_AUTO_OPEN_DELAY_MS = 520;
 export const PORTAL_MENU_LOGO_GAP_PX = 16;

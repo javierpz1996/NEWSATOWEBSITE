@@ -9,13 +9,13 @@ import {
   forwardRef,
   useCallback,
   useEffect,
-  useId,
   useImperativeHandle,
   useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
+  type TransitionEvent as ReactTransitionEvent,
 } from "react";
 import {
   clampPortalMenuWidth,
@@ -24,11 +24,8 @@ import {
   PORTAL_MENU_RULE_MIN_WIDTH_PX,
   PORTAL_MENU_RULE_MAX_STRETCH_PX,
 } from "@/components/layout/home-portal-menu-stretch";
-import { PortalMenuRuleBlotchPattern } from "@/components/layout/portal-menu-rule-blotch-pattern";
 import {
-  PORTAL_MENU_RULE_CAT_AT_MAX_HEIGHT,
   PORTAL_MENU_RULE_CAT_AT_MAX_SRC,
-  PORTAL_MENU_RULE_CAT_AT_MAX_WIDTH,
   PORTAL_MENU_RULE_CAT_HEIGHT,
   PORTAL_MENU_RULE_CAT_SRC,
   PORTAL_MENU_RULE_CAT_WIDTH,
@@ -68,7 +65,7 @@ type HomePortalMenuTriggerProps = {
   onMenuClick?: () => void;
   onCartClick?: () => void;
   cartItemCount?: number;
-  /** Fires once each time the bar reaches max stretch (cat2). */
+  /** Fires once each time the bar reaches max stretch (teo2). */
   onReachMaxStretch?: () => void;
 };
 
@@ -79,13 +76,16 @@ export const HomePortalMenuTrigger = forwardRef<
   { onMenuClick, onCartClick, cartItemCount = 0, onReachMaxStretch },
   ref,
 ) {
-  const blotchPatternId = useId().replace(/:/g, "");
-  const blotchEdgeFilterId = useId().replace(/:/g, "");
   const blockRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
+  const [isSnappingWidthBack, setIsSnappingWidthBack] = useState(false);
   const [widthPx, setWidthPx] = useState<number | null>(null);
   const [layoutWidthPx, setLayoutWidthPx] = useState(PORTAL_MENU_RULE_MIN_WIDTH_PX);
   const [maxStretchPx, setMaxStretchPx] = useState(PORTAL_MENU_RULE_MAX_STRETCH_PX);
+  const [showMaxTeoSprite, setShowMaxTeoSprite] = useState(false);
+  const maxTeoPreloadedRef = useRef(false);
+  const wasAtMaxStretchRef = useRef(false);
+  const reachMaxOpenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const resetRuleToMinWidth = useCallback(() => {
     setWidthPx(PORTAL_MENU_RULE_MIN_WIDTH_PX);
@@ -119,17 +119,84 @@ export const HomePortalMenuTrigger = forwardRef<
     return () => window.removeEventListener("resize", updateMaxStretch);
   }, [updateMaxStretch]);
 
-  const totalWidthPx = widthPx ?? layoutWidthPx;
+  const ruleBlockWidthPx = widthPx ?? layoutWidthPx;
+
+  const snapRuleWidthToMin = useCallback(() => {
+    const fromWidth = ruleBlockWidthPx;
+    if (fromWidth <= PORTAL_MENU_RULE_MIN_WIDTH_PX + 0.5) {
+      resetRuleToMinWidth();
+      return;
+    }
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) {
+      resetRuleToMinWidth();
+      return;
+    }
+
+    setIsSnappingWidthBack(true);
+    requestAnimationFrame(() => {
+      setWidthPx(PORTAL_MENU_RULE_MIN_WIDTH_PX);
+      setLayoutWidthPx(PORTAL_MENU_RULE_MIN_WIDTH_PX);
+    });
+  }, [resetRuleToMinWidth, ruleBlockWidthPx]);
+
+  const onRuleBlockTransitionEnd = (event: ReactTransitionEvent<HTMLDivElement>) => {
+    if (event.propertyName !== "width" || event.target !== blockRef.current) return;
+    setIsSnappingWidthBack(false);
+  };
+
+  const totalWidthPx = ruleBlockWidthPx;
   const ruleViewBoxWidth = ruleViewWidth(totalWidthPx);
   const isAtMaxStretch = totalWidthPx >= maxStretchPx - 0.5;
-  const catSrc = isAtMaxStretch ? PORTAL_MENU_RULE_CAT_AT_MAX_SRC : PORTAL_MENU_RULE_CAT_SRC;
-  const catWidth = isAtMaxStretch ? PORTAL_MENU_RULE_CAT_AT_MAX_WIDTH : PORTAL_MENU_RULE_CAT_WIDTH;
-  const catHeight = isAtMaxStretch
-    ? PORTAL_MENU_RULE_CAT_AT_MAX_HEIGHT
-    : PORTAL_MENU_RULE_CAT_HEIGHT;
 
-  const wasAtMaxStretchRef = useRef(false);
-  const reachMaxOpenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    const img = document.createElement("img");
+    img.src = PORTAL_MENU_RULE_CAT_AT_MAX_SRC;
+    const markReady = () => {
+      maxTeoPreloadedRef.current = true;
+    };
+    if (img.complete) {
+      markReady();
+    } else {
+      img.onload = markReady;
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!isAtMaxStretch) {
+      setShowMaxTeoSprite(false);
+      return;
+    }
+    if (maxTeoPreloadedRef.current) {
+      setShowMaxTeoSprite(true);
+    }
+  }, [isAtMaxStretch]);
+
+  useEffect(() => {
+    if (!isAtMaxStretch || maxTeoPreloadedRef.current) return;
+
+    let cancelled = false;
+    const img = document.createElement("img");
+    img.src = PORTAL_MENU_RULE_CAT_AT_MAX_SRC;
+    const reveal = () => {
+      if (!cancelled) {
+        maxTeoPreloadedRef.current = true;
+        setShowMaxTeoSprite(true);
+      }
+    };
+    if (img.complete) {
+      reveal();
+    } else {
+      img.onload = reveal;
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAtMaxStretch]);
+
+  const catSrc = showMaxTeoSprite ? PORTAL_MENU_RULE_CAT_AT_MAX_SRC : PORTAL_MENU_RULE_CAT_SRC;
 
   useEffect(() => {
     const clearReachMaxOpenTimer = () => {
@@ -166,8 +233,11 @@ export const HomePortalMenuTrigger = forwardRef<
     const element = blockRef.current;
     if (!element) return;
 
+    setIsSnappingWidthBack(false);
+
     updateMaxStretch();
-    const current = element.getBoundingClientRect().width;
+    const current = Math.round(element.getBoundingClientRect().width);
+    setWidthPx(current);
     dragRef.current = { startX: event.clientX, startWidth: current };
     event.currentTarget.setPointerCapture(event.pointerId);
   };
@@ -189,41 +259,50 @@ export const HomePortalMenuTrigger = forwardRef<
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+
+    const currentWidth = ruleBlockWidthPx;
+    const atMax = currentWidth >= maxStretchPx - 0.5;
+    if (!atMax) {
+      snapRuleWidthToMin();
+    }
   };
 
   return (
     <div className="home-portal-menu-trigger-wrap">
+      <div className="home-portal-menu-kanji-row">
+        <HomeLocaleSwitcher />
+        <HomeCartIconButton
+          id={HOME_CART_BUTTON_ID}
+          className="home-portal-menu-cart-btn"
+          variant="nav"
+          itemCount={cartItemCount}
+          onClick={() => onCartClick?.()}
+        />
+        <button
+          type="button"
+          className="home-portal-menu-label home-portal-menu-label--toolbar"
+          aria-label="Abrir menú"
+          onClick={onMenuClick}
+        >
+          <span className="home-portal-menu-label__text">MENU</span>
+          <span className="home-portal-menu-label__icon" aria-hidden="true">
+            <Menu strokeWidth={2.5} />
+          </span>
+        </button>
+      </div>
       <div
         ref={blockRef}
-        className="home-portal-menu-label-block"
+        className={`home-portal-menu-label-block${
+          isSnappingWidthBack ? " home-portal-menu-label-block--snap-width-back" : ""
+        }`}
         style={
           {
             maxWidth: `${maxStretchPx}px`,
-            ...(widthPx !== null ? { width: `${widthPx}px` } : {}),
+            width: `${ruleBlockWidthPx}px`,
           } as CSSProperties
         }
+        onTransitionEnd={onRuleBlockTransitionEnd}
       >
-        <div className="home-portal-menu-kanji-row">
-          <HomeLocaleSwitcher />
-          <HomeCartIconButton
-            id={HOME_CART_BUTTON_ID}
-            className="home-portal-menu-cart-btn"
-            variant="nav"
-            itemCount={cartItemCount}
-            onClick={() => onCartClick?.()}
-          />
-          <button
-            type="button"
-            className="home-portal-menu-label home-portal-menu-label--toolbar"
-            aria-label="Abrir menú"
-            onClick={onMenuClick}
-          >
-            <span className="home-portal-menu-label__text">MENU</span>
-            <span className="home-portal-menu-label__icon" aria-hidden="true">
-              <Menu strokeWidth={2.5} />
-            </span>
-          </button>
-        </div>
         <div className="home-portal-menu-label-rule-row">
           <div
             className="home-portal-menu-label-rule"
@@ -245,26 +324,32 @@ export const HomePortalMenuTrigger = forwardRef<
               focusable="false"
               aria-hidden="true"
             >
-              <defs>
-                <PortalMenuRuleBlotchPattern
-                  patternId={blotchPatternId}
-                  edgeFilterId={blotchEdgeFilterId}
-                />
-              </defs>
-              <path d={portalMenuRulePath(ruleViewBoxWidth)} fill={`url(#${blotchPatternId})`} />
+              <path
+                className="home-portal-menu-label-rule__shape"
+                d={portalMenuRulePath(ruleViewBoxWidth)}
+              />
             </svg>
           </div>
-          <Image
-            className="home-portal-menu-label-rule__cat"
-            src={catSrc}
-            alt=""
-            width={catWidth}
-            height={catHeight}
-            style={{ aspectRatio: `${catWidth} / ${catHeight}` }}
-            unoptimized
-            draggable={false}
+          <span
+            className={`home-portal-menu-label-rule__cat-slot${
+              showMaxTeoSprite ? " home-portal-menu-label-rule__cat-slot--at-max" : ""
+            }`}
             aria-hidden="true"
-          />
+          >
+            <Image
+              className="home-portal-menu-label-rule__cat"
+              src={catSrc}
+              alt=""
+              width={PORTAL_MENU_RULE_CAT_WIDTH}
+              height={PORTAL_MENU_RULE_CAT_HEIGHT}
+              style={{
+                aspectRatio: `${PORTAL_MENU_RULE_CAT_WIDTH} / ${PORTAL_MENU_RULE_CAT_HEIGHT}`,
+              }}
+              unoptimized
+              draggable={false}
+              aria-hidden="true"
+            />
+          </span>
         </div>
       </div>
     </div>
