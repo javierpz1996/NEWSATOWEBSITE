@@ -11,16 +11,40 @@ function isIntroPlaying(): boolean {
   return document.documentElement.classList.contains("home-intro-play");
 }
 
+function isHeroSectionInView(node: HTMLElement): boolean {
+  const rect = node.getBoundingClientRect();
+  if (rect.height <= 0) return false;
+  const viewportHeight = window.innerHeight;
+  return rect.top < viewportHeight * 0.92 && rect.bottom > viewportHeight * 0.15;
+}
+
 export function useHomeHeroReplay(
   targetRef: RefObject<HTMLElement | null>,
 ): HomeHeroReplayState {
   const replayReadyRef = useRef(false);
+  const initialReplayDoneRef = useRef(false);
   const [replayReady, setReplayReady] = useState(false);
   const [replayActive, setReplayActive] = useState(false);
 
   useEffect(() => {
     const node = targetRef.current;
     if (!node) return;
+
+    const playReplayFromHidden = () => {
+      replayReadyRef.current = true;
+      setReplayReady(true);
+      setReplayActive(false);
+      requestAnimationFrame(() => {
+        setReplayActive(true);
+      });
+    };
+
+    const maybePlayInitialReplay = () => {
+      if (initialReplayDoneRef.current || isIntroPlaying()) return;
+      if (!isHeroSectionInView(node)) return;
+      initialReplayDoneRef.current = true;
+      playReplayFromHidden();
+    };
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -30,6 +54,11 @@ export function useHomeHeroReplay(
           replayReadyRef.current = true;
           setReplayReady(true);
           setReplayActive(false);
+          return;
+        }
+
+        if (!initialReplayDoneRef.current) {
+          maybePlayInitialReplay();
           return;
         }
 
@@ -45,7 +74,25 @@ export function useHomeHeroReplay(
 
     observer.observe(node);
 
-    return () => observer.disconnect();
+    let introObserver: MutationObserver | undefined;
+    if (isIntroPlaying()) {
+      introObserver = new MutationObserver(() => {
+        if (!isIntroPlaying()) {
+          maybePlayInitialReplay();
+        }
+      });
+      introObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+    } else {
+      requestAnimationFrame(maybePlayInitialReplay);
+    }
+
+    return () => {
+      observer.disconnect();
+      introObserver?.disconnect();
+    };
   }, [targetRef]);
 
   return { replayReady, replayActive };
