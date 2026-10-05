@@ -22,9 +22,6 @@ export function useHomeHeroReplay(
     const node = targetRef.current;
     if (!node) return;
 
-    const mobileMedia = window.matchMedia("(max-width: 760px)");
-    if (mobileMedia.matches) return;
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (isIntroPlaying()) return;

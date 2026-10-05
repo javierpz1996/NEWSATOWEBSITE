@@ -228,8 +228,6 @@ export default function Home() {
       </section>
       </div>
 
-      <HomeSnsBar />
-
       <div className="home-sections-sidebar-wrap">
         {HOME_SECTIONS_LEFT_DECOR_VISIBLE ? (
           <div className="home-sections-left-decor">
@@ -240,6 +238,7 @@ export default function Home() {
 
         <div className="home-sections-sidebar-wrap__main">
           <HomeCommissionsOpen />
+          <HomeSnsBar />
           <HomeServices />
           <HomeAnimations />
         </div>

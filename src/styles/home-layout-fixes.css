@@ -1575,15 +1575,6 @@
     width: clamp(12px, 3.5vw, 15px);
     transform: rotate(90deg);
   }
-
-  .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-artist-lockup-line,
-  .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-hero-replay-item,
-  .home-hero-top-row.home-hero-replay-active .home-artist-lockup-line,
-  .home-hero-top-row.home-hero-replay-active .home-hero-replay-item {
-    opacity: 1;
-    transform: none;
-    animation: none;
-  }
 }
 
 .home-service-order-options {
