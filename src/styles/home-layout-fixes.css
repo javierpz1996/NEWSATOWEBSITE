@@ -1005,8 +1005,18 @@
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-hero-replay-item--tile {
   transform: translate3d(0, 1.75rem, 0) scale(0.97);
 }
+/* Hazard strip: keep white/grid panel opaque — only labels animate (avoids black flash on intro). */
 .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active) .home-hero-replay-item--strip-right {
+  opacity: 1;
   transform: translate3d(2rem, 0, 0);
+}
+.home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active)
+  .home-hero-replay-item--strip-right
+  .home-editorial-strip-label,
+.home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active)
+  .home-hero-replay-item--strip-right
+  .home-editorial-chevron {
+  opacity: 0;
 }
 
 .home-hero-top-row.home-hero-replay-active .home-artist-lockup-line,
@@ -1048,8 +1058,16 @@
   animation-delay: 600ms;
 }
 .home-hero-top-row.home-hero-replay-active .home-hero-replay-item--strip-right {
-  animation-name: home-hero-replay-from-right;
+  animation-name: home-hero-replay-hazard-slide;
   animation-delay: 760ms;
+}
+.home-hero-top-row.home-hero-replay-active .home-hero-replay-item--strip-right .home-editorial-strip-label,
+.home-hero-top-row.home-hero-replay-active .home-hero-replay-item--strip-right .home-editorial-chevron {
+  animation-duration: 1500ms;
+  animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  animation-fill-mode: both;
+  animation-delay: 760ms;
+  animation-name: home-hero-replay-fade-in;
 }
 
 @keyframes home-artist-lockup-rise {
@@ -1107,6 +1125,24 @@
   }
 }
 
+@keyframes home-hero-replay-hazard-slide {
+  from {
+    transform: translate3d(2rem, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes home-hero-replay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes home-hero-replay-tile-rise {
   from {
     opacity: 0;
@@ -1124,8 +1160,18 @@
     opacity: 1;
     transform: none;
   }
+  .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active)
+    .home-hero-replay-item--strip-right
+    .home-editorial-strip-label,
+  .home-hero-top-row.home-hero-replay-ready:not(.home-hero-replay-active)
+    .home-hero-replay-item--strip-right
+    .home-editorial-chevron {
+    opacity: 1;
+  }
   .home-hero-top-row.home-hero-replay-active .home-artist-lockup-line,
-  .home-hero-top-row.home-hero-replay-active .home-hero-replay-item {
+  .home-hero-top-row.home-hero-replay-active .home-hero-replay-item,
+  .home-hero-top-row.home-hero-replay-active .home-hero-replay-item--strip-right .home-editorial-strip-label,
+  .home-hero-top-row.home-hero-replay-active .home-hero-replay-item--strip-right .home-editorial-chevron {
     animation: none;
   }
 }
