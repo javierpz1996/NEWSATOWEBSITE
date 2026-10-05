@@ -78,7 +78,9 @@
 
 .home-page .home-header a,
 .home-page .home-header button,
-.home-page .home-header [tabindex] {
+.home-page .home-header [tabindex],
+.home-page .home-header [role="slider"],
+.home-page .home-header-portal-cluster {
   pointer-events: auto;
 }
 
@@ -953,6 +955,8 @@
 
 .home-page .home-hero-copy .home-artist-lockup,
 .home-hero-top-row .home-artist-lockup {
+  container-type: inline-size;
+  container-name: home-artist-lockup;
   grid-column: 1;
   grid-row: 1;
   display: flex;
@@ -974,7 +978,8 @@
   flex-direction: column;
   align-items: flex-start;
   max-width: 100%;
-  overflow: hidden;
+  overflow-x: visible;
+  overflow-y: hidden;
 }
 
 /* Hero scroll replay — lockup, editorial tiles, strips (after hero leaves viewport once). */
@@ -1368,15 +1373,60 @@
 /* Hero editorial row — tablet: narrower SATO lockup, more room for strips + tiles. */
 @media (max-width: 1200px) and (min-width: 761px) {
   .home-hero-top-row {
+    --home-hero-editorial-height: clamp(118px, min(14vh, 19vw), 158px);
+    min-height: var(--home-hero-editorial-height);
     grid-template-columns: minmax(200px, 0.38fr) minmax(0, 1fr) clamp(34px, 2.6vw, 42px);
   }
 
   .home-hero-top-row .home-artist-lockup {
-    padding-inline: clamp(16px, 2vw, 28px);
+    padding-block: clamp(10px, 1.4vh, 14px);
+    padding-inline: clamp(12px, 1.6vw, 22px);
+  }
+
+  .home-hero-top-row .home-artist-lockup-stack {
+    align-items: center;
+    width: 100%;
+  }
+
+  .home-hero-top-row .home-artist-lockup .home-artist-name {
+    width: 100%;
+    max-width: 100%;
+    font-size: clamp(1.35rem, 12.5cqi, 2.35rem);
+    line-height: 0.88;
+    letter-spacing: 0.02em;
+    text-align: center;
+  }
+
+  .home-hero-top-row .home-artist-lockup .home-artist-kanji {
+    margin-top: clamp(4px, 0.55vh, 7px);
+    font-size: clamp(0.9rem, 7cqi, 1.35rem);
+    text-align: center;
+  }
+
+  .home-hero-top-row .home-artist-lockup .home-artist-role {
+    margin-top: clamp(3px, 0.45vh, 6px);
+    font-size: clamp(0.5625rem, 0.95vw, 0.6875rem);
+    line-height: 1.2;
+    text-align: center;
+    max-width: 12em;
+  }
+
+  .home-hero-top-row .home-artist-lockup .home-artist-location {
+    margin-top: clamp(4px, 0.55vh, 7px);
+    font-size: clamp(0.5rem, 0.85vw, 0.625rem);
+  }
+
+  .home-hero-top-row .home-editorial-strip-left {
+    padding: clamp(6px, 0.9vh, 10px) 0;
+  }
+
+  .home-hero-top-row .home-editorial-strip-hazard {
+    padding: clamp(8px, 1.2vh, 12px) clamp(3px, 0.45vw, 5px);
+    gap: clamp(5px, 0.8vh, 8px);
   }
 
   .home-hero-top-row .home-editorial-tiles {
-    gap: clamp(8px, 1vw, 12px);
+    gap: clamp(6px, 0.85vw, 10px);
   }
 }
 
@@ -1419,11 +1469,15 @@
   .home-hero-top-row .home-artist-lockup-stack {
     align-items: center;
     width: 100%;
+    overflow: visible;
   }
 
   .home-hero-top-row .home-artist-lockup .home-artist-name {
-    font-size: clamp(1.2rem, 6.2vw, 1.65rem);
+    width: 100%;
+    max-width: 100%;
+    font-size: clamp(1.15rem, 13cqi, 1.65rem);
     line-height: 0.92;
+    letter-spacing: 0.02em;
     text-align: center;
   }
 
