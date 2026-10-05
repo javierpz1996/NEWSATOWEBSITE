@@ -37,7 +37,7 @@ export const HOME_INTRO_CMARK_OUT_DELAY_MS = 0;
 export const HOME_INTRO_CMARK_OUT_DURATION_MS = 0;
 /** Delay before mask steps start once wipe phase begins. */
 export const HOME_INTRO_WIPE_START_DELAY_MS = 0;
-export const HOME_INTRO_WIPE_DURATION_MS = 850;
+export const HOME_INTRO_WIPE_DURATION_MS = 1000;
 export const HOME_INTRO_MASK_FRAME_COUNT = 22;
 export const HOME_INTRO_MASK_STEPS = HOME_INTRO_MASK_FRAME_COUNT - 1;
 export const HOME_INTRO_HERO_REVEAL_MS = 900;

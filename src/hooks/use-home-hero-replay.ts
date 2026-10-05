@@ -1,6 +1,9 @@
 "use client";
 
-import { HOME_INTRO_COMPLETE_EVENT } from "@/lib/home-intro-events";
+import {
+  HOME_INTRO_COMPLETE_EVENT,
+  HOME_INTRO_REVEAL_START_EVENT,
+} from "@/lib/home-intro-events";
 import { useEffect, useRef, useState, type RefObject } from "react";
 
 export type HomeHeroReplayState = {
@@ -10,6 +13,10 @@ export type HomeHeroReplayState = {
 
 function isIntroPlaying(): boolean {
   return document.documentElement.classList.contains("home-intro-play");
+}
+
+function isIntroRevealVisible(): boolean {
+  return document.documentElement.classList.contains("home-intro-reveal-active");
 }
 
 function isHeroSectionInView(node: HTMLElement): boolean {
@@ -40,15 +47,17 @@ export function useHomeHeroReplay(
       });
     };
 
-    const tryPlayInitialReplay = (afterIntro: boolean) => {
+    const tryPlayInitialReplay = (duringIntroReveal = false) => {
       if (initialReplayDoneRef.current) return;
-      if (!afterIntro && isIntroPlaying()) return;
+      if (isIntroPlaying()) {
+        if (!duringIntroReveal || !isIntroRevealVisible()) return;
+      }
       if (!isHeroSectionInView(node)) return;
       initialReplayDoneRef.current = true;
       playReplayFromHidden();
     };
 
-    const scheduleAfterIntro = () => {
+    const scheduleFirstVisitReplay = () => {
       requestAnimationFrame(() => {
         tryPlayInitialReplay(true);
       });
@@ -56,7 +65,7 @@ export function useHomeHeroReplay(
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (isIntroPlaying()) return;
+        if (isIntroPlaying() && !isIntroRevealVisible()) return;
 
         if (!entry.isIntersecting) {
           replayReadyRef.current = true;
@@ -85,8 +94,12 @@ export function useHomeHeroReplay(
     let introObserver: MutationObserver | undefined;
     if (isIntroPlaying()) {
       introObserver = new MutationObserver(() => {
+        if (isIntroRevealVisible()) {
+          scheduleFirstVisitReplay();
+          return;
+        }
         if (!isIntroPlaying()) {
-          scheduleAfterIntro();
+          scheduleFirstVisitReplay();
         }
       });
       introObserver.observe(document.documentElement, {
@@ -99,12 +112,14 @@ export function useHomeHeroReplay(
       });
     }
 
-    window.addEventListener(HOME_INTRO_COMPLETE_EVENT, scheduleAfterIntro);
+    window.addEventListener(HOME_INTRO_REVEAL_START_EVENT, scheduleFirstVisitReplay);
+    window.addEventListener(HOME_INTRO_COMPLETE_EVENT, scheduleFirstVisitReplay);
 
     return () => {
       observer.disconnect();
       introObserver?.disconnect();
-      window.removeEventListener(HOME_INTRO_COMPLETE_EVENT, scheduleAfterIntro);
+      window.removeEventListener(HOME_INTRO_REVEAL_START_EVENT, scheduleFirstVisitReplay);
+      window.removeEventListener(HOME_INTRO_COMPLETE_EVENT, scheduleFirstVisitReplay);
     };
   }, [targetRef]);
 
