@@ -17,11 +17,28 @@ export type SectionScrollRevealState = {
   ready: boolean;
 };
 
+export type SectionScrollRevealOptions = {
+  threshold?: number | number[];
+  rootMargin?: string;
+};
+
+const DESKTOP_ROOT_MARGIN = "-10% 0px 24% 0px";
+const MOBILE_ROOT_MARGIN = "-16% 0px 36% 0px";
+const MOBILE_MEDIA = "(max-width: 760px)";
+
+function resolveRootMargin(override?: string): string {
+  if (override) return override;
+  if (typeof window === "undefined") return DESKTOP_ROOT_MARGIN;
+  return window.matchMedia(MOBILE_MEDIA).matches
+    ? MOBILE_ROOT_MARGIN
+    : DESKTOP_ROOT_MARGIN;
+}
+
 export function useSectionScrollReveal(
   targetRef: RefObject<HTMLElement | null>,
-  options?: { threshold?: number; rootMargin?: string },
+  options?: SectionScrollRevealOptions,
 ): SectionScrollRevealState {
-  const { threshold = 0.2, rootMargin = "0px 0px -6% 0px" } = options ?? {};
+  const { threshold = 0.05, rootMargin: rootMarginOverride } = options ?? {};
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -30,6 +47,16 @@ export function useSectionScrollReveal(
   const [active, setActive] = useState(false);
   const [ready, setReady] = useState(false);
   const wasActiveRef = useRef(false);
+  const [rootMargin, setRootMargin] = useState(() => resolveRootMargin(rootMarginOverride));
+
+  useEffect(() => {
+    if (rootMarginOverride) return;
+    const media = window.matchMedia(MOBILE_MEDIA);
+    const sync = () => setRootMargin(resolveRootMargin());
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, [rootMarginOverride]);
 
   useEffect(() => {
     if (!mounted) return;
