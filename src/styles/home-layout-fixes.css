@@ -1964,7 +1964,7 @@
   width: 100%;
   height: auto;
   object-fit: contain;
-  transform: translateY(clamp(16px, 2.2vh, 26px));
+  transform: translateY(clamp(32px, 3.8vh, 44px));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2133,7 +2133,74 @@
   letter-spacing: 0.02em;
 }
 
+/* Contact + READ balloon — below desktop (base rules unchanged from 1025px up). */
+@media (max-width: 1024px) {
+  .home-contact .home-contact-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: clamp(28px, 4vh, 40px);
+  }
+
+  .home-contact-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(10px, 1.8vh, 16px);
+    width: 100%;
+    max-width: none;
+  }
+
+  .home-contact h2 {
+    margin: 0;
+    width: 100%;
+    max-width: 20rem;
+    text-align: center;
+  }
+
+  .home-contact-illustration {
+    margin: 0;
+    max-width: min(100%, 20rem);
+  }
+
+  .home-contact-illustration__image {
+    transform: translateY(clamp(22px, 2.8vh, 32px));
+  }
+
+  .home-contact-form-slot {
+    width: 100%;
+    align-items: stretch;
+    justify-content: center;
+  }
+
+  .home-contact .home-contact-form-slot .home-contact-form {
+    width: 100%;
+    max-width: 26rem;
+    margin-inline: auto;
+  }
+}
+
 @media (max-width: 760px) {
+  .home-contact .home-contact-row {
+    gap: clamp(22px, 4vh, 32px);
+  }
+
+  .home-contact-copy {
+    gap: clamp(8px, 1.5vh, 14px);
+  }
+
+  .home-contact h2 {
+    font-size: clamp(30px, 8.5vw, 40px);
+    max-width: 18rem;
+  }
+
+  .home-contact-illustration {
+    max-width: min(100%, 16rem);
+  }
+
+  .home-contact-illustration__image {
+    transform: translateY(clamp(18px, 2.4vh, 28px));
+  }
+
   .home-contact-form-slot {
     width: 100%;
   }
@@ -2145,6 +2212,33 @@
 
   .home-contact .home-contact-form-slot .home-contact-form {
     max-width: none;
+    margin-inline: 0;
+  }
+
+  .home-scroll-right-square__balloon {
+    min-width: 0;
+    max-width: calc(100vw - 36px);
+    padding: 12px 14px;
+    padding-right: 30px;
+    right: calc(100% + 8px);
+  }
+
+  .home-scroll-right-square__balloon-text {
+    max-width: none;
+    font-size: 13px;
+  }
+
+  .home-scroll-right-square__balloon-text-line {
+    white-space: normal;
+  }
+
+  .home-scroll-right-square__balloon-milo-figure {
+    width: clamp(48px, 13vw, 58px);
+    transform: translateX(0);
+  }
+
+  .home-scroll-right-square__balloon-content {
+    gap: 6px;
   }
 }
 
