@@ -10,6 +10,11 @@ export function getHomeIntroBlockingScriptContent(): string {
   try {
     var path = location.pathname;
     if (path !== "/" && path !== "") return;
+    if (window.matchMedia && window.matchMedia("(max-width: 760px)").matches) {
+      var vv = window.visualViewport && window.visualViewport.height;
+      var heroH = Math.max(window.innerHeight, vv || 0);
+      document.documentElement.style.setProperty("--home-hero-stable-height", Math.round(heroH) + "px");
+    }
     var params = new URLSearchParams(location.search);
     var intro = params.get("intro");
     if (intro === "off") return;
@@ -36,11 +41,6 @@ export function getHomeIntroBlockingScriptContent(): string {
     }
     document.documentElement.classList.add("home-intro-play");
     document.body.style.overflow = "hidden";
-    if (window.matchMedia && window.matchMedia("(max-width: 760px)").matches) {
-      var vv = window.visualViewport && window.visualViewport.height;
-      var heroH = Math.max(window.innerHeight, vv || 0);
-      document.documentElement.style.setProperty("--home-hero-stable-height", Math.round(heroH) + "px");
-    }
   } catch (e) {}
 })();`;
 }

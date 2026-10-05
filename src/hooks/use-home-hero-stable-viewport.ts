@@ -4,69 +4,57 @@ import { useLayoutEffect } from "react";
 
 const HOME_HERO_MOBILE_MEDIA = "(max-width: 760px)";
 
-function readViewportHeight(): number {
+function readInitialViewportHeight(): number {
   const visual = window.visualViewport?.height;
   return Math.max(window.innerHeight, visual ?? 0);
 }
 
 /**
- * Locks mobile hero min-height to the first layout viewport height so iOS/Android
- * browser chrome does not shrink the hero while scrolling; min-height + max(dvh, …)
- * in CSS still grows when the visible viewport gets taller (URL bar hides).
+ * Locks mobile hero to the first viewport height. Height-only changes from the
+ * browser URL bar (scroll) are ignored so the hero does not resize mid-session.
  */
 export function useHomeHeroStableViewport() {
   useLayoutEffect(() => {
     const root = document.documentElement;
     const media = window.matchMedia(HOME_HERO_MOBILE_MEDIA);
 
-    const apply = () => {
+    const apply = (force = false) => {
       if (!media.matches) {
         root.style.removeProperty("--home-hero-stable-height");
         return;
       }
-      root.style.setProperty("--home-hero-stable-height", `${Math.round(readViewportHeight())}px`);
+      if (!force && root.style.getPropertyValue("--home-hero-stable-height")) {
+        return;
+      }
+      root.style.setProperty(
+        "--home-hero-stable-height",
+        `${Math.round(readInitialViewportHeight())}px`,
+      );
     };
 
     apply();
 
     let lastWidth = window.innerWidth;
-    let lockedMinHeight = readViewportHeight();
-
     const onResize = () => {
-      if (!media.matches) return;
-
-      const nextHeight = readViewportHeight();
-      if (Math.abs(window.innerWidth - lastWidth) >= 1) {
-        lastWidth = window.innerWidth;
-        lockedMinHeight = nextHeight;
-        apply();
-        return;
-      }
-
-      if (nextHeight > lockedMinHeight) {
-        lockedMinHeight = nextHeight;
-        root.style.setProperty("--home-hero-stable-height", `${Math.round(lockedMinHeight)}px`);
-      }
+      if (Math.abs(window.innerWidth - lastWidth) < 1) return;
+      lastWidth = window.innerWidth;
+      apply(true);
     };
 
     const onOrientationChange = () => {
       lastWidth = window.innerWidth;
-      window.requestAnimationFrame(() => {
-        lockedMinHeight = readViewportHeight();
-        apply();
-      });
+      window.requestAnimationFrame(() => apply(true));
     };
 
-    media.addEventListener("change", apply);
+    const onMediaChange = () => apply(true);
+    media.addEventListener("change", onMediaChange);
     window.addEventListener("resize", onResize);
     window.addEventListener("orientationchange", onOrientationChange);
-    window.visualViewport?.addEventListener("resize", onResize);
 
     return () => {
-      media.removeEventListener("change", apply);
+      media.removeEventListener("change", onMediaChange);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onOrientationChange);
-      window.visualViewport?.removeEventListener("resize", onResize);
       root.style.removeProperty("--home-hero-stable-height");
     };
   }, []);
