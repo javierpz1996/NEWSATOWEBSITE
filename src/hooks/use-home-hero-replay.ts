@@ -10,7 +10,7 @@ export type HomeHeroReplayState = {
 };
 
 const HOME_HERO_MOBILE_MEDIA = "(max-width: 760px)";
-const HOME_SERVICES_SECTION_ID = "servicios";
+const HOME_COMMISSIONS_SECTION_ID = "comisiones";
 
 function isIntroPlaying(): boolean {
   return document.documentElement.classList.contains("home-intro-play");
@@ -27,12 +27,19 @@ function isHeroSectionInView(node: HTMLElement): boolean {
   return rect.top < viewportHeight * 0.92 && rect.bottom > viewportHeight * 0.15;
 }
 
-/** Mobile: keep hero editorial visible until the Servicios block enters the viewport. */
-function hasScrolledToServicesSection(): boolean {
-  const services = document.getElementById(HOME_SERVICES_SECTION_ID);
-  if (!services) return true;
-  const rect = services.getBoundingClientRect();
-  return rect.top < window.innerHeight * 0.88;
+/**
+ * Mobile: true once the user has scrolled past the bottom of Comisiones abiertas
+ * (only then arm the hero for replay-hide).
+ */
+function hasScrolledPastCommissionsEnd(): boolean {
+  const commissions = document.getElementById(HOME_COMMISSIONS_SECTION_ID);
+  if (!commissions) return true;
+  const rect = commissions.getBoundingClientRect();
+  return rect.bottom < window.innerHeight * 0.18;
+}
+
+function shouldDeferHeroReplayArmOnMobile(): boolean {
+  return isMobileHeroViewport() && !hasScrolledPastCommissionsEnd();
 }
 
 export function useHomeHeroReplay(
@@ -73,10 +80,9 @@ export function useHomeHeroReplay(
       playReplayFromHidden();
     };
 
+    /** Hide + arm replay (ready ∧ ¬active). On mobile, only after Comisiones ends. */
     const applyHeroLeftViewport = () => {
-      if (isMobileHeroViewport() && !hasScrolledToServicesSection()) {
-        replayReadyRef.current = true;
-        setReplayReady(true);
+      if (shouldDeferHeroReplayArmOnMobile()) {
         setReplayActive(true);
         return;
       }
