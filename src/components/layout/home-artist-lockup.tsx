@@ -5,9 +5,6 @@ export function HomeArtistLockup() {
         <p className="home-artist-name home-artist-lockup-line home-artist-lockup-line--name">
           SATO
         </p>
-        <h1 className="home-artist-kanji home-artist-lockup-line home-artist-lockup-line--kanji">
-          佐藤
-        </h1>
         <p className="home-artist-role home-artist-lockup-line home-artist-lockup-line--role">
           Anime &amp; Illustration Artist
         </p>
