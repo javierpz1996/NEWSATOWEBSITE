@@ -1485,15 +1485,17 @@
 @media (max-width: 760px) {
   .home-hero-backdrop {
     box-sizing: border-box;
-    height: var(--home-hero-stable-height, 100svh);
-    min-height: var(--home-hero-stable-height, 100svh);
-    max-height: var(--home-hero-stable-height, 100svh);
+    /* Fill the screen; never shorter than the locked initial height (iOS URL bar). */
+    min-height: max(100svh, 100dvh, var(--home-hero-stable-height, 0px));
+    height: auto;
+    max-height: none;
     overflow: hidden;
   }
 
   .home-page .home-hero,
   .home-hero {
     flex: 1 1 auto;
+    align-self: stretch;
     min-height: 0;
     padding: 0;
     padding-bottom: 12px;
