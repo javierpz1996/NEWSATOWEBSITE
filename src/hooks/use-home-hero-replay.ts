@@ -9,8 +9,15 @@ export type HomeHeroReplayState = {
   replayActive: boolean;
 };
 
+const HOME_HERO_MOBILE_MEDIA = "(max-width: 760px)";
+const HOME_SERVICES_SECTION_ID = "servicios";
+
 function isIntroPlaying(): boolean {
   return document.documentElement.classList.contains("home-intro-play");
+}
+
+function isMobileHeroViewport(): boolean {
+  return window.matchMedia(HOME_HERO_MOBILE_MEDIA).matches;
 }
 
 function isHeroSectionInView(node: HTMLElement): boolean {
@@ -18,6 +25,14 @@ function isHeroSectionInView(node: HTMLElement): boolean {
   if (rect.height <= 0) return false;
   const viewportHeight = window.innerHeight;
   return rect.top < viewportHeight * 0.92 && rect.bottom > viewportHeight * 0.15;
+}
+
+/** Mobile: keep hero editorial visible until the Servicios block enters the viewport. */
+function hasScrolledToServicesSection(): boolean {
+  const services = document.getElementById(HOME_SERVICES_SECTION_ID);
+  if (!services) return true;
+  const rect = services.getBoundingClientRect();
+  return rect.top < window.innerHeight * 0.88;
 }
 
 export function useHomeHeroReplay(
@@ -58,25 +73,63 @@ export function useHomeHeroReplay(
       playReplayFromHidden();
     };
 
+    const applyHeroLeftViewport = () => {
+      if (isMobileHeroViewport() && !hasScrolledToServicesSection()) {
+        replayReadyRef.current = true;
+        setReplayReady(true);
+        setReplayActive(true);
+        return;
+      }
+
+      replayReadyRef.current = true;
+      setReplayReady(true);
+      setReplayActive(false);
+    };
+
+    const applyHeroInViewport = () => {
+      if (!initialReplayDoneRef.current) {
+        tryPlayInitialReplay();
+        return;
+      }
+      if (replayReadyRef.current) {
+        setReplayActive(true);
+      }
+    };
+
+    const evaluateMobileScroll = () => {
+      if (!isMobileHeroViewport() || isIntroPlaying()) return;
+      if (isHeroSectionInView(node)) {
+        applyHeroInViewport();
+        return;
+      }
+      applyHeroLeftViewport();
+    };
+
+    let mobileRafId = 0;
+    const scheduleMobileEvaluate = () => {
+      if (!isMobileHeroViewport()) return;
+      if (mobileRafId !== 0) return;
+      mobileRafId = window.requestAnimationFrame(() => {
+        mobileRafId = 0;
+        evaluateMobileScroll();
+      });
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (isIntroPlaying()) return;
 
+        if (isMobileHeroViewport()) {
+          evaluateMobileScroll();
+          return;
+        }
+
         if (!entry.isIntersecting) {
-          replayReadyRef.current = true;
-          setReplayReady(true);
-          setReplayActive(false);
+          applyHeroLeftViewport();
           return;
         }
 
-        if (!initialReplayDoneRef.current) {
-          tryPlayInitialReplay();
-          return;
-        }
-
-        if (replayReadyRef.current) {
-          setReplayActive(true);
-        }
+        applyHeroInViewport();
       },
       {
         threshold: 0.35,
@@ -85,6 +138,10 @@ export function useHomeHeroReplay(
     );
 
     observer.observe(node);
+
+    window.addEventListener("scroll", scheduleMobileEvaluate, { passive: true });
+    window.visualViewport?.addEventListener("resize", scheduleMobileEvaluate);
+    window.visualViewport?.addEventListener("scroll", scheduleMobileEvaluate);
 
     let introObserver: MutationObserver | undefined;
     if (isIntroPlaying()) {
@@ -111,6 +168,10 @@ export function useHomeHeroReplay(
     return () => {
       observer.disconnect();
       introObserver?.disconnect();
+      window.removeEventListener("scroll", scheduleMobileEvaluate);
+      window.visualViewport?.removeEventListener("resize", scheduleMobileEvaluate);
+      window.visualViewport?.removeEventListener("scroll", scheduleMobileEvaluate);
+      if (mobileRafId !== 0) window.cancelAnimationFrame(mobileRafId);
       window.removeEventListener(
         HOME_INTRO_PREPARE_FIRST_HERO_REPLAY_EVENT,
         prepareFirstVisitReplay,
