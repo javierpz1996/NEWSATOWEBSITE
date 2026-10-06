@@ -66,9 +66,11 @@ además recorrerla en el navegador.
   sola página → junto a esa página.
 - `'use client'` **solo** cuando hay interactividad real. Por defecto: Server Component.
 - **Sin librería de estado global**: Server Components + `useState`/`useRef` locales.
-- Sin API routes, base de datos, auth ni variables de entorno: el sitio es estático y el
-  contacto es `mailto:` + redes. Cambiar eso exige **un ADR nuevo** (ver
-  [ADR-0005](docs/adr/0005-sin-backend-contacto-y-deploy.md)).
+- Sin API routes ni auth de visitantes; el sitio sigue siendo estático en build salvo el
+  envío del carrito a Supabase ([ADR-0006](docs/adr/0006-supabase-carrito-propuestas.md)).
+  Contacto general: `mailto:` + redes ([ADR-0005](docs/adr/0005-sin-backend-contacto-y-deploy.md)).
+- Variables de entorno: solo las `NEXT_PUBLIC_SUPABASE_*` del ADR-0006 (plantilla
+  `.env.example`); nunca commitear `.env.local`.
 - **Dependencias**: justificar la nueva y anotarla en el ADR correspondiente **antes** de
   instalarla.
 

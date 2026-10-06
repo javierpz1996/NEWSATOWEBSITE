@@ -15,7 +15,10 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { clearHomeCart, formatHomeCartUsd } from "@/lib/home-cart";
 import { fireHomeCartProposalConfetti } from "@/lib/home-cart-proposal-confetti";
 import {
-  buildCartProposalMailtoHref,
+  CartProposalSubmitError,
+  submitCartProposalToSupabase,
+} from "@/lib/home-cart-proposal-submit";
+import {
   CART_PROPOSAL_SOCIAL_OPTIONS,
   getCartProposalSocialLabel,
 } from "@/lib/home-cart-proposal";
@@ -181,6 +184,8 @@ export function HomeCartDrawer() {
   const { items, isOpen, closeCart: closeCartContext, removeItem } = useHomeCart();
   const [proposalOpen, setProposalOpen] = useState(false);
   const [proposalSent, setProposalSent] = useState(false);
+  const [proposalSubmitting, setProposalSubmitting] = useState(false);
+  const [proposalError, setProposalError] = useState<string | null>(null);
   const [stageHeight, setStageHeight] = useState<number | undefined>(undefined);
   const reduceMotion = useReducedMotion() ?? false;
   const drawerViewVariants = reduceMotion ? drawerViewVariantsReduced : drawerViewVariantsFull;
@@ -220,6 +225,8 @@ export function HomeCartDrawer() {
     homeCartDrawerNavDirection = 1;
     setProposalOpen(false);
     setProposalSent(false);
+    setProposalSubmitting(false);
+    setProposalError(null);
     setStageHeight(undefined);
     viewHeightsRef.current = {};
     closeCartContext();
@@ -236,6 +243,8 @@ export function HomeCartDrawer() {
     applyCachedStageHeight("list", items.length > 0);
     setProposalOpen(false);
     setProposalSent(false);
+    setProposalSubmitting(false);
+    setProposalError(null);
   }, [applyCachedStageHeight, items.length]);
 
   useEffect(() => {
@@ -284,7 +293,7 @@ export function HomeCartDrawer() {
   );
 
   const handleProposalSubmit = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
+    async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const form = event.currentTarget;
       const data = new FormData(form);
@@ -297,18 +306,31 @@ export function HomeCartDrawer() {
 
       if (!socialNetworkLabel || !socialUsername || items.length === 0) return;
 
-      buildCartProposalMailtoHref({
-        clientName,
-        socialNetworkLabel,
-        socialUsername,
-        notes,
-        items,
-      });
+      setProposalError(null);
+      setProposalSubmitting(true);
 
-      form.reset();
-      homeCartDrawerNavDirection = 1;
-      applyCachedStageHeight("success", false);
-      setProposalSent(true);
+      try {
+        await submitCartProposalToSupabase({
+          clientName,
+          socialNetworkLabel,
+          socialUsername,
+          notes,
+          items,
+        });
+
+        form.reset();
+        homeCartDrawerNavDirection = 1;
+        applyCachedStageHeight("success", false);
+        setProposalSent(true);
+      } catch (error) {
+        const message =
+          error instanceof CartProposalSubmitError
+            ? error.message
+            : "No se pudo enviar la propuesta. Intentá de nuevo.";
+        setProposalError(message);
+      } finally {
+        setProposalSubmitting(false);
+      }
     },
     [applyCachedStageHeight, items],
   );
@@ -473,11 +495,20 @@ export function HomeCartDrawer() {
                         {items.length} pedido{items.length === 1 ? "" : "s"} en esta propuesta.
                       </p>
 
+                      {proposalError ? (
+                        <p className="home-cart-drawer__proposal-error" role="alert">
+                          {proposalError}
+                        </p>
+                      ) : null}
+
                       <button
                         type="submit"
                         className="home-contact-form__submit home-cart-drawer__proposal-submit"
+                        disabled={proposalSubmitting}
+                        aria-busy={proposalSubmitting}
                       >
-                        Enviar propuesta <span aria-hidden="true">↗</span>
+                        {proposalSubmitting ? "Enviando…" : "Enviar propuesta"}
+                        {!proposalSubmitting ? <span aria-hidden="true"> ↗</span> : null}
                       </button>
 
                       <p className="home-contact-form__hint">

@@ -4593,6 +4593,15 @@
   box-shadow: none;
 }
 
+.home-cart-drawer__proposal-error {
+  margin: 0;
+  color: var(--destructive);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+}
+
 .home-cart-drawer__proposal-summary {
   margin: 0;
   padding: clamp(10px, 1.2vh, 12px) clamp(12px, 1.4vw, 14px);
