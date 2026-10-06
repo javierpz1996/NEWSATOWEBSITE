@@ -45,8 +45,8 @@ export default function CommissionRulesPage() {
   return (
     <main className="legal-page">
       <div className="legal-page__inner">
-        <Link className="legal-page__back" href="/#comisiones">
-          ← Volver a comisiones
+        <Link className="legal-page__back" href="/">
+          ← Volver
         </Link>
 
         <header className="legal-page__header">
