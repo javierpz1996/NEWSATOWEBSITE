@@ -35,7 +35,7 @@ export function HomePortalMenuModal({ onClose }: HomePortalMenuModalProps) {
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    closeRef.current?.focus();
+    dialogRef.current?.focus({ preventScroll: true });
 
     return () => {
       document.body.style.overflow = previousOverflow;
@@ -78,6 +78,7 @@ export function HomePortalMenuModal({ onClose }: HomePortalMenuModalProps) {
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
+      tabIndex={-1}
       onKeyDown={onDialogKeyDown}
     >
       <div className="home-portal-menu-modal__veil" aria-hidden="true" />

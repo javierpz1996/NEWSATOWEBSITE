@@ -3319,6 +3319,10 @@
   color: #fff;
 }
 
+.home-portal-menu-modal:focus {
+  outline: none;
+}
+
 .home-portal-menu-modal__veil {
   position: absolute;
   inset: 0;
@@ -3381,9 +3385,17 @@
   opacity: 0.88;
 }
 
+.home-portal-menu-modal__close:focus {
+  outline: none;
+}
+
 .home-portal-menu-modal__close:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 4px;
+  outline: none;
+}
+
+.home-portal-menu-modal__close:focus-visible .home-portal-menu-modal__close-label {
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .home-portal-menu-modal__layout {
