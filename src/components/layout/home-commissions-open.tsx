@@ -1,16 +1,15 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   sectionScrollRevealClassName,
   useSectionScrollReveal,
 } from "@/hooks/use-section-scroll-reveal";
 import { COMMISSION_RULES_HREF } from "@/lib/commission-rules-content";
-import {
-  homeCommissionsInProgressPlaceholders,
-  type HomeCommissionInProgress,
-} from "@/lib/home-commission-in-progress";
+import { formatCommissionDateLabel } from "@/lib/commission-date-format";
+import type { HomeCommissionInProgress } from "@/lib/home-commission-in-progress";
 import Link from "next/link";
+import { useHomeMessages } from "@/hooks/use-home-messages";
 
 function CommissionStepFrame() {
   return (
@@ -29,6 +28,7 @@ type CommissionInProgressCardProps = {
 };
 
 function CommissionInProgressCard({ commission, revealIndex }: CommissionInProgressCardProps) {
+  const { commissions: copy } = useHomeMessages();
   const titleId = `home-commission-in-progress-title-${commission.id}`;
 
   return (
@@ -38,7 +38,7 @@ function CommissionInProgressCard({ commission, revealIndex }: CommissionInProgr
     >
       <CommissionStepFrame />
       <div className="home-commissions-in-progress-header">
-        <p className="home-commissions-in-progress-eyebrow">Comisión en curso</p>
+        <p className="home-commissions-in-progress-eyebrow">{copy.inProgressEyebrow}</p>
         <div className="home-commissions-in-progress-heading-row">
           <h3 id={titleId} className="home-commissions-in-progress-title">
             {commission.serviceTitle}
@@ -49,12 +49,12 @@ function CommissionInProgressCard({ commission, revealIndex }: CommissionInProgr
       </div>
       <dl className="home-commissions-in-progress-meta">
         <div className="home-commissions-in-progress-meta-row">
-          <dt>{commission.startedLabel}</dt>
-          <dd>{commission.startedOn}</dd>
+          <dt>{copy.metaStarted}</dt>
+          <dd>{formatCommissionDateLabel(commission.startedOn)}</dd>
         </div>
         <div className="home-commissions-in-progress-meta-row">
-          <dt>{commission.etaLabel}</dt>
-          <dd>{commission.etaOn}</dd>
+          <dt>{copy.metaEta}</dt>
+          <dd>{formatCommissionDateLabel(commission.etaOn)}</dd>
         </div>
       </dl>
     </article>
@@ -62,11 +62,39 @@ function CommissionInProgressCard({ commission, revealIndex }: CommissionInProgr
 }
 
 export function HomeCommissionsOpen() {
+  const { commissions: copy } = useHomeMessages();
   const sectionRef = useRef<HTMLElement>(null);
+  const [commissions, setCommissions] = useState<HomeCommissionInProgress[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const reveal = useSectionScrollReveal(sectionRef, {
     exitLagVh: 0.48,
     exitSectionRatio: 0.72,
   });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const response = await fetch("/api/commissions/in-progress", { cache: "no-store" });
+        const payload = (await response.json()) as {
+          commissions?: HomeCommissionInProgress[];
+        };
+        if (!cancelled && Array.isArray(payload.commissions)) {
+          setCommissions(payload.commissions);
+        }
+      } catch {
+        if (!cancelled) setCommissions([]);
+      } finally {
+        if (!cancelled) setLoaded(true);
+      }
+    };
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <section
@@ -81,17 +109,24 @@ export function HomeCommissionsOpen() {
           id="home-commissions-open-title"
           className="home-commissions-reveal-item home-commissions-reveal-item--title"
         >
-          Comisiones abiertas
+          {copy.title}
         </h2>
         <p
           id="home-commissions-open-subtitle"
           className="home-commissions-open-subtitle home-commissions-reveal-item home-commissions-reveal-item--subtitle"
         >
-          Convertí tu idea en una ilustración
+          {copy.subtitle}
         </p>
       </header>
       <ul className="home-commissions-in-progress-list">
-        {homeCommissionsInProgressPlaceholders.map((commission, index) => (
+        {loaded && commissions.length === 0 ? (
+          <li>
+            <p className="home-commissions-in-progress-empty">
+              {copy.emptyInProgress}
+            </p>
+          </li>
+        ) : null}
+        {commissions.map((commission, index) => (
           <li key={commission.id}>
             <CommissionInProgressCard commission={commission} revealIndex={index + 1} />
           </li>
@@ -126,14 +161,14 @@ export function HomeCommissionsOpen() {
           <span className="home-commissions-rules-notice-divider" aria-hidden="true" />
         </div>
         <p className="home-commissions-rules-notice-text">
-          Antes de solicitar una comisión, revisá las{" "}
+          {copy.rulesNoticeBefore}
           <Link className="home-commissions-rules-notice-text-link" href={COMMISSION_RULES_HREF}>
-            <strong>reglas</strong>
-          </Link>{" "}
-          de comisiones.
+            <strong>{copy.rulesLink}</strong>
+          </Link>
+          {copy.rulesNoticeAfter}
         </p>
         <Link className="home-commissions-rules-notice-cta" href={COMMISSION_RULES_HREF}>
-          Ver reglas
+          {copy.rulesCta}
           <span className="home-commissions-rules-notice-cta-arrow" aria-hidden="true">
             →
           </span>

@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useHomeMessages } from "@/hooks/use-home-messages";
 
 type AnimationWork = {
   id: string;
@@ -8,72 +11,37 @@ type AnimationWork = {
   alt: string;
 };
 
-const animationWorks: AnimationWork[] = [
-  {
-    id: "animation-1",
-    number: "01",
-    title: "Momentos fugaces",
-    src: "/works/animation/animation5.gif",
-    alt: "Animación de muestra 01: personaje en escena ilustrada en loop",
-  },
-  {
-    id: "animation-2",
-    number: "02",
-    title: "Loop de estudio",
-    src: "/works/animation/animation2.gif",
-    alt: "Animación de muestra 02: loop de personaje en estudio de color",
-  },
-  {
-    id: "animation-3",
-    number: "03",
-    title: "Secuencia suave",
-    src: "/works/animation/animation3.gif",
-    alt: "Animación de muestra 03: secuencia corta con transiciones suaves",
-  },
-  {
-    id: "animation-4",
-    number: "04",
-    title: "Fragmento en movimiento",
-    src: "/works/animation/animation4.gif",
-    alt: "Animación de muestra 04: fragmento animado con fondo detallado",
-  },
-  {
-    id: "animation-5",
-    number: "05",
-    title: "Loop en escena",
-    src: "/works/animation/animation1.gif",
-    alt: "Animación de muestra 05: loop animado en escena ilustrada",
-  },
-];
+const ANIMATION_SRC_BY_ID: Record<string, `/works/animation/${string}`> = {
+  "animation-1": "/works/animation/animation5.gif",
+  "animation-2": "/works/animation/animation2.gif",
+  "animation-3": "/works/animation/animation3.gif",
+  "animation-4": "/works/animation/animation4.gif",
+  "animation-5": "/works/animation/animation1.gif",
+};
 
-function workById(id: AnimationWork["id"]) {
-  const work = animationWorks.find((item) => item.id === id);
+function workById(works: AnimationWork[], id: string) {
+  const work = works.find((item) => item.id === id);
   if (!work) throw new Error(`Missing animation work: ${id}`);
   return work;
 }
-
-const topRowWorks = [workById("animation-1"), workById("animation-3")];
-const bottomRowWorks = [
-  workById("animation-2"),
-  workById("animation-4"),
-  workById("animation-5"),
-];
 
 function AnimationTile({
   work,
   priority = false,
   sizes,
   variant,
+  tileAria,
 }: {
   work: AnimationWork;
   priority?: boolean;
   sizes: string;
   variant: "featured" | "thumb";
+  tileAria: (number: string, title: string) => string;
 }) {
   return (
     <figure
       className={`home-animations-tile home-animations-tile-${variant}`}
-      aria-label={`Animación ${work.number}: ${work.title}`}
+      aria-label={tileAria(work.number, work.title)}
     >
       <span className="home-animations-tile-number">{work.number}</span>
       <Image
@@ -90,6 +58,19 @@ function AnimationTile({
 }
 
 export function HomeAnimations() {
+  const { animations } = useHomeMessages();
+  const animationWorks: AnimationWork[] = animations.works.map((work) => ({
+    ...work,
+    src: ANIMATION_SRC_BY_ID[work.id]!,
+  }));
+
+  const topRowWorks = [workById(animationWorks, "animation-1"), workById(animationWorks, "animation-3")];
+  const bottomRowWorks = [
+    workById(animationWorks, "animation-2"),
+    workById(animationWorks, "animation-4"),
+    workById(animationWorks, "animation-5"),
+  ];
+
   return (
     <section
       id="animaciones"
@@ -99,14 +80,14 @@ export function HomeAnimations() {
     >
       <header className="home-animations-header">
         <div className="home-animations-header-copy">
-          <h2 id="home-animations-title">Animaciones</h2>
+          <h2 id="home-animations-title">{animations.title}</h2>
           <p id="home-animations-subtitle" className="home-animations-subtitle">
-            Una pequeña selección de mis trabajos animados.
+            {animations.subtitle}
           </p>
         </div>
         <div className="home-animations-header-meta">
-          <p className="home-animations-count">COMISIONES · PRÓXIMAMENTE</p>
-          <p className="home-animations-tags">ANIMACIÓN · LOOP · MV · 2D</p>
+          <p className="home-animations-count">{animations.count}</p>
+          <p className="home-animations-tags">{animations.tags}</p>
         </div>
       </header>
 
@@ -119,6 +100,7 @@ export function HomeAnimations() {
               variant="featured"
               priority={index === 0}
               sizes="(max-width: 900px) 50vw, 780px"
+              tileAria={animations.tileAria}
             />
           ))}
         </div>
@@ -129,6 +111,7 @@ export function HomeAnimations() {
               work={work}
               variant="thumb"
               sizes="(max-width: 560px) 33vw, 520px"
+              tileAria={animations.tileAria}
             />
           ))}
         </div>

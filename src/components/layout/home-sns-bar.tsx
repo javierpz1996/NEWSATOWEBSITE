@@ -1,4 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useHomeMessages } from "@/hooks/use-home-messages";
 
 type SocialLink = {
   id: string;
@@ -77,8 +80,9 @@ function SocialLinkItem({ link }: { link: SocialLink }) {
 }
 
 export function HomeSnsBar() {
+  const { sns } = useHomeMessages();
   return (
-    <section id="home-sns" className="home-sns" aria-label="Redes sociales">
+    <section id="home-sns" className="home-sns" aria-label={sns.sectionAria}>
       <div className="home-sns-inner">
         <div className="home-sns-frame" aria-hidden="true">
           <span className="home-sns-corner home-sns-corner-tl" />

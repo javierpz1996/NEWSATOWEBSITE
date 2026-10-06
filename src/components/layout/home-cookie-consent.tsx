@@ -18,6 +18,7 @@ import {
   type HomeCookieConsentValue,
   writeHomeCookieConsent,
 } from "@/lib/home-cookie-consent";
+import { useHomeMessages } from "@/hooks/use-home-messages";
 
 const HOME_COOKIE_CONSENT_EXIT_ANIMATION_NAMES = new Set([
   "home-cookie-consent-out",
@@ -25,6 +26,7 @@ const HOME_COOKIE_CONSENT_EXIT_ANIMATION_NAMES = new Set([
 ]);
 
 export function HomeCookieConsent() {
+  const { cookies } = useHomeMessages();
   const titleId = useId();
   const [delayedReady, setDelayedReady] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
@@ -99,7 +101,7 @@ export function HomeCookieConsent() {
           type="button"
           className="home-cookie-consent__close"
           onClick={close}
-          aria-label="Cerrar aviso de cookies"
+          aria-label={cookies.closeAria}
         >
           <span aria-hidden="true">×</span>
         </button>
@@ -110,14 +112,12 @@ export function HomeCookieConsent() {
             aria-hidden="true"
             strokeWidth={2}
           />
-          Cookies
+          {cookies.title}
         </h2>
 
         <div className="home-cookie-consent__body">
           <p className="home-cookie-consent__text">
-            Usamos cookies y almacenamiento local para recordar preferencias y
-            entender cómo se usa el sitio. Podés aceptar o rechazar las cookies
-            no esenciales.
+            {cookies.body}
           </p>
 
           <div className="home-cookie-consent__actions">
@@ -126,21 +126,21 @@ export function HomeCookieConsent() {
               className="home-cookie-consent__btn home-cookie-consent__btn--primary"
               onClick={accept}
             >
-              Aceptar
+              {cookies.accept}
             </button>
             <button
               type="button"
               className="home-cookie-consent__btn home-cookie-consent__btn--secondary"
               onClick={reject}
             >
-              Rechazar
+              {cookies.reject}
             </button>
             <button
               type="button"
               className="home-cookie-consent__btn home-cookie-consent__btn--secondary"
               onClick={close}
             >
-              Cerrar
+              {cookies.dismiss}
             </button>
           </div>
         </div>
@@ -149,7 +149,7 @@ export function HomeCookieConsent() {
           href={HOME_PRIVACY_POLICY_HREF}
           className="home-cookie-consent__privacy"
         >
-          <span>Ver más en nuestra Política de privacidad</span>
+          <span>{cookies.privacyLink}</span>
           <span className="home-cookie-consent__privacy-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width={14} height={14} focusable="false">
               <path

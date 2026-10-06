@@ -20,12 +20,14 @@ import {
   writeHomeLocale,
   type HomeLocale,
 } from "@/lib/home-locale";
+import { useHomeMessages } from "@/hooks/use-home-messages";
 
 type HomeLocaleSwitcherProps = {
   className?: string;
 };
 
 export function HomeLocaleSwitcher({ className }: HomeLocaleSwitcherProps) {
+  const { localeSwitcher } = useHomeMessages();
   const menuId = useId();
   const wrapRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -76,7 +78,7 @@ export function HomeLocaleSwitcher({ className }: HomeLocaleSwitcherProps) {
       <button
         type="button"
         className="home-portal-menu-locale-switch"
-        aria-label="Idioma"
+        aria-label={localeSwitcher.ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={menuOpen}
         aria-controls={menuId}
@@ -94,7 +96,12 @@ export function HomeLocaleSwitcher({ className }: HomeLocaleSwitcherProps) {
       </button>
 
       {menuOpen ? (
-        <ul id={menuId} className="home-portal-menu-locale-switch__menu" role="listbox" aria-label="Idioma">
+        <ul
+          id={menuId}
+          className="home-portal-menu-locale-switch__menu"
+          role="listbox"
+          aria-label={localeSwitcher.menuAriaLabel}
+        >
           {HOME_LOCALE_ORDER.map((option) => {
             const selected = option === locale;
             return (

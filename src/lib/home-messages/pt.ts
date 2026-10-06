@@ -1,0 +1,233 @@
+import type { HomeMessages } from "@/lib/home-messages/types";
+
+export const homeMessagesPt: HomeMessages = {
+  localeSwitcher: {
+    ariaLabel: "Idioma",
+    menuAriaLabel: "Idioma",
+  },
+  footer: {
+    homeAriaLabel: "Início",
+    navAriaLabel: "Seções da página",
+    nav: [
+      { label: "Ir ao início", href: "#inicio" },
+      { label: "Comissões", href: "#comisiones" },
+      { label: "Serviços", href: "#servicios" },
+      { label: "Animações", href: "#animaciones" },
+      { label: "Perguntas", href: "#preguntas" },
+      { label: "Contato", href: "#contacto" },
+    ],
+  },
+  commissions: {
+    title: "Comissões abertas",
+    subtitle: "Transforme sua ideia em uma ilustração",
+    emptyInProgress: "Não há comissões em andamento publicadas no momento.",
+    inProgressEyebrow: "Comissão em andamento",
+    metaStarted: "Início",
+    metaEta: "Entrega estimada",
+    rulesNoticeBefore: "Antes de solicitar uma comissão, leia as ",
+    rulesLink: "regras",
+    rulesNoticeAfter: " de comissões.",
+    rulesCta: "Ver regras",
+  },
+  services: {
+    title: "Serviços",
+    subtitle: "Tipos de encomenda disponíveis",
+    filterAriaLabel: "Filtrar por conteúdo",
+    nsfwAriaLabel: "NSFW, conteúdo para maiores de 18 anos",
+    emptyNsfw:
+      "Ainda não há serviços NSFW publicados. Volte para SFW ou pergunte sobre encomendas personalizadas.",
+    card: {
+      from: "A partir de",
+      prices: "Preços",
+      variations: "Variações",
+      showDetails: "Mostrar detalhes",
+      hideDetails: "Ocultar detalhes",
+      calculate: "Calcular comissão",
+      back: "Voltar",
+      buildOrderAria: "Montar pedido",
+      requestCommission: "Solicitar comissão",
+    },
+    order: {
+      base: "Base",
+      variations: "Variações",
+      extra: "Extra",
+      estimatedTotal: "Total estimado",
+      buy: "Comprar",
+      fullBody: "Corpo inteiro",
+      extraPerson: "Pessoa extra",
+      removeExtraPersonAria: "Remover pessoa extra",
+      addExtraPersonAria: "Adicionar pessoa extra",
+      extraPersonEach: "+7 USD cada",
+      includesLabel: "Inclui:",
+      extraPersonLine: (count) => `Pessoa extra × ${count}`,
+    },
+    simplista: {
+      badge: "Joelhos para cima",
+      title: "SIMPLISTA COLORIDO",
+      description:
+        "Estilo simples, perspectivas diretas e traços divertidos ou bobos. Coloração simples / cel shading, com poucas correções. Ambiente e sombras à escolha do cliente.",
+      fromPrice: "8 USD",
+      baseOptions: [
+        { id: "flat", label: "1 personagem + fundo plano", priceUsd: 8 },
+        { id: "simple", label: "1 personagem + fundo simples", priceUsd: 15 },
+      ],
+      variationFullBody: "Corpo inteiro",
+      variationExtraPerson: "Pessoa extra",
+      bundleTitle: "Folha de poses do personagem",
+      bundlePrice: "40 USD",
+      poseSheetIncludes: [
+        "1 corpo inteiro",
+        "2 bustos",
+        "1 chibi, cabeça ou acessórios",
+        "Fundo plano",
+      ],
+      ctaLabel: "Solicitar comissão",
+    },
+    nsfwGate: {
+      closeAria: "Fechar aviso",
+      title: "Conteúdo para maiores de 18 anos",
+      description: "Esta seção contém ilustrações com conteúdo adulto (NSFW).",
+      consent: "Tenho 18 anos ou mais e entendo que pode incluir conteúdo sensível.",
+      cancel: "Cancelar",
+      enter: "Entrar",
+    },
+  },
+  faq: {
+    title: "Perguntas, respondidas",
+    items: [
+      {
+        id: "process",
+        question: "Como funciona o processo de uma comissão?",
+        answer:
+          "Primeiro conversamos sobre sua ideia por redes ou e-mail, definimos escopo e orçamento. Depois sigo as etapas de rascunho, revisão e entrega final que você vê na seção de comissões.",
+      },
+      {
+        id: "payment",
+        question: "Como funcionam os pagamentos?",
+        answer:
+          "Os detalhes de pagamento (entrada, métodos disponíveis e saldo final) são combinados na mensagem inicial. Este texto é provisório até definir a política real.",
+      },
+      {
+        id: "revisions",
+        question: "Posso pedir alterações no rascunho?",
+        answer:
+          "Sim — na etapa de rascunho você pode pedir ajustes dentro do escopo acordado. Mudanças maiores podem exigir valor adicional ou mais tempo.",
+      },
+      {
+        id: "refunds",
+        question: "E cancelamentos ou reembolsos?",
+        answer:
+          "As condições dependem do estágio do trabalho. A política oficial ficará aqui quando estiver pronta; por enquanto é texto de maquete.",
+      },
+      {
+        id: "files",
+        question: "Em que formato recebo os arquivos?",
+        answer:
+          "Normalmente arquivos prontos para web ou impressão conforme o tipo de peça. O formato exato é confirmado ao fechar a comissão.",
+      },
+    ],
+  },
+  contact: {
+    titleLine1: "Vamos conversar",
+    titleEmphasis: "sobre uma ideia?",
+    illustrationAlt: "Ilustração placeholder de Milo, Teo e Luki",
+    emailLabel: "E-mail",
+    messageLabel: "Mensagem",
+    messagePlaceholder: "Conte sua ideia…",
+    submit: "Enviar e-mail",
+    hint: "Seu app de e-mail abrirá para confirmar o envio.",
+    hintAfterSubmit: "Seu app de e-mail abrirá para confirmar o envio.",
+  },
+  animations: {
+    title: "Animações",
+    subtitle: "Uma pequena seleção dos meus trabalhos animados.",
+    count: "COMISSÕES · EM BREVE",
+    tags: "ANIMAÇÃO · LOOP · MV · 2D",
+    tileAria: (number, title) => `Animação ${number}: ${title}`,
+    works: [
+      {
+        id: "animation-1",
+        number: "01",
+        title: "Momentos fugazes",
+        alt: "Animação de amostra 01: personagem em cena ilustrada em loop",
+      },
+      {
+        id: "animation-2",
+        number: "02",
+        title: "Loop de estúdio",
+        alt: "Animação de amostra 02: loop de personagem em estúdio de cor",
+      },
+      {
+        id: "animation-3",
+        number: "03",
+        title: "Sequência suave",
+        alt: "Animação de amostra 03: sequência curta com transições suaves",
+      },
+      {
+        id: "animation-4",
+        number: "04",
+        title: "Fragmento em movimento",
+        alt: "Animação de amostra 04: fragmento animado com fundo detalhado",
+      },
+      {
+        id: "animation-5",
+        number: "05",
+        title: "Loop em cena",
+        alt: "Animação de amostra 05: loop animado em cena ilustrada",
+      },
+    ],
+  },
+  cart: {
+    title: "Carrinho",
+    titleProposal: "Enviar proposta",
+    titleSuccess: "Envio realizado",
+    closeAria: "Fechar carrinho",
+    backAria: "Voltar ao carrinho",
+    empty: "Seu carrinho está vazio.",
+    remove: "Remover",
+    totalLabel: "Total:",
+    sendProposal: "Enviar proposta",
+    sending: "Enviando…",
+    successTitle: "Envio realizado",
+    successText: "Enviarei uma mensagem quando aceitar seu pedido.",
+    proposalHint: "Enviarei uma mensagem quando aceitar seu pedido.",
+    nameLabel: "Nome",
+    namePlaceholder: "Seu nome",
+    socialLabel: "Rede social",
+    socialPlaceholder: "Escolha uma rede",
+    usernameLabel: "Usuário",
+    usernamePlaceholder: "@seu_usuario",
+    notesLabel: "Mensagem",
+    notesPlaceholder: "Referências, prazos ou detalhes extras…",
+    proposalSummary: (count) =>
+      `${count} pedido${count === 1 ? "" : "s"} nesta proposta.`,
+    submitErrorFallback: "Não foi possível enviar a proposta. Tente novamente.",
+    iconAria: "Carrinho",
+    iconAriaWithCount: (count) =>
+      `Carrinho, ${count} pedido${count === 1 ? "" : "s"}`,
+  },
+  cookies: {
+    closeAria: "Fechar aviso de cookies",
+    title: "Cookies",
+    body:
+      "Usamos cookies e armazenamento local para lembrar preferências e entender como o site é usado. Você pode aceitar ou recusar cookies não essenciais.",
+    accept: "Aceitar",
+    reject: "Recusar",
+    dismiss: "Fechar",
+    privacyLink: "Saiba mais na nossa Política de privacidade",
+  },
+  scrollReminder: {
+    tabAria: "Ler lembrete dos termos de serviço",
+    closeAria: "Fechar mensagem",
+    line1: "Não se esqueça de ler os",
+    rulesLink: "termos de serviço",
+    line2After: ".",
+  },
+  portal: {
+    openMenuAria: "Abrir menu",
+    stretchBarAria: "Estender barra do menu portal",
+  },
+  sns: {
+    sectionAria: "Redes sociais",
+  },
+};

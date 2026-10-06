@@ -24,6 +24,7 @@ import {
 } from "@/lib/home-cart-proposal";
 import { useHomeCart } from "@/components/layout/home-cart-context";
 import { HomePortalMenuKanjiArrow } from "@/components/layout/home-portal-menu-kanji-arrow";
+import { useHomeMessages } from "@/hooks/use-home-messages";
 
 const MOTION_EASE_OUT = [0.23, 1, 0.32, 1] as const;
 const MOTION_EASE_DRAWER = [0.32, 0.72, 0, 1] as const;
@@ -173,6 +174,7 @@ function getDrawerViewTransition(reduceMotion: boolean, viewKey: DrawerViewKey) 
 }
 
 export function HomeCartDrawer() {
+  const { cart } = useHomeMessages();
   const titleId = useId();
   const nameFieldId = useId();
   const socialFieldId = useId();
@@ -326,21 +328,21 @@ export function HomeCartDrawer() {
         const message =
           error instanceof CartProposalSubmitError
             ? error.message
-            : "No se pudo enviar la propuesta. Intentá de nuevo.";
+            : cart.submitErrorFallback;
         setProposalError(message);
       } finally {
         setProposalSubmitting(false);
       }
     },
-    [applyCachedStageHeight, items],
+    [applyCachedStageHeight, cart.submitErrorFallback, items],
   );
 
   const dialogTitle =
     proposalOpen && proposalSent
-      ? "Envío realizado"
+      ? cart.titleSuccess
       : proposalOpen
-        ? "Enviar propuesta"
-        : "Carrito";
+        ? cart.titleProposal
+        : cart.title;
 
   useEffect(() => {
     delete viewHeightsRef.current.list;
@@ -377,7 +379,7 @@ export function HomeCartDrawer() {
                     type="button"
                     className="home-cart-drawer__back"
                     onClick={leaveProposalView}
-                    aria-label="Volver al carrito"
+                    aria-label={cart.backAria}
                   >
                     <HomePortalMenuKanjiArrow />
                   </button>
@@ -390,7 +392,7 @@ export function HomeCartDrawer() {
                 type="button"
                 className="home-cart-drawer__close"
                 onClick={closeCart}
-                aria-label="Cerrar carrito"
+                aria-label={cart.closeAria}
               >
                 ×
               </button>
@@ -420,9 +422,9 @@ export function HomeCartDrawer() {
                   >
                   {drawerViewKey === "success" ? (
                     <div className="home-cart-drawer__proposal-success" role="status" aria-live="polite">
-                      <p className="home-cart-drawer__proposal-success-title">Envío realizado</p>
+                      <p className="home-cart-drawer__proposal-success-title">{cart.successTitle}</p>
                       <p className="home-cart-drawer__proposal-success-text">
-                        Me mandaré un mensaje cuando acepte tu solicitud.
+                        {cart.successText}
                       </p>
                     </div>
                   ) : drawerViewKey === "proposal" ? (
@@ -433,7 +435,7 @@ export function HomeCartDrawer() {
                     >
                       <div className="home-contact-form__field">
                         <label className="home-contact-form__label" htmlFor={nameFieldId}>
-                          Nombre
+                          {cart.nameLabel}
                         </label>
                         <input
                           id={nameFieldId}
@@ -441,13 +443,13 @@ export function HomeCartDrawer() {
                           type="text"
                           name="clientName"
                           autoComplete="name"
-                          placeholder="Tu nombre"
+                          placeholder={cart.namePlaceholder}
                         />
                       </div>
 
                       <div className="home-contact-form__field">
                         <label className="home-contact-form__label" htmlFor={socialFieldId}>
-                          Red social
+                          {cart.socialLabel}
                         </label>
                         <select
                           id={socialFieldId}
@@ -456,7 +458,7 @@ export function HomeCartDrawer() {
                           defaultValue=""
                           required
                         >
-                          <option value="" disabled>Elegí una red</option>
+                          <option value="" disabled>{cart.socialPlaceholder}</option>
                           {CART_PROPOSAL_SOCIAL_OPTIONS.map((option) => (
                             <option key={option.id} value={option.id}>{option.label}</option>
                           ))}
@@ -465,7 +467,7 @@ export function HomeCartDrawer() {
 
                       <div className="home-contact-form__field">
                         <label className="home-contact-form__label" htmlFor={socialUsernameFieldId}>
-                          Usuario
+                          {cart.usernameLabel}
                         </label>
                         <input
                           id={socialUsernameFieldId}
@@ -473,26 +475,26 @@ export function HomeCartDrawer() {
                           type="text"
                           name="socialUsername"
                           autoComplete="username"
-                          placeholder="@tu_usuario"
+                          placeholder={cart.usernamePlaceholder}
                           required
                         />
                       </div>
 
                       <div className="home-contact-form__field home-contact-form__field--message">
                         <label className="home-contact-form__label" htmlFor={notesFieldId}>
-                          Mensaje
+                          {cart.notesLabel}
                         </label>
                         <textarea
                           id={notesFieldId}
                           className="home-contact-form__textarea"
                           name="notes"
                           rows={4}
-                          placeholder="Referencias, plazos o detalles extra…"
+                          placeholder={cart.notesPlaceholder}
                         />
                       </div>
 
                       <p className="home-cart-drawer__proposal-summary" aria-live="polite">
-                        {items.length} pedido{items.length === 1 ? "" : "s"} en esta propuesta.
+                        {cart.proposalSummary(items.length)}
                       </p>
 
                       {proposalError ? (
@@ -507,16 +509,16 @@ export function HomeCartDrawer() {
                         disabled={proposalSubmitting}
                         aria-busy={proposalSubmitting}
                       >
-                        {proposalSubmitting ? "Enviando…" : "Enviar propuesta"}
+                        {proposalSubmitting ? cart.sending : cart.sendProposal}
                         {!proposalSubmitting ? <span aria-hidden="true"> ↗</span> : null}
                       </button>
 
                       <p className="home-contact-form__hint">
-                        Me mandaré un mensaje cuando acepte tu solicitud.
+                        {cart.proposalHint}
                       </p>
                     </form>
                   ) : drawerViewKey === "empty" ? (
-                    <p className="home-cart-drawer__empty">Tu carrito está vacío.</p>
+                    <p className="home-cart-drawer__empty">{cart.empty}</p>
                   ) : (
                     <ul className="home-cart-drawer__list">
                       {items.map((item) => (
@@ -528,7 +530,7 @@ export function HomeCartDrawer() {
                               className="home-cart-drawer__remove"
                               onClick={() => removeItem(item.id)}
                             >
-                              Quitar
+                              {cart.remove}
                             </button>
                           </div>
                           <ul className="home-cart-drawer__lines">
@@ -540,7 +542,7 @@ export function HomeCartDrawer() {
                             ))}
                           </ul>
                           <p className="home-cart-drawer__item-total">
-                            Total: <strong>{formatHomeCartUsd(item.totalUsd)}</strong>
+                            {cart.totalLabel} <strong>{formatHomeCartUsd(item.totalUsd)}</strong>
                           </p>
                         </li>
                       ))}
@@ -559,7 +561,7 @@ export function HomeCartDrawer() {
                   className="home-cart-drawer__contact"
                   onClick={openProposal}
                 >
-                  Enviar propuesta
+                  {cart.sendProposal}
                 </button>
               </footer>
             ) : null}

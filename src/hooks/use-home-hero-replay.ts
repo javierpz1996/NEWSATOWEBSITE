@@ -2,7 +2,6 @@
 
 import { HOME_INTRO_PREPARE_FIRST_HERO_REPLAY_EVENT } from "@/lib/home-intro-events";
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { flushSync } from "react-dom";
 
 export type HomeHeroReplayState = {
   replayReady: boolean;
@@ -51,12 +50,13 @@ export function useHomeHeroReplay(
 
     const playReplayFromHidden = () => {
       replayReadyRef.current = true;
-      flushSync(() => {
-        setReplayReady(true);
-        setReplayActive(false);
-      });
+      setReplayReady(true);
+      setReplayActive(false);
+      // Two frames: paint ready∧¬active (hidden) before replay-active animations run.
       requestAnimationFrame(() => {
-        setReplayActive(true);
+        requestAnimationFrame(() => {
+          setReplayActive(true);
+        });
       });
     };
 

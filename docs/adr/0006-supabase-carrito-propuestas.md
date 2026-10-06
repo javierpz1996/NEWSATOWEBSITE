@@ -31,10 +31,11 @@ las mismas variables en el proyecto.
 
 ### 3. Alcance del sitio
 
-- **No** hay auth de visitantes ni panel admin en el repo.
-- **No** hay Route Handlers para este flujo: una fila por envío vía cliente + RLS.
-- El resto del sitio sigue siendo estático en build; solo el envío del carrito hace
-  una petición de red en runtime.
+- **No** hay auth de visitantes en el portfolio público.
+- Inserción del carrito: cliente + RLS (`INSERT` anon).
+- Vista privada **`/sales`**: Server Component + `SUPABASE_SERVICE_ROLE_KEY` (solo servidor)
+  y acceso con cookie tras `SALES_ACCESS_TOKEN` (`POST /api/sales/session`).
+- El resto del sitio sigue siendo estático en build; carrito y `/sales` hacen red en runtime.
 
 ### 4. Esquema y migración
 

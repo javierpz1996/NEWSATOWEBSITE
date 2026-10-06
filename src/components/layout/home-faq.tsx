@@ -5,7 +5,7 @@ import {
   sectionScrollRevealClassName,
   useSectionScrollReveal,
 } from "@/hooks/use-section-scroll-reveal";
-import { HOME_FAQ_ITEMS } from "@/lib/home-faq-content";
+import { useHomeMessages } from "@/hooks/use-home-messages";
 
 function FaqChevron() {
   return (
@@ -23,6 +23,7 @@ function FaqChevron() {
 }
 
 export function HomeFaq() {
+  const { faq } = useHomeMessages();
   const sectionRef = useRef<HTMLElement>(null);
   const reveal = useSectionScrollReveal(sectionRef);
   const baseId = useId();
@@ -44,11 +45,11 @@ export function HomeFaq() {
           id="home-faq-title"
           className="home-faq-title home-faq-reveal-item home-faq-reveal-item--title"
         >
-          Preguntas, respondidas
+          {faq.title}
         </h2>
 
         <div className="home-faq-list">
-          {HOME_FAQ_ITEMS.map((item, index) => {
+          {faq.items.map((item, index) => {
             const isOpen = openId === item.id;
             const panelId = `${baseId}-${item.id}-panel`;
             const triggerId = `${baseId}-${item.id}-trigger`;

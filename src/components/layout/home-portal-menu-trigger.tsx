@@ -30,6 +30,7 @@ import {
   PORTAL_MENU_RULE_CAT_SRC,
   PORTAL_MENU_RULE_CAT_WIDTH,
 } from "@/lib/portal-menu-assets";
+import { useHomeMessages } from "@/hooks/use-home-messages";
 
 const RULE_VIEW_HEIGHT = 16;
 const RULE_CAP_VIEW_WIDTH = 44;
@@ -76,6 +77,7 @@ export const HomePortalMenuTrigger = forwardRef<
   { onMenuClick, onCartClick, cartItemCount = 0, onReachMaxStretch },
   ref,
 ) {
+  const { portal: portalMenuAria } = useHomeMessages();
   const blockRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const [isSnappingWidthBack, setIsSnappingWidthBack] = useState(false);
@@ -281,7 +283,7 @@ export const HomePortalMenuTrigger = forwardRef<
         <button
           type="button"
           className="home-portal-menu-label home-portal-menu-label--toolbar"
-          aria-label="Abrir menú"
+          aria-label={portalMenuAria.openMenuAria}
           onClick={onMenuClick}
         >
           <span className="home-portal-menu-label__text">MENU</span>
@@ -307,7 +309,7 @@ export const HomePortalMenuTrigger = forwardRef<
           <div
             className="home-portal-menu-label-rule"
             role="slider"
-            aria-label="Estirar barra del menú portal"
+            aria-label={portalMenuAria.stretchBarAria}
             aria-valuemin={PORTAL_MENU_RULE_MIN_WIDTH_PX}
             aria-valuemax={maxStretchPx}
             aria-valuenow={Math.round(totalWidthPx)}

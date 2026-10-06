@@ -28,7 +28,7 @@ import {
 } from "@/hooks/use-home-hero-replay";
 import { useHomeHeroStableViewport } from "@/hooks/use-home-hero-stable-viewport";
 import { SATO_LOGO_HEIGHT, SATO_LOGO_SRC, SATO_LOGO_WIDTH } from "@/lib/brand-assets";
-import { HOME_FOOTER_NAV } from "@/lib/home-footer-nav";
+import { useHomeMessages } from "@/hooks/use-home-messages";
 
 const HERO_EDITORIAL_TILE = "/works/placeholder/dibujo-1.png" as const;
 
@@ -45,6 +45,7 @@ const HOME_HEADER_NAV_VISIBLE = false;
 const HOME_SECTIONS_LEFT_DECOR_VISIBLE = false;
 
 export default function Home() {
+  const messages = useHomeMessages();
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isPortalMenuOpen, setIsPortalMenuOpen] = useState(false);
   const [activeWork, setActiveWork] = useState(0);
@@ -299,7 +300,7 @@ export default function Home() {
       ) : null}
 
       <footer className="home-footer">
-        <Link href="/" className="home-logo home-footer-brand" aria-label="Inicio">
+        <Link href="/" className="home-logo home-footer-brand" aria-label={messages.footer.homeAriaLabel}>
           <Image
             className="home-logo-mark home-logo-mark--footer"
             src={SATO_LOGO_SRC}
@@ -309,8 +310,8 @@ export default function Home() {
             unoptimized
           />
         </Link>
-        <nav className="home-footer-nav" aria-label="Secciones de la página">
-          {HOME_FOOTER_NAV.map((item) => (
+        <nav className="home-footer-nav" aria-label={messages.footer.navAriaLabel}>
+          {messages.footer.nav.map((item) => (
             <a key={item.href} href={item.href}>
               {item.label}
             </a>

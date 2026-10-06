@@ -20,12 +20,25 @@ function NsfwAgeGateMark({
 }
 
 type HomeServicesNsfwGateProps = {
+  copy: {
+    closeAria: string;
+    title: string;
+    description: string;
+    consent: string;
+    cancel: string;
+    enter: string;
+  };
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
 };
 
-export function HomeServicesNsfwGate({ open, onClose, onConfirm }: HomeServicesNsfwGateProps) {
+export function HomeServicesNsfwGate({
+  copy,
+  open,
+  onClose,
+  onConfirm,
+}: HomeServicesNsfwGateProps) {
   const [confirmed, setConfirmed] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -79,7 +92,7 @@ export function HomeServicesNsfwGate({ open, onClose, onConfirm }: HomeServicesN
         <button
           type="button"
           className="home-nsfw-gate-close"
-          aria-label="Cerrar advertencia"
+          aria-label={copy.closeAria}
           onClick={close}
         >
           ×
@@ -90,10 +103,10 @@ export function HomeServicesNsfwGate({ open, onClose, onConfirm }: HomeServicesN
         </div>
 
         <h3 id={titleId} className="home-nsfw-gate-title type-h3 text-foreground">
-          Contenido para mayores de 18 años
+          {copy.title}
         </h3>
         <p id={descriptionId} className="home-nsfw-gate-description type-body-sm text-muted-foreground">
-          Esta sección contiene ilustraciones con contenido para adultos (NSFW).
+          {copy.description}
         </p>
 
         <label className="home-nsfw-gate-consent">
@@ -103,13 +116,13 @@ export function HomeServicesNsfwGate({ open, onClose, onConfirm }: HomeServicesN
             onChange={(event) => setConfirmed(event.target.checked)}
           />
           <span className="type-body-sm text-foreground">
-            Tengo 18 años o más y comprendo que puede incluir contenido sensible.
+            {copy.consent}
           </span>
         </label>
 
         <div className="home-nsfw-gate-actions">
           <button type="button" className="ds-button ds-button-secondary" onClick={close}>
-            Cancelar
+            {copy.cancel}
           </button>
           <button
             type="button"
@@ -118,7 +131,7 @@ export function HomeServicesNsfwGate({ open, onClose, onConfirm }: HomeServicesN
             onClick={confirm}
           >
             <NsfwAgeGateMark compact />
-            Entrar
+            {copy.enter}
           </button>
         </div>
       </div>

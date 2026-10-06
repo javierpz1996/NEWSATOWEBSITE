@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { COMMISSION_RULES_HREF } from "@/lib/commission-rules-content";
+import { useHomeMessages } from "@/hooks/use-home-messages";
 
 const HOME_READ_BALLOON_MILO_SRC = "/works/placeholder/milo.png" as const;
 const HOME_READ_BALLOON_MILO_WIDTH = 716;
@@ -12,6 +13,7 @@ const HOME_READ_BALLOON_MILO_HEIGHT = 809;
 const HOME_SNS_SECTION_ID = "home-sns";
 
 export function HomeScrollRightSquare() {
+  const { scrollReminder } = useHomeMessages();
   const balloonId = useId();
   const anchorRef = useRef<HTMLDivElement>(null);
   const [tabVisible, setTabVisible] = useState(false);
@@ -77,7 +79,7 @@ export function HomeScrollRightSquare() {
         className="home-scroll-right-square"
         aria-expanded={balloonOpen}
         aria-controls={balloonId}
-        aria-label="Leer recordatorio de términos de servicio"
+        aria-label={scrollReminder.tabAria}
         onClick={toggleBalloon}
       >
         <span className="home-scroll-right-square__label" aria-hidden="true">READ</span>
@@ -94,14 +96,14 @@ export function HomeScrollRightSquare() {
             type="button"
             className="home-scroll-right-square__balloon-close"
             onClick={() => setBalloonOpen(false)}
-            aria-label="Cerrar mensaje"
+            aria-label={scrollReminder.closeAria}
           >
             ×
           </button>
           <div className="home-scroll-right-square__balloon-content">
             <p id={`${balloonId}-title`} className="home-scroll-right-square__balloon-text">
               <span className="home-scroll-right-square__balloon-text-line">
-                No te olvides de leer los
+                {scrollReminder.line1}
               </span>
               <span className="home-scroll-right-square__balloon-text-line">
                 <Link
@@ -109,9 +111,9 @@ export function HomeScrollRightSquare() {
                   href={COMMISSION_RULES_HREF}
                   onClick={() => setBalloonOpen(false)}
                 >
-                  términos de servicio
+                  {scrollReminder.rulesLink}
                 </Link>
-                .
+                {scrollReminder.line2After}
               </span>
             </p>
             <figure className="home-scroll-right-square__balloon-milo-figure" aria-hidden="true">

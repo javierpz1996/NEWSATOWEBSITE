@@ -1,6 +1,7 @@
 "use client";
 
 import { ShoppingCart } from "lucide-react";
+import { useHomeMessages } from "@/hooks/use-home-messages";
 
 type HomeCartIconButtonProps = {
   itemCount: number;
@@ -17,6 +18,7 @@ export function HomeCartIconButton({
   id,
   variant = "default",
 }: HomeCartIconButtonProps) {
+  const { cart } = useHomeMessages();
   const isChip = variant === "sticky" || variant === "nav";
   const classes = [
     "home-cart-icon-button",
@@ -34,9 +36,7 @@ export function HomeCartIconButton({
       id={id}
       className={classes}
       aria-label={
-        itemCount > 0
-          ? `Carrito, ${itemCount} pedido${itemCount === 1 ? "" : "s"}`
-          : "Carrito"
+        itemCount > 0 ? cart.iconAriaWithCount(itemCount) : cart.iconAria
       }
       onClick={onClick}
     >

@@ -18,6 +18,14 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
+import { useHomeMessages } from "@/hooks/use-home-messages";
+import {
+  buildHomeServiceCards,
+  type HomeServiceCard,
+  type ServiceBundle,
+  type ServicePriceRow,
+} from "@/lib/home-service-cards";
+import type { HomeMessages } from "@/lib/home-messages/types";
 
 function subscribeReducedMotion(onStoreChange: () => void) {
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -38,86 +46,7 @@ function useHydrationSafeReducedMotion(): boolean {
   );
 }
 
-type ServicePriceRow = {
-  label: string;
-  price: string;
-};
-
-type ServiceBundle = {
-  title: string;
-  price: string;
-  includes: string[];
-};
-
 type ContentRating = "sfw" | "nsfw";
-
-type ServiceCard = {
-  id: string;
-  badge: string;
-  badgeTone: "mint" | "rose" | "blue" | "lilac";
-  title: string;
-  fromPrice?: string;
-  description: string;
-  contentRating: ContentRating;
-  prices?: ServicePriceRow[];
-  variations?: ServicePriceRow[];
-  bundle?: ServiceBundle;
-  calculator?: boolean;
-  ctaLabel: string;
-  ctaHref: string;
-};
-
-const SIMPLISTA_BASE_OPTIONS = [
-  { id: "flat", label: "1 persona + fondo plano", priceUsd: 8 },
-  { id: "simple", label: "1 persona + fondo simple", priceUsd: 15 },
-] as const;
-
-const SIMPLISTA_POSE_SHEET_INCLUDES = [
-  "1 cuerpo completo",
-  "2 bust ups",
-  "1 chibi, cabeza o accesorios",
-  "Fondo plano",
-];
-
-const simplistaColoreadoCard: ServiceCard = {
-  id: "simplista-colored",
-  badge: "Rodillas hacia arriba",
-  badgeTone: "mint",
-  title: "SIMPLISTA COLOREADO",
-  fromPrice: "8 USD",
-  contentRating: "sfw",
-  description:
-    "Estilo sencillo, perspectivas simples y características tontas o graciosas. Coloreado simple / cel shading, con pocas correcciones. Ambientación y sombras a elección del cliente.",
-  prices: [
-    { label: "1 persona + fondo plano", price: "8 USD" },
-    { label: "1 persona + fondo simple", price: "15 USD" },
-  ],
-  variations: [
-    { label: "Cuerpo completo", price: "+5 USD" },
-    { label: "Persona extra", price: "+7 USD" },
-  ],
-  bundle: {
-    title: "Hoja de poses del personaje",
-    price: "40 USD",
-    includes: SIMPLISTA_POSE_SHEET_INCLUDES,
-  },
-  calculator: true,
-  ctaLabel: "Solicitar comisión",
-  ctaHref: "#contacto",
-};
-
-function buildSimplistaColoreadoCards(contentRating: ContentRating, idPrefix: string): ServiceCard[] {
-  return Array.from({ length: 2 }, (_, index) => ({
-    ...simplistaColoreadoCard,
-    id: `${idPrefix}-${index + 1}`,
-    contentRating,
-  }));
-}
-
-const serviceCards: ServiceCard[] = [
-  ...buildSimplistaColoreadoCards("sfw", "simplista-colored-sfw"),
-  ...buildSimplistaColoreadoCards("nsfw", "simplista-colored-nsfw"),
-];
 
 function ServicePriceList({ rows }: { rows: ServicePriceRow[] }) {
   return (
@@ -133,14 +62,16 @@ function ServicePriceList({ rows }: { rows: ServicePriceRow[] }) {
 }
 
 type SimplistaOrderState = {
-  baseId: (typeof SIMPLISTA_BASE_OPTIONS)[number]["id"];
+  baseId: HomeServiceCard["baseOptions"][number]["id"];
   fullBody: boolean;
   extraPeople: number;
   poseSheet: boolean;
 };
 
-const defaultSimplistaOrder = (): SimplistaOrderState => ({
-  baseId: "flat",
+const defaultSimplistaOrder = (
+  baseOptions: HomeServiceCard["baseOptions"],
+): SimplistaOrderState => ({
+  baseId: baseOptions[0]?.id ?? "flat",
   fullBody: false,
   extraPeople: 0,
   poseSheet: false,
@@ -154,24 +85,28 @@ function SimplistaOrderBuilder({
   serviceTitle,
   bundle,
   variants,
+  baseOptions,
+  orderCopy,
 }: {
   serviceTitle: string;
   bundle: ServiceBundle;
   variants: Variants;
+  baseOptions: HomeServiceCard["baseOptions"];
+  orderCopy: HomeMessages["services"]["order"];
 }) {
-  const [order, setOrder] = useState<SimplistaOrderState>(defaultSimplistaOrder);
+  const [order, setOrder] = useState<SimplistaOrderState>(() => defaultSimplistaOrder(baseOptions));
   const { addItem } = useHomeCart();
 
   const { lineItems, totalUsd } = useMemo(() => {
-    const base = SIMPLISTA_BASE_OPTIONS.find((option) => option.id === order.baseId)!;
+    const base = baseOptions.find((option) => option.id === order.baseId)!;
     const items: { label: string; priceUsd: number }[] = [{ label: base.label, priceUsd: base.priceUsd }];
 
     if (order.fullBody) {
-      items.push({ label: "Cuerpo completo", priceUsd: 5 });
+      items.push({ label: orderCopy.fullBody, priceUsd: 5 });
     }
     if (order.extraPeople > 0) {
       items.push({
-        label: `Persona extra × ${order.extraPeople}`,
+        label: orderCopy.extraPersonLine(order.extraPeople),
         priceUsd: 7 * order.extraPeople,
       });
     }
@@ -181,7 +116,7 @@ function SimplistaOrderBuilder({
 
     const total = items.reduce((sum, item) => sum + item.priceUsd, 0);
     return { lineItems: items, totalUsd: total };
-  }, [bundle.title, order]);
+  }, [baseOptions, bundle.title, order, orderCopy]);
 
   const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
     addItem(
@@ -204,10 +139,10 @@ function SimplistaOrderBuilder({
       <ServiceCardDetailsSection variants={variants}>
         <fieldset className="home-service-order-field">
           <legend className="home-service-card-section-label home-service-card-section-label-strong">
-            Base
+            {orderCopy.base}
           </legend>
           <ul className="home-service-order-options">
-            {SIMPLISTA_BASE_OPTIONS.map((option) => (
+            {baseOptions.map((option) => (
               <li key={option.id}>
                 <label className="home-service-order-option">
                   <input
@@ -228,7 +163,7 @@ function SimplistaOrderBuilder({
       <ServiceCardDetailsSection variants={variants}>
         <fieldset className="home-service-order-field">
           <legend className="home-service-card-section-label home-service-card-section-label-strong">
-            Variaciones
+            {orderCopy.variations}
           </legend>
           <ul className="home-service-order-options">
             <li>
@@ -240,18 +175,18 @@ function SimplistaOrderBuilder({
                     setOrder((prev) => ({ ...prev, fullBody: event.target.checked }))
                   }
                 />
-                <span className="home-service-order-option-label">Cuerpo completo</span>
+                <span className="home-service-order-option-label">{orderCopy.fullBody}</span>
                 <span className="home-service-order-option-price">+5 USD</span>
               </label>
             </li>
             <li>
               <div className="home-service-order-option home-service-order-option-quantity">
-                <span className="home-service-order-option-label">Persona extra</span>
+                <span className="home-service-order-option-label">{orderCopy.extraPerson}</span>
                 <div className="home-service-order-quantity">
                   <button
                     type="button"
                     className="home-service-order-quantity-btn"
-                    aria-label="Quitar persona extra"
+                    aria-label={orderCopy.removeExtraPersonAria}
                     disabled={order.extraPeople === 0}
                     onClick={() =>
                       setOrder((prev) => ({
@@ -268,7 +203,7 @@ function SimplistaOrderBuilder({
                   <button
                     type="button"
                     className="home-service-order-quantity-btn"
-                    aria-label="Agregar persona extra"
+                    aria-label={orderCopy.addExtraPersonAria}
                     onClick={() =>
                       setOrder((prev) => ({
                         ...prev,
@@ -279,7 +214,7 @@ function SimplistaOrderBuilder({
                     +
                   </button>
                 </div>
-                <span className="home-service-order-option-price">+7 USD c/u</span>
+                <span className="home-service-order-option-price">{orderCopy.extraPersonEach}</span>
               </div>
             </li>
           </ul>
@@ -289,7 +224,7 @@ function SimplistaOrderBuilder({
       <ServiceCardDetailsSection variants={variants}>
         <fieldset className="home-service-order-field">
           <legend className="home-service-card-section-label home-service-card-section-label-strong">
-            Extra
+            {orderCopy.extra}
           </legend>
           <ul className="home-service-order-options">
             <li>
@@ -308,7 +243,7 @@ function SimplistaOrderBuilder({
           </ul>
           {order.poseSheet ? (
             <div className="home-service-order-includes">
-              <p className="home-service-card-includes-label">Incluye:</p>
+              <p className="home-service-card-includes-label">{orderCopy.includesLabel}</p>
               <ul className="home-service-card-includes-list">
                 {bundle.includes.map((item) => (
                   <li key={item}>{item}</li>
@@ -321,7 +256,7 @@ function SimplistaOrderBuilder({
 
       <ServiceCardDetailsSection variants={variants}>
         <div className="home-service-order-summary" aria-live="polite">
-          <p className="home-service-order-summary-label">Total estimado</p>
+          <p className="home-service-order-summary-label">{orderCopy.estimatedTotal}</p>
           <p className="home-service-order-summary-total">{formatUsd(totalUsd)}</p>
           <ul className="home-service-order-summary-lines">
             {lineItems.map((item) => (
@@ -341,7 +276,7 @@ function SimplistaOrderBuilder({
             className="home-service-card-cta home-service-card-cta-primary"
             onClick={handleAddToCart}
           >
-            Comprar
+            {orderCopy.buy}
             <span className="home-service-card-cta-arrow" aria-hidden="true">
               →
             </span>
@@ -486,9 +421,12 @@ function ServiceCardItem({
   service,
   revealIndex,
 }: {
-  service: ServiceCard;
+  service: HomeServiceCard;
   revealIndex: number;
 }) {
+  const { services: servicesCopy } = useHomeMessages();
+  const cardCopy = servicesCopy.card;
+  const orderCopy = servicesCopy.order;
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isOrderOpen, setIsOrderOpen] = useState(false);
   const [orderResetKey, setOrderResetKey] = useState(0);
@@ -531,7 +469,7 @@ function ServiceCardItem({
             {service.fromPrice ? (
               <p className="home-service-card-from-price">
                 <span className="home-service-card-from-price-divider" aria-hidden="true" />
-                <span className="home-service-card-from-price-label">Desde</span>
+                <span className="home-service-card-from-price-label">{cardCopy.from}</span>
                 <span className="home-service-card-from-price-amount">{service.fromPrice}</span>
               </p>
             ) : null}
@@ -553,7 +491,7 @@ function ServiceCardItem({
                   }
                 }}
               >
-                {detailsOpen ? "Ocultar detalles" : "Mostrar detalles"}
+                {detailsOpen ? cardCopy.hideDetails : cardCopy.showDetails}
                 <motion.span
                   className="home-service-card-details-toggle-arrow"
                   aria-hidden="true"
@@ -579,7 +517,7 @@ function ServiceCardItem({
                   variants={detailsContentMotion.item}
                 >
                   <h4 className="home-service-card-section-label home-service-card-section-label-strong">
-                    Precios
+                    {cardCopy.prices}
                   </h4>
                   <ServicePriceList rows={service.prices} />
                 </ServiceCardDetailsSection>
@@ -589,7 +527,7 @@ function ServiceCardItem({
                     variants={detailsContentMotion.item}
                   >
                     <h4 className="home-service-card-section-label home-service-card-section-label-strong">
-                      Variaciones
+                      {cardCopy.variations}
                     </h4>
                     <ServicePriceList rows={service.variations} />
                   </ServiceCardDetailsSection>
@@ -612,7 +550,7 @@ function ServiceCardItem({
                         }
                       }}
                     >
-                      {isOrderOpen ? "Volver" : "Calcular comisión"}
+                      {isOrderOpen ? cardCopy.back : cardCopy.calculate}
                       <motion.span
                         className="home-service-card-calc-arrow"
                         aria-hidden="true"
@@ -633,13 +571,15 @@ function ServiceCardItem({
                         isOpen={isOrderOpen}
                         reduceMotion={reduceMotion}
                         detailsClassName="home-service-card-details home-service-order-panel"
-                        ariaLabel="Armar pedido"
+                        ariaLabel={cardCopy.buildOrderAria}
                       >
                         <SimplistaOrderBuilder
                           key={orderResetKey}
                           variants={detailsContentMotion.item}
                           serviceTitle={service.title}
-                          bundle={service.bundle}
+                          bundle={service.bundle!}
+                          baseOptions={service.baseOptions}
+                          orderCopy={orderCopy}
                         />
                       </ServiceCardDetailsReveal>
                     </div>
@@ -665,6 +605,12 @@ function ServiceCardItem({
 }
 
 export function HomeServices() {
+  const messages = useHomeMessages();
+  const servicesCopy = messages.services;
+  const serviceCards = useMemo(
+    () => buildHomeServiceCards(servicesCopy),
+    [servicesCopy],
+  );
   const sectionRef = useRef<HTMLElement>(null);
   const reveal = useSectionScrollReveal(sectionRef);
   const [contentRating, setContentRating] = useState<ContentRating>("sfw");
@@ -702,13 +648,13 @@ export function HomeServices() {
             id="home-services-title"
             className="home-services-reveal-item home-services-reveal-item--title"
           >
-            Servicios
+            {servicesCopy.title}
           </h2>
           <p
             id="home-services-subtitle"
             className="home-services-subtitle home-services-reveal-item home-services-reveal-item--subtitle"
           >
-            Tipos de encargo disponibles
+            {servicesCopy.subtitle}
           </p>
         </div>
         <div className="home-services-rating-control home-services-reveal-item home-services-reveal-item--controls">
@@ -716,7 +662,11 @@ export function HomeServices() {
             <span className="home-services-rating-age-spacer" />
             <span className="home-services-rating-age-badge">+18</span>
           </div>
-          <div className="home-services-rating-toggle" role="group" aria-label="Filtrar por contenido">
+          <div
+            className="home-services-rating-toggle"
+            role="group"
+            aria-label={servicesCopy.filterAriaLabel}
+          >
             <button
               type="button"
               className="home-services-rating-btn"
@@ -730,7 +680,7 @@ export function HomeServices() {
               type="button"
               className="home-services-rating-btn home-services-rating-btn-nsfw"
               aria-pressed={contentRating === "nsfw"}
-              aria-label="NSFW, contenido para mayores de 18 años"
+              aria-label={servicesCopy.nsfwAriaLabel}
               data-selected={contentRating === "nsfw" ? true : undefined}
               onClick={handleNsfwToggle}
             >
@@ -740,6 +690,7 @@ export function HomeServices() {
         </div>
       </header>
       <HomeServicesNsfwGate
+        copy={servicesCopy.nsfwGate}
         open={nsfwGateOpen}
         onClose={() => setNsfwGateOpen(false)}
         onConfirm={openNsfwContent}
@@ -756,7 +707,7 @@ export function HomeServices() {
         </ul>
       ) : (
         <p className="home-services-empty home-services-reveal-item home-services-reveal-item--empty">
-          No hay servicios NSFW publicados todavía. Volvé a SFW o consultá por encargos personalizados.
+          {servicesCopy.emptyNsfw}
         </p>
       )}
     </section>
