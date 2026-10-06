@@ -692,6 +692,7 @@ export function HomeServices() {
       ref={sectionRef}
       id="servicios"
       className={sectionScrollRevealClassName("home-services", reveal)}
+      data-content-rating={contentRating}
       aria-labelledby="home-services-title"
       aria-describedby="home-services-subtitle"
     >

@@ -6562,7 +6562,7 @@ a:focus-visible, button:focus-visible {
   padding: 10px 16px;
   border: 0;
   border-radius: 0;
-  background: var(--background);
+  background: var(--card);
   color: var(--muted-foreground);
   font-family: var(--font-jetbrains-mono), monospace;
   font-size: clamp(11px, 0.95vw, 13px);
@@ -6588,13 +6588,13 @@ a:focus-visible, button:focus-visible {
 }
 
 .home-services-rating-btn-nsfw[data-selected] {
-  background: color-mix(in srgb, var(--destructive) 40%, var(--background) 60%);
-  color: color-mix(in srgb, var(--destructive) 85%, var(--foreground) 15%);
+  background: color-mix(in srgb, var(--destructive) 68%, var(--background) 32%);
+  color: var(--destructive-foreground);
 }
 
 .home-services-rating-btn-nsfw[data-selected]:hover {
-  background: color-mix(in srgb, var(--destructive) 46%, var(--background) 54%);
-  color: color-mix(in srgb, var(--destructive) 85%, var(--foreground) 15%);
+  background: color-mix(in srgb, var(--destructive) 74%, var(--background) 26%);
+  color: var(--destructive-foreground);
 }
 
 .home-services-rating-btn-sfw {
@@ -6623,12 +6623,18 @@ a:focus-visible, button:focus-visible {
   z-index: 1;
 }
 
-.home-services-rating-btn:hover {
+.home-services-rating-btn:not(.home-services-rating-btn-nsfw):hover {
+  background: var(--card);
   color: var(--foreground);
 }
 
-.home-services-rating-btn[data-selected] {
-  background: color-mix(in srgb, var(--foreground) 8%, var(--background) 92%);
+.home-services-rating-btn[data-selected]:not(.home-services-rating-btn-nsfw) {
+  background: var(--card);
+  color: var(--foreground);
+}
+
+.home-services-rating-btn[data-selected]:not(.home-services-rating-btn-nsfw):hover {
+  background: var(--card);
   color: var(--foreground);
 }
 

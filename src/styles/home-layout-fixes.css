@@ -3000,6 +3000,17 @@
 /* Servicios + animaciones — fondos de franja */
 .home-page .home-services {
   background: var(--home-surface-services);
+  transition: background-color var(--motion-base) ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page .home-services {
+    transition: none;
+  }
+}
+
+.home-page .home-services[data-content-rating="nsfw"] {
+  background: color-mix(in srgb, var(--pastel-rose) 78%, var(--background) 22%);
 }
 
 .home-page .home-animations {
@@ -3027,19 +3038,29 @@
   color: var(--destructive-foreground);
 }
 
+.home-page .home-services-rating-btn:not(.home-services-rating-btn-nsfw) {
+  background: var(--card);
+  color: var(--muted-foreground);
+}
+
+.home-page .home-services-rating-btn:not(.home-services-rating-btn-nsfw):hover {
+  background: var(--card);
+  color: var(--foreground);
+}
+
 .home-page .home-services-rating-btn[data-selected]:not(.home-services-rating-btn-nsfw) {
-  background: color-mix(in srgb, var(--foreground) 9%, var(--background) 91%);
+  background: var(--card);
   color: var(--foreground);
 }
 
 .home-page .home-services-rating-btn-nsfw[data-selected] {
-  background: color-mix(in srgb, var(--pastel-rose) 72%, var(--background) 28%);
-  color: var(--foreground);
+  background: color-mix(in srgb, var(--destructive) 68%, var(--background) 32%);
+  color: var(--destructive-foreground);
 }
 
 .home-page .home-services-rating-btn-nsfw[data-selected]:hover {
-  background: color-mix(in srgb, var(--pastel-rose) 78%, var(--background) 22%);
-  color: var(--foreground);
+  background: color-mix(in srgb, var(--destructive) 74%, var(--background) 26%);
+  color: var(--destructive-foreground);
 }
 
 .home-page .home-service-card {
@@ -3225,6 +3246,50 @@
 @media (max-width: 760px) {
   .home-page .home-services-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* +18 badge shares NSFW column; overall width follows content (not 50/50 stretch) */
+  .home-page .home-services-rating-control {
+    display: inline-grid;
+    grid-template-columns: auto auto;
+    align-items: end;
+    justify-items: stretch;
+    width: max-content;
+    max-width: 100%;
+  }
+
+  .home-page .home-services-rating-age-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+
+  .home-page .home-services-rating-age-spacer {
+    min-width: 0;
+    padding: 0;
+  }
+
+  .home-page .home-services-rating-age-badge {
+    min-width: 0;
+    width: 100%;
+    padding-inline: 10px;
+    font-size: 10px;
+    box-sizing: border-box;
+  }
+
+  .home-page .home-services-rating-toggle {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    width: auto;
+    align-self: end;
+  }
+
+  .home-page .home-services-rating-btn {
+    min-width: 0;
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 11px;
   }
 }
 
