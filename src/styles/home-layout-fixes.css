@@ -1632,7 +1632,7 @@
   .home-hero-top-row .home-artist-lockup .home-artist-name {
     width: 100%;
     max-width: 100%;
-    font-size: clamp(2.15rem, 24cqi, 3.1rem);
+    font-size: clamp(1.35rem, 15cqi, 1.95rem);
     line-height: 0.92;
     letter-spacing: 0.02em;
     text-align: center;
