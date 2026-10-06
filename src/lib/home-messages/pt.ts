@@ -307,6 +307,39 @@ export const homeMessagesPt: HomeMessages = {
   portal: {
     openMenuAria: "Abrir menu",
     stretchBarAria: "Estender barra do menu portal",
+    menuLabel: "MENU",
+    modal: {
+      title: "Menu portal",
+      close: "FECHAR",
+      navAria: "Navegação do portal",
+      comingSoon: "Em breve",
+    },
+    nav: {
+      animation: { label: "ANIMAÇÃO", sublabel: "アニメ" },
+      commissions: { label: "COMISSÕES", sublabel: "コミッション" },
+      contact: { label: "CONTATO", sublabel: "お問い合わせ" },
+      gallery: { label: "GALERIA", sublabel: "ギャラリー" },
+      about: { label: "SOBRE", sublabel: "プロフィール" },
+      rules: { label: "REGRAS", sublabel: "Termos" },
+      moreInfo: { label: "INFO", sublabel: "Este site" },
+    },
+  },
+  moreInfoPage: {
+    backLabel: "← Voltar ao início",
+    title: "Mais informações",
+    storyParagraphs: [
+      "Este site começou como um projeto pessoal: um lugar para mostrar o trabalho de uma artista e pedir comissões com clareza, sem perder a estética do portfólio.",
+      "Foi crescendo aos poucos — mais seções, carrinho, regras e ferramentas para que quem encomenda e quem cria entendam o processo com menos atrito.",
+    ],
+    visionTitle: "O que queremos fazer depois",
+    visionParagraphs: [
+      "No futuro, gostaríamos de levar essa ideia adiante: ajudar mais artistas a vender comissões com facilidade, sem abrir mão da própria estética. Páginas próprias, cuidadas, que façam parte da marca e não de um modelo genérico.",
+    ],
+    creditTitle: "Quem montou o site",
+    creditParagraphs: [
+      "Sou Javier. Desenho e desenvolvo páginas web.",
+      "Se você quer uma página pessoal como esta, ou uma para o seu negócio, pode me chamar por mensagem. Obrigado por ler!",
+    ],
   },
   sns: {
     sectionAria: "Redes sociais",

@@ -306,6 +306,39 @@ export const homeMessagesEn: HomeMessages = {
   portal: {
     openMenuAria: "Open menu",
     stretchBarAria: "Expand portal menu bar",
+    menuLabel: "MENU",
+    modal: {
+      title: "Portal menu",
+      close: "CLOSE",
+      navAria: "Portal navigation",
+      comingSoon: "Coming soon",
+    },
+    nav: {
+      animation: { label: "ANIMATION", sublabel: "アニメ" },
+      commissions: { label: "COMMISSIONS", sublabel: "コミッション" },
+      contact: { label: "CONTACT", sublabel: "お問い合わせ" },
+      gallery: { label: "GALLERY", sublabel: "ギャラリー" },
+      about: { label: "ABOUT", sublabel: "プロフィール" },
+      rules: { label: "RULES", sublabel: "Terms" },
+      moreInfo: { label: "INFO", sublabel: "This site" },
+    },
+  },
+  moreInfoPage: {
+    backLabel: "← Back to home",
+    title: "More information",
+    storyParagraphs: [
+      "This site began as a personal project: a place to showcase an artist’s work and request commissions clearly, without losing the portfolio’s own look and feel.",
+      "It kept growing — more sections, a cart, rules, and tools so clients and the artist can follow the process with less friction.",
+    ],
+    visionTitle: "What we hope to build next",
+    visionParagraphs: [
+      "We’d like to take this further and help more artists sell commissions easily, without giving up their aesthetic — custom, thoughtful pages that feel like part of their brand, not a generic template.",
+    ],
+    creditTitle: "About the site developer",
+    creditParagraphs: [
+      "I’m Javier. I design and build websites.",
+      "If you want a personal page like this one, or one for your business, you can reach out by message. Thanks for reading!",
+    ],
   },
   sns: {
     sectionAria: "Social networks",

@@ -34,6 +34,7 @@ import {
 } from "@/lib/home-form-validation";
 
 const PROPOSAL_REQUIRED_FIELDS = [
+  "clientName",
   "socialNetwork",
   "socialUsername",
   "paymentMethod",
@@ -102,7 +103,7 @@ const drawerViewVariantsFull = {
       }
       if (viewKey === "success") {
         return {
-          opacity: 0,
+          opacity: 1,
           zIndex: 2,
           transform: "translateY(0.35rem) scale(0.99)",
         };
@@ -196,7 +197,7 @@ export function HomeCartDrawer() {
   const notesFieldId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const viewHeightsRef = useRef<Partial<Record<DrawerViewKey, number>>>({});
-  const proposalSuccessFxRef = useRef(false);
+  const proposalSentRef = useRef(false);
   const { items, isOpen, closeCart: closeCartContext, removeItem } = useHomeCart();
   const [proposalOpen, setProposalOpen] = useState(false);
   const [proposalSent, setProposalSent] = useState(false);
@@ -210,14 +211,13 @@ export function HomeCartDrawer() {
   const drawerViewVariants = reduceMotion ? drawerViewVariantsReduced : drawerViewVariantsFull;
   const hasCartFooter = !proposalOpen && items.length > 0;
 
-  const drawerViewKey: DrawerViewKey =
-    proposalOpen && proposalSent
-      ? "success"
-      : proposalOpen
-        ? "proposal"
-        : items.length === 0
-          ? "empty"
-          : "list";
+  const drawerViewKey: DrawerViewKey = proposalSent
+    ? "success"
+    : proposalOpen
+      ? "proposal"
+      : items.length === 0
+        ? "empty"
+        : "list";
 
   const applyCachedStageHeight = useCallback((key: DrawerViewKey, withFooter: boolean) => {
     const cached = viewHeightsRef.current[key];
@@ -251,8 +251,12 @@ export function HomeCartDrawer() {
 
   const closeCart = useCallback(() => {
     homeCartDrawerNavDirection = 1;
+    if (proposalSentRef.current) {
+      clearHomeCart();
+    }
     setProposalOpen(false);
     setProposalSent(false);
+    proposalSentRef.current = false;
     setProposalSubmitting(false);
     setProposalError(null);
     setProposalInvalidFields(new Set());
@@ -298,15 +302,11 @@ export function HomeCartDrawer() {
   }, [closeCart, isOpen, leaveProposalView, proposalOpen, proposalSent]);
 
   useEffect(() => {
-    if (!proposalSent) {
-      proposalSuccessFxRef.current = false;
-      return;
-    }
-    if (!isOpen || proposalSuccessFxRef.current) return;
+    proposalSentRef.current = proposalSent;
+  }, [proposalSent]);
 
-    proposalSuccessFxRef.current = true;
-    clearHomeCart();
-    fireHomeCartProposalConfetti(panelRef.current);
+  useEffect(() => {
+    if (!proposalSent || !isOpen) return;
 
     const closeTimer = window.setTimeout(() => {
       closeCart();
@@ -365,8 +365,16 @@ export function HomeCartDrawer() {
         form.reset();
         setProposalInvalidFields(new Set());
         homeCartDrawerNavDirection = 1;
-        applyCachedStageHeight("success", false);
+        setProposalOpen(true);
         setProposalSent(true);
+        proposalSentRef.current = true;
+        applyCachedStageHeight("success", false);
+        if (viewHeightsRef.current.success == null) {
+          setStageHeight(undefined);
+        }
+        requestAnimationFrame(() => {
+          fireHomeCartProposalConfetti(panelRef.current);
+        });
       } catch (error) {
         const message =
           error instanceof CartProposalSubmitError
@@ -380,12 +388,11 @@ export function HomeCartDrawer() {
     [applyCachedStageHeight, cart.paymentMethods, cart.submitErrorFallback, items],
   );
 
-  const dialogTitle =
-    proposalOpen && proposalSent
-      ? cart.titleSuccess
-      : proposalOpen
-        ? cart.titleProposal
-        : cart.title;
+  const dialogTitle = proposalSent
+    ? cart.titleSuccess
+    : proposalOpen
+      ? cart.titleProposal
+      : cart.title;
 
   useEffect(() => {
     delete viewHeightsRef.current.list;
@@ -476,18 +483,44 @@ export function HomeCartDrawer() {
                       onSubmit={handleProposalSubmit}
                       noValidate
                     >
-                      <div className="home-contact-form__field">
+                      <div
+                        className={fieldWrapperClassName(
+                          proposalInvalidFields,
+                          "clientName",
+                        )}
+                      >
                         <label className="home-contact-form__label" htmlFor={nameFieldId}>
                           {cart.nameLabel}
                         </label>
                         <input
                           id={nameFieldId}
-                          className="home-contact-form__input"
+                          className={fieldInvalidClassName(
+                            "home-contact-form__input",
+                            "clientName",
+                            proposalInvalidFields,
+                          )}
                           type="text"
                           name="clientName"
                           autoComplete="name"
                           placeholder={cart.namePlaceholder}
+                          required
+                          aria-invalid={proposalInvalidFields.has("clientName")}
+                          aria-describedby={
+                            proposalInvalidFields.has("clientName")
+                              ? `${nameFieldId}-error`
+                              : undefined
+                          }
+                          onInput={() => clearProposalFieldError("clientName")}
                         />
+                        {proposalInvalidFields.has("clientName") ? (
+                          <p
+                            id={`${nameFieldId}-error`}
+                            className="home-contact-form__field-error"
+                            role="alert"
+                          >
+                            {cart.fieldRequired}
+                          </p>
+                        ) : null}
                       </div>
 
                       <div

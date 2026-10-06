@@ -220,6 +220,31 @@ export type HomeMessages = {
   portal: {
     openMenuAria: string;
     stretchBarAria: string;
+    menuLabel: string;
+    modal: {
+      title: string;
+      close: string;
+      navAria: string;
+      comingSoon: string;
+    };
+    nav: {
+      animation: { label: string; sublabel: string };
+      commissions: { label: string; sublabel: string };
+      contact: { label: string; sublabel: string };
+      gallery: { label: string; sublabel: string };
+      about: { label: string; sublabel: string };
+      rules: { label: string; sublabel: string };
+      moreInfo: { label: string; sublabel: string };
+    };
+  };
+  moreInfoPage: {
+    backLabel: string;
+    title: string;
+    storyParagraphs: string[];
+    visionTitle: string;
+    visionParagraphs: string[];
+    creditTitle: string;
+    creditParagraphs: string[];
   };
   sns: {
     sectionAria: string;

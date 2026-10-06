@@ -250,7 +250,7 @@ export const HomePortalMenuTrigger = forwardRef<
           aria-label={portalMenuAria.openMenuAria}
           onClick={onMenuClick}
         >
-          <span className="home-portal-menu-label__text">MENU</span>
+          <span className="home-portal-menu-label__text">{portalMenuAria.menuLabel}</span>
           <span className="home-portal-menu-label__icon" aria-hidden="true">
             <Menu strokeWidth={2.5} />
           </span>

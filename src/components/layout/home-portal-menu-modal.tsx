@@ -10,8 +10,9 @@ import {
   type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
+import { useHomeMessages } from "@/hooks/use-home-messages";
 import { isArtistSocialExternalUrl } from "@/lib/artist-social-links";
-import { HOME_PORTAL_MENU_NAV_COLUMNS } from "@/lib/home-portal-menu-nav";
+import { buildHomePortalMenuNavColumns } from "@/lib/home-portal-menu-nav";
 import { SATO_LOGO_HEIGHT, SATO_LOGO_SRC, SATO_LOGO_WIDTH } from "@/lib/brand-assets";
 
 type HomePortalMenuModalProps = {
@@ -22,6 +23,8 @@ const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
 
 export function HomePortalMenuModal({ onClose }: HomePortalMenuModalProps) {
+  const { portal } = useHomeMessages();
+  const navColumns = buildHomePortalMenuNavColumns(portal);
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -85,7 +88,7 @@ export function HomePortalMenuModal({ onClose }: HomePortalMenuModalProps) {
       <div className="home-portal-menu-modal__veil" aria-hidden="true" />
       <div className="home-portal-menu-modal__panel">
         <p id={titleId} className="home-portal-menu-modal__sr-title">
-          Portal menu
+          {portal.modal.title}
         </p>
 
         <button
@@ -95,7 +98,7 @@ export function HomePortalMenuModal({ onClose }: HomePortalMenuModalProps) {
           onClick={onClose}
         >
           <span className="home-portal-menu-modal__close-mark" aria-hidden="true">×</span>
-          <span className="home-portal-menu-modal__close-label">CLOSE</span>
+          <span className="home-portal-menu-modal__close-label">{portal.modal.close}</span>
         </button>
 
         <div className="home-portal-menu-modal__layout">
@@ -111,8 +114,8 @@ export function HomePortalMenuModal({ onClose }: HomePortalMenuModalProps) {
             />
           </div>
 
-          <nav className="home-portal-menu-modal__nav" aria-label="Portal navigation">
-            {HOME_PORTAL_MENU_NAV_COLUMNS.map((column, columnIndex) => (
+          <nav className="home-portal-menu-modal__nav" aria-label={portal.modal.navAria}>
+            {navColumns.map((column, columnIndex) => (
               <ul
                 key={columnIndex}
                 className="home-portal-menu-modal__column"

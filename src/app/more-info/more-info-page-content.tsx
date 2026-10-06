@@ -1,0 +1,58 @@
+"use client";
+
+import Link from "next/link";
+import { useHomeMessages } from "@/hooks/use-home-messages";
+import "@/styles/legal-page.css";
+
+export function MoreInfoPageContent() {
+  const { moreInfoPage } = useHomeMessages();
+
+  return (
+    <main className="legal-page">
+      <div className="legal-page__inner">
+        <Link className="legal-page__back" href="/#inicio">
+          {moreInfoPage.backLabel}
+        </Link>
+
+        <header className="legal-page__header">
+          <h1 className="legal-page__title">{moreInfoPage.title}</h1>
+        </header>
+
+        <div className="legal-page__sections">
+          <section>
+            {moreInfoPage.storyParagraphs.map((paragraph, index) => (
+              <p key={`story-${index}`} className="legal-page__paragraph">
+                {paragraph}
+              </p>
+            ))}
+          </section>
+
+          <section aria-labelledby="more-info-vision">
+            <h2 id="more-info-vision" className="legal-page__section-title">
+              {moreInfoPage.visionTitle}
+            </h2>
+            {moreInfoPage.visionParagraphs.map((paragraph, index) => (
+              <p key={`vision-${index}`} className="legal-page__paragraph">
+                {paragraph}
+              </p>
+            ))}
+          </section>
+
+          <section
+            className="legal-page__subsection"
+            aria-labelledby="more-info-credit"
+          >
+            <h2 id="more-info-credit" className="legal-page__section-title">
+              {moreInfoPage.creditTitle}
+            </h2>
+            {moreInfoPage.creditParagraphs.map((paragraph, index) => (
+              <p key={`credit-${index}`} className="legal-page__paragraph">
+                {paragraph}
+              </p>
+            ))}
+          </section>
+        </div>
+      </div>
+    </main>
+  );
+}
