@@ -29,6 +29,7 @@ import {
 import { useHomeHeroStableViewport } from "@/hooks/use-home-hero-stable-viewport";
 import { SATO_LOGO_HEIGHT, SATO_LOGO_SRC, SATO_LOGO_WIDTH } from "@/lib/brand-assets";
 import { useHomeMessages } from "@/hooks/use-home-messages";
+import { ensurePortalMenuRuleCatsPreloaded } from "@/lib/portal-menu-assets";
 
 const HERO_EDITORIAL_TILE = "/works/placeholder/dibujo-1.png" as const;
 
@@ -47,6 +48,10 @@ const HOME_SECTIONS_LEFT_DECOR_VISIBLE = false;
 export default function Home() {
   const messages = useHomeMessages();
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+
+  useEffect(() => {
+    void ensurePortalMenuRuleCatsPreloaded();
+  }, []);
   const [isPortalMenuOpen, setIsPortalMenuOpen] = useState(false);
   const [activeWork, setActiveWork] = useState(0);
   const [isFullScreenStripActive, setIsFullScreenStripActive] = useState(false);

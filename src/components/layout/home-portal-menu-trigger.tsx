@@ -25,6 +25,7 @@ import {
   PORTAL_MENU_RULE_MAX_STRETCH_PX,
 } from "@/components/layout/home-portal-menu-stretch";
 import {
+  ensurePortalMenuRuleCatsPreloaded,
   PORTAL_MENU_RULE_CAT_AT_MAX_SRC,
   PORTAL_MENU_RULE_CAT_HEIGHT,
   PORTAL_MENU_RULE_CAT_SRC,
@@ -84,8 +85,7 @@ export const HomePortalMenuTrigger = forwardRef<
   const [widthPx, setWidthPx] = useState<number | null>(null);
   const [layoutWidthPx, setLayoutWidthPx] = useState(PORTAL_MENU_RULE_MIN_WIDTH_PX);
   const [maxStretchPx, setMaxStretchPx] = useState(PORTAL_MENU_RULE_MAX_STRETCH_PX);
-  const [showMaxTeoSprite, setShowMaxTeoSprite] = useState(false);
-  const maxTeoPreloadedRef = useRef(false);
+  const [ruleCatsReady, setRuleCatsReady] = useState(false);
   const wasAtMaxStretchRef = useRef(false);
   const reachMaxOpenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -153,52 +153,16 @@ export const HomePortalMenuTrigger = forwardRef<
   const isAtMaxStretch = totalWidthPx >= maxStretchPx - 0.5;
 
   useEffect(() => {
-    const img = document.createElement("img");
-    img.src = PORTAL_MENU_RULE_CAT_AT_MAX_SRC;
-    const markReady = () => {
-      maxTeoPreloadedRef.current = true;
-    };
-    if (img.complete) {
-      markReady();
-    } else {
-      img.onload = markReady;
-    }
-  }, []);
-
-  useLayoutEffect(() => {
-    if (!isAtMaxStretch) {
-      setShowMaxTeoSprite(false);
-      return;
-    }
-    if (maxTeoPreloadedRef.current) {
-      setShowMaxTeoSprite(true);
-    }
-  }, [isAtMaxStretch]);
-
-  useEffect(() => {
-    if (!isAtMaxStretch || maxTeoPreloadedRef.current) return;
-
     let cancelled = false;
-    const img = document.createElement("img");
-    img.src = PORTAL_MENU_RULE_CAT_AT_MAX_SRC;
-    const reveal = () => {
-      if (!cancelled) {
-        maxTeoPreloadedRef.current = true;
-        setShowMaxTeoSprite(true);
-      }
-    };
-    if (img.complete) {
-      reveal();
-    } else {
-      img.onload = reveal;
-    }
-
+    void ensurePortalMenuRuleCatsPreloaded().then(() => {
+      if (!cancelled) setRuleCatsReady(true);
+    });
     return () => {
       cancelled = true;
     };
-  }, [isAtMaxStretch]);
+  }, []);
 
-  const showTeo2Layer = isAtMaxStretch && showMaxTeoSprite;
+  const showTeo2Layer = isAtMaxStretch && ruleCatsReady;
 
   useEffect(() => {
     const clearReachMaxOpenTimer = () => {
@@ -348,6 +312,7 @@ export const HomePortalMenuTrigger = forwardRef<
                 aspectRatio: `${PORTAL_MENU_RULE_CAT_WIDTH} / ${PORTAL_MENU_RULE_CAT_HEIGHT}`,
               }}
               unoptimized
+              priority
               draggable={false}
               aria-hidden="true"
             />
@@ -361,6 +326,7 @@ export const HomePortalMenuTrigger = forwardRef<
                 aspectRatio: `${PORTAL_MENU_RULE_CAT_WIDTH} / ${PORTAL_MENU_RULE_CAT_HEIGHT}`,
               }}
               unoptimized
+              priority
               draggable={false}
               aria-hidden="true"
             />

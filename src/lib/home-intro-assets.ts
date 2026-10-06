@@ -1,4 +1,5 @@
 import { SATO_LOGO_SRC } from "@/lib/brand-assets";
+import { PORTAL_MENU_RULE_CAT_SRCS } from "@/lib/portal-menu-assets";
 
 /** Discrete squares in the intro loading meter (see overlay UI). */
 export const HOME_INTRO_LOADING_SEGMENT_COUNT = 7;
@@ -30,6 +31,7 @@ export const HOME_INTRO_CRITICAL_ASSETS = [
   HOME_INTRO_HERO_COVER_SRC,
   ...HOME_INTRO_HERO_TILE_SRCS,
   HOME_INTRO_OPEN_MASK_ALPHA_SRC,
+  ...PORTAL_MENU_RULE_CAT_SRCS,
 ] as const;
 
 /** Frozen timeline contract (ms). */
