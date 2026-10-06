@@ -10,6 +10,7 @@ import {
   type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
+import { isArtistSocialExternalUrl } from "@/lib/artist-social-links";
 import { HOME_PORTAL_MENU_NAV_COLUMNS } from "@/lib/home-portal-menu-nav";
 import { SATO_LOGO_HEIGHT, SATO_LOGO_SRC, SATO_LOGO_WIDTH } from "@/lib/brand-assets";
 
@@ -164,9 +165,18 @@ export function HomePortalMenuModal({ onClose }: HomePortalMenuModalProps) {
                     );
                   }
 
+                  const external = isArtistSocialExternalUrl(item.href);
+
                   return (
                     <li key={item.id} style={itemStyle}>
-                      <a className={className} href={item.href} onClick={handleNavActivate}>
+                      <a
+                        className={className}
+                        href={item.href}
+                        onClick={external ? undefined : handleNavActivate}
+                        {...(external
+                          ? { target: "_blank", rel: "noopener noreferrer" }
+                          : {})}
+                      >
                         {content}
                       </a>
                     </li>

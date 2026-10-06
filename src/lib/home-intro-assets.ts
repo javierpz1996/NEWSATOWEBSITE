@@ -1,5 +1,8 @@
 import { SATO_LOGO_SRC } from "@/lib/brand-assets";
+import { HOME_INTRO_HERO_TILE_SRCS } from "@/lib/home-hero-editorial-tiles";
 import { PORTAL_MENU_RULE_CAT_SRCS } from "@/lib/portal-menu-assets";
+
+export { HOME_INTRO_HERO_TILE_SRCS };
 
 /** Discrete squares in the intro loading meter (see overlay UI). */
 export const HOME_INTRO_LOADING_SEGMENT_COUNT = 7;
@@ -9,13 +12,6 @@ export const HOME_INTRO_LOADING_HINT = "Ya casi cargamos todo" as const;
 
 /** Looping art on the intro loading overlay (not part of hero preload). */
 export const HOME_INTRO_LOADING_GIF = "/works/animation/animation6-intro.gif" as const;
-
-/** Hero editorial tiles (same sources as `page.tsx` — no animation GIFs). */
-export const HOME_INTRO_HERO_TILE_SRCS = [
-  "/works/placeholder/dibujo-1.png",
-  "/works/placeholder/dibujo-1.png",
-  "/works/placeholder/dibujo-1.png",
-] as const;
 
 export const HOME_INTRO_HERO_COVER_SRC = "/works/placeholder/herocover.jpg" as const;
 

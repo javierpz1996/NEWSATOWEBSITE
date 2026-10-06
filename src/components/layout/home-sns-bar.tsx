@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useHomeMessages } from "@/hooks/use-home-messages";
+import { ARTIST_SOCIAL_URLS } from "@/lib/artist-social-links";
 
 type SocialLink = {
   id: string;
@@ -50,6 +51,17 @@ function IconYoutube() {
   );
 }
 
+function IconTikTok() {
+  return (
+    <SnsSvg>
+      <path
+        fill="currentColor"
+        d="M16.5 5.5c.9 1.1 2.2 1.9 3.7 2.1v3.1c-1.3-.04-2.5-.5-3.5-1.2v6.8c0 3.2-2.6 5.8-5.8 5.8S5.1 19.5 5.1 16.3s2.6-5.8 5.8-5.8c.3 0 .6 0 .9.1v3.3c-.3-.1-.6-.1-.9-.1-1.4 0-2.5 1.1-2.5 2.5s1.1 2.5 2.5 2.5 2.5-1.1 2.5-2.5V2h3.1c.1 1.2.7 2.3 1.6 3.5Z"
+      />
+    </SnsSvg>
+  );
+}
+
 function IconDeviantArt() {
   return (
     <SnsSvg>
@@ -62,16 +74,28 @@ function IconDeviantArt() {
 }
 
 const socialLinks: SocialLink[] = [
-  { id: "instagram", label: "Instagram", href: "#", icon: <IconInstagram /> },
-  { id: "x", label: "Twitter", href: "#", icon: <IconX /> },
-  { id: "youtube", label: "Youtube", href: "#", icon: <IconYoutube /> },
-  { id: "deviantart", label: "DeviantArt", href: "#", icon: <IconDeviantArt /> },
+  { id: "instagram", label: "Instagram", href: ARTIST_SOCIAL_URLS.instagram, icon: <IconInstagram /> },
+  { id: "x", label: "Twitter", href: ARTIST_SOCIAL_URLS.x, icon: <IconX /> },
+  { id: "youtube", label: "Youtube", href: ARTIST_SOCIAL_URLS.youtube, icon: <IconYoutube /> },
+  { id: "tiktok", label: "TikTok", href: ARTIST_SOCIAL_URLS.tiktok, icon: <IconTikTok /> },
+  {
+    id: "deviantart",
+    label: "DeviantArt",
+    href: ARTIST_SOCIAL_URLS.deviantart,
+    icon: <IconDeviantArt />,
+  },
 ];
 
 function SocialLinkItem({ link }: { link: SocialLink }) {
   return (
     <li>
-      <a className="home-sns-link" href={link.href}>
+      <a
+        className="home-sns-link"
+        href={link.href}
+        data-brand={link.id}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <span className="home-sns-icon">{link.icon}</span>
         <span className="home-sns-label">{link.label}</span>
       </a>

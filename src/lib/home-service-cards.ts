@@ -1,4 +1,4 @@
-import type { HomeMessages } from "@/lib/home-messages/types";
+import type { HomeMessages, HomeServiceBaseOption } from "@/lib/home-messages/types";
 
 export type ServicePriceRow = {
   label: string;
@@ -13,6 +13,10 @@ export type ServiceBundle = {
 
 export type ContentRating = "sfw" | "nsfw";
 
+export type ServiceCarouselVariant = "simplista" | "bocetos" | "completos";
+
+export type ServiceOrderKind = "simplista" | "bocetos" | "completos";
+
 export type HomeServiceCard = {
   id: string;
   badge: string;
@@ -21,13 +25,17 @@ export type HomeServiceCard = {
   fromPrice?: string;
   description: string;
   contentRating: ContentRating;
+  carouselVariant: ServiceCarouselVariant;
   prices?: ServicePriceRow[];
   variations?: ServicePriceRow[];
   bundle?: ServiceBundle;
   calculator?: boolean;
+  orderKind?: ServiceOrderKind;
   ctaLabel: string;
   ctaHref: string;
-  baseOptions: HomeMessages["services"]["simplista"]["baseOptions"];
+  baseOptions?: HomeServiceBaseOption[];
+  extraPrices?: ServicePriceRow[];
+  extraSectionTitle?: string;
 };
 
 function buildSimplistaCard(
@@ -40,6 +48,7 @@ function buildSimplistaCard(
     title: simplista.title,
     fromPrice: simplista.fromPrice,
     description: simplista.description,
+    carouselVariant: "simplista",
     prices: simplista.baseOptions.map((option) => ({
       label: option.label,
       price: `${option.priceUsd} USD`,
@@ -54,28 +63,99 @@ function buildSimplistaCard(
       includes: simplista.poseSheetIncludes,
     },
     calculator: true,
+    orderKind: "simplista",
     ctaLabel: card.requestCommission,
     ctaHref: "#contacto",
     baseOptions: simplista.baseOptions,
   };
 }
 
-function buildSimplistaColoreadoCards(
-  template: Omit<HomeServiceCard, "id" | "contentRating">,
+function buildBocetosCard(
+  bocetos: HomeMessages["services"]["bocetos"],
+  card: HomeMessages["services"]["card"],
+): Omit<HomeServiceCard, "id" | "contentRating"> {
+  return {
+    badge: bocetos.badge,
+    badgeTone: "blue",
+    title: bocetos.title,
+    fromPrice: bocetos.fromPrice,
+    description: bocetos.description,
+    carouselVariant: "bocetos",
+    prices: bocetos.baseOptions.map((option) => ({
+      label: option.label,
+      price: `${option.priceUsd} USD`,
+    })),
+    variations: [
+      { label: bocetos.variationExtraPerson, price: "+15 USD" },
+      { label: bocetos.variationFullBody, price: "+10 USD" },
+      { label: bocetos.variationSimpleBackground, price: "+25 USD" },
+    ],
+    extraSectionTitle: bocetos.poseSheetTitle,
+    extraPrices: [
+      {
+        label: bocetos.poseSheetNoColor,
+        price: `+${bocetos.poseSheetNoColorPriceUsd} USD`,
+      },
+      {
+        label: bocetos.poseSheetWithColor,
+        price: `+${bocetos.poseSheetWithColorPriceUsd} USD`,
+      },
+    ],
+    calculator: true,
+    orderKind: "bocetos",
+    ctaLabel: card.requestCommission,
+    ctaHref: "#contacto",
+    baseOptions: bocetos.baseOptions,
+  };
+}
+
+function buildCompletosCard(
+  completos: HomeMessages["services"]["completos"],
+  card: HomeMessages["services"]["card"],
+): Omit<HomeServiceCard, "id" | "contentRating"> {
+  return {
+    badge: completos.badge,
+    badgeTone: "lilac",
+    title: completos.title,
+    fromPrice: completos.fromPrice,
+    description: completos.description,
+    carouselVariant: "completos",
+    prices: completos.baseOptions.map((option) => ({
+      label: option.label,
+      price: `${option.priceUsd} USD`,
+    })),
+    variations: [
+      { label: completos.variationExtraPerson, price: "+80 USD" },
+      { label: completos.variationFullBody, price: "+50 USD" },
+      { label: completos.variationFlatBackground, price: "+50 USD" },
+      { label: completos.variationDetailedBackground, price: "+100 USD" },
+    ],
+    calculator: true,
+    orderKind: "completos",
+    ctaLabel: card.requestCommission,
+    ctaHref: "#contacto",
+    baseOptions: completos.baseOptions,
+  };
+}
+
+function buildRatedServiceCards(
   contentRating: ContentRating,
   idPrefix: string,
+  simplista: Omit<HomeServiceCard, "id" | "contentRating">,
+  bocetos: Omit<HomeServiceCard, "id" | "contentRating">,
+  completos: Omit<HomeServiceCard, "id" | "contentRating">,
 ): HomeServiceCard[] {
-  return Array.from({ length: 2 }, (_, index) => ({
-    ...template,
-    id: `${idPrefix}-${index + 1}`,
-    contentRating,
-  }));
+  return [
+    { ...simplista, id: `${idPrefix}-simplista`, contentRating },
+    { ...bocetos, id: `${idPrefix}-bocetos`, contentRating },
+    { ...completos, id: `${idPrefix}-completos`, contentRating },
+  ];
 }
 
 export function buildHomeServiceCards(services: HomeMessages["services"]): HomeServiceCard[] {
-  const template = buildSimplistaCard(services.simplista, services.card);
-  return [
-    ...buildSimplistaColoreadoCards(template, "sfw", "simplista-colored-sfw"),
-    ...buildSimplistaColoreadoCards(template, "nsfw", "simplista-colored-nsfw"),
-  ];
+  const simplista = buildSimplistaCard(services.simplista, services.card);
+  const bocetos = buildBocetosCard(services.bocetos, services.card);
+  const completos = buildCompletosCard(services.completos, services.card);
+
+  return buildRatedServiceCards("sfw", "sfw", simplista, bocetos, completos);
 }

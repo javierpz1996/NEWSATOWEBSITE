@@ -10,7 +10,7 @@ export type HomeFooterNavItem = {
 };
 
 export type HomeServiceBaseOption = {
-  id: "flat" | "simple";
+  id: string;
   label: string;
   priceUsd: number;
 };
@@ -42,7 +42,12 @@ export type HomeMessages = {
     subtitle: string;
     filterAriaLabel: string;
     nsfwAriaLabel: string;
-    emptyNsfw: string;
+    nsfwComingSoon: {
+      badge: string;
+      title: string;
+      description: string;
+      visualLabel: string;
+    };
     card: {
       from: string;
       prices: string;
@@ -81,6 +86,44 @@ export type HomeMessages = {
       poseSheetIncludes: string[];
       ctaLabel: string;
     };
+    bocetos: {
+      badge: string;
+      title: string;
+      description: string;
+      fromPrice: string;
+      baseOptions: HomeServiceBaseOption[];
+      variationExtraPerson: string;
+      variationExtraPersonPriceUsd: number;
+      variationFullBody: string;
+      variationFullBodyPriceUsd: number;
+      variationSimpleBackground: string;
+      variationSimpleBackgroundPriceUsd: number;
+      extraPersonEach: string;
+      poseSheetTitle: string;
+      poseSheetNoColor: string;
+      poseSheetNoColorPriceUsd: number;
+      poseSheetWithColor: string;
+      poseSheetWithColorPriceUsd: number;
+      poseSheetNone: string;
+      ctaLabel: string;
+    };
+    completos: {
+      badge: string;
+      title: string;
+      description: string;
+      fromPrice: string;
+      baseOptions: HomeServiceBaseOption[];
+      variationExtraPerson: string;
+      variationExtraPersonPriceUsd: number;
+      variationFullBody: string;
+      variationFullBodyPriceUsd: number;
+      variationFlatBackground: string;
+      variationFlatBackgroundPriceUsd: number;
+      variationDetailedBackground: string;
+      variationDetailedBackgroundPriceUsd: number;
+      extraPersonEach: string;
+      ctaLabel: string;
+    };
     nsfwGate: {
       closeAria: string;
       title: string;
@@ -89,6 +132,15 @@ export type HomeMessages = {
       cancel: string;
       enter: string;
     };
+    carouselAria: string;
+    carouselSampleAlt: (index: number) => string;
+    carouselSketchSampleAlt: (index: number) => string;
+    carouselCompletosSampleAlt: (index: number) => string;
+    carouselExpandAria: (alt: string) => string;
+    carouselLightboxCloseAria: string;
+    carouselLightboxPrevAria: string;
+    carouselLightboxNextAria: string;
+    carouselLightboxWorkLabel: (index: number, total: number) => string;
   };
   faq: {
     title: string;
@@ -104,12 +156,12 @@ export type HomeMessages = {
     submit: string;
     hint: string;
     hintAfterSubmit: string;
+    fieldRequired: string;
   };
   animations: {
     title: string;
     subtitle: string;
     count: string;
-    tags: string;
     tileAria: (number: string, title: string) => string;
     works: Array<{
       id: string;
@@ -136,6 +188,9 @@ export type HomeMessages = {
     namePlaceholder: string;
     socialLabel: string;
     socialPlaceholder: string;
+    paymentLabel: string;
+    paymentPlaceholder: string;
+    paymentMethods: Array<{ id: string; label: string }>;
     usernameLabel: string;
     usernamePlaceholder: string;
     notesLabel: string;
@@ -144,6 +199,7 @@ export type HomeMessages = {
     submitErrorFallback: string;
     iconAria: string;
     iconAriaWithCount: (count: number) => string;
+    fieldRequired: string;
   };
   cookies: {
     closeAria: string;

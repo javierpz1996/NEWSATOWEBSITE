@@ -25,7 +25,7 @@ import {
   type ServiceBundle,
   type ServicePriceRow,
 } from "@/lib/home-service-cards";
-import type { HomeMessages } from "@/lib/home-messages/types";
+import type { HomeMessages, HomeServiceBaseOption } from "@/lib/home-messages/types";
 
 function subscribeReducedMotion(onStoreChange: () => void) {
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -62,15 +62,13 @@ function ServicePriceList({ rows }: { rows: ServicePriceRow[] }) {
 }
 
 type SimplistaOrderState = {
-  baseId: HomeServiceCard["baseOptions"][number]["id"];
+  baseId: HomeServiceBaseOption["id"];
   fullBody: boolean;
   extraPeople: number;
   poseSheet: boolean;
 };
 
-const defaultSimplistaOrder = (
-  baseOptions: HomeServiceCard["baseOptions"],
-): SimplistaOrderState => ({
+const defaultSimplistaOrder = (baseOptions: HomeServiceBaseOption[]): SimplistaOrderState => ({
   baseId: baseOptions[0]?.id ?? "flat",
   fullBody: false,
   extraPeople: 0,
@@ -91,7 +89,7 @@ function SimplistaOrderBuilder({
   serviceTitle: string;
   bundle: ServiceBundle;
   variants: Variants;
-  baseOptions: HomeServiceCard["baseOptions"];
+  baseOptions: HomeServiceBaseOption[];
   orderCopy: HomeMessages["services"]["order"];
 }) {
   const [order, setOrder] = useState<SimplistaOrderState>(() => defaultSimplistaOrder(baseOptions));
@@ -251,6 +249,560 @@ function SimplistaOrderBuilder({
               </ul>
             </div>
           ) : null}
+        </fieldset>
+      </ServiceCardDetailsSection>
+
+      <ServiceCardDetailsSection variants={variants}>
+        <div className="home-service-order-summary" aria-live="polite">
+          <p className="home-service-order-summary-label">{orderCopy.estimatedTotal}</p>
+          <p className="home-service-order-summary-total">{formatUsd(totalUsd)}</p>
+          <ul className="home-service-order-summary-lines">
+            {lineItems.map((item) => (
+              <li key={item.label}>
+                <span>{item.label}</span>
+                <span>{formatUsd(item.priceUsd)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </ServiceCardDetailsSection>
+
+      <ServiceCardDetailsSection variants={variants}>
+        <div className="home-service-order-actions">
+          <button
+            type="button"
+            className="home-service-card-cta home-service-card-cta-primary"
+            onClick={handleAddToCart}
+          >
+            {orderCopy.buy}
+            <span className="home-service-card-cta-arrow" aria-hidden="true">
+              →
+            </span>
+          </button>
+        </div>
+      </ServiceCardDetailsSection>
+    </>
+  );
+}
+
+type BocetosPoseSheetChoice = "none" | "noColor" | "withColor";
+
+type BocetosOrderState = {
+  poseSheet: BocetosPoseSheetChoice;
+  baseId: HomeServiceBaseOption["id"];
+  fullBody: boolean;
+  simpleBackground: boolean;
+  extraPeople: number;
+};
+
+const defaultBocetosOrder = (baseOptions: HomeServiceBaseOption[]): BocetosOrderState => ({
+  poseSheet: "none",
+  baseId: baseOptions[0]?.id ?? "noColor",
+  fullBody: false,
+  simpleBackground: false,
+  extraPeople: 0,
+});
+
+function BocetosOrderBuilder({
+  serviceTitle,
+  variants,
+  baseOptions,
+  bocetosCopy,
+  orderCopy,
+}: {
+  serviceTitle: string;
+  variants: Variants;
+  baseOptions: HomeServiceBaseOption[];
+  bocetosCopy: HomeMessages["services"]["bocetos"];
+  orderCopy: HomeMessages["services"]["order"];
+}) {
+  const [order, setOrder] = useState<BocetosOrderState>(() => defaultBocetosOrder(baseOptions));
+  const { addItem } = useHomeCart();
+
+  const sketchLocked = order.poseSheet !== "none";
+  const baseFieldName = useId();
+  const poseSheetFieldName = useId();
+
+  const { lineItems, totalUsd } = useMemo(() => {
+    if (order.poseSheet === "noColor") {
+      const label = `${bocetosCopy.poseSheetTitle} — ${bocetosCopy.poseSheetNoColor}`;
+      return {
+        lineItems: [{ label, priceUsd: bocetosCopy.poseSheetNoColorPriceUsd }],
+        totalUsd: bocetosCopy.poseSheetNoColorPriceUsd,
+      };
+    }
+    if (order.poseSheet === "withColor") {
+      const label = `${bocetosCopy.poseSheetTitle} — ${bocetosCopy.poseSheetWithColor}`;
+      return {
+        lineItems: [{ label, priceUsd: bocetosCopy.poseSheetWithColorPriceUsd }],
+        totalUsd: bocetosCopy.poseSheetWithColorPriceUsd,
+      };
+    }
+
+    const base = baseOptions.find((option) => option.id === order.baseId)!;
+    const items: { label: string; priceUsd: number }[] = [
+      { label: base.label, priceUsd: base.priceUsd },
+    ];
+
+    if (order.fullBody) {
+      items.push({
+        label: bocetosCopy.variationFullBody,
+        priceUsd: bocetosCopy.variationFullBodyPriceUsd,
+      });
+    }
+    if (order.simpleBackground) {
+      items.push({
+        label: bocetosCopy.variationSimpleBackground,
+        priceUsd: bocetosCopy.variationSimpleBackgroundPriceUsd,
+      });
+    }
+    if (order.extraPeople > 0) {
+      items.push({
+        label: orderCopy.extraPersonLine(order.extraPeople),
+        priceUsd: bocetosCopy.variationExtraPersonPriceUsd * order.extraPeople,
+      });
+    }
+
+    const total = items.reduce((sum, item) => sum + item.priceUsd, 0);
+    return { lineItems: items, totalUsd: total };
+  }, [baseOptions, bocetosCopy, order, orderCopy]);
+
+  const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
+    addItem(
+      {
+        serviceTitle,
+        lines: lineItems.map((item) => ({
+          label: item.label,
+          priceUsd: item.priceUsd,
+        })),
+        totalUsd,
+      },
+      { flyFrom: event.currentTarget },
+    );
+  };
+
+  return (
+    <>
+      <ServiceCardDetailsSection variants={variants}>
+        <fieldset className="home-service-order-field" disabled={sketchLocked}>
+          <legend className="home-service-card-section-label home-service-card-section-label-strong">
+            {orderCopy.base}
+          </legend>
+          <ul className="home-service-order-options">
+            {baseOptions.map((option) => (
+              <li key={option.id}>
+                <label className="home-service-order-option">
+                  <input
+                    type="radio"
+                    name={`${baseFieldName}-base`}
+                    checked={order.baseId === option.id}
+                    disabled={sketchLocked}
+                    onChange={() =>
+                      setOrder((prev) => ({ ...prev, baseId: option.id, poseSheet: "none" }))
+                    }
+                  />
+                  <span className="home-service-order-option-label">{option.label}</span>
+                  <span className="home-service-order-option-price">{formatUsd(option.priceUsd)}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </fieldset>
+      </ServiceCardDetailsSection>
+
+      <ServiceCardDetailsSection variants={variants}>
+        <fieldset className="home-service-order-field" disabled={sketchLocked}>
+          <legend className="home-service-card-section-label home-service-card-section-label-strong">
+            {orderCopy.variations}
+          </legend>
+          <ul className="home-service-order-options">
+            <li>
+              <div className="home-service-order-option home-service-order-option-quantity">
+                <span className="home-service-order-option-label">{bocetosCopy.variationExtraPerson}</span>
+                <div className="home-service-order-quantity">
+                  <button
+                    type="button"
+                    className="home-service-order-quantity-btn"
+                    aria-label={orderCopy.removeExtraPersonAria}
+                    disabled={sketchLocked || order.extraPeople === 0}
+                    onClick={() =>
+                      setOrder((prev) => ({
+                        ...prev,
+                        poseSheet: "none",
+                        extraPeople: Math.max(0, prev.extraPeople - 1),
+                      }))
+                    }
+                  >
+                    −
+                  </button>
+                  <span className="home-service-order-quantity-value" aria-live="polite">
+                    {order.extraPeople}
+                  </span>
+                  <button
+                    type="button"
+                    className="home-service-order-quantity-btn"
+                    aria-label={orderCopy.addExtraPersonAria}
+                    disabled={sketchLocked}
+                    onClick={() =>
+                      setOrder((prev) => ({
+                        ...prev,
+                        poseSheet: "none",
+                        extraPeople: Math.min(5, prev.extraPeople + 1),
+                      }))
+                    }
+                  >
+                    +
+                  </button>
+                </div>
+                <span className="home-service-order-option-price">{bocetosCopy.extraPersonEach}</span>
+              </div>
+            </li>
+            <li>
+              <label className="home-service-order-option">
+                <input
+                  type="checkbox"
+                  checked={order.fullBody}
+                  disabled={sketchLocked}
+                  onChange={(event) =>
+                    setOrder((prev) => ({
+                      ...prev,
+                      poseSheet: "none",
+                      fullBody: event.target.checked,
+                    }))
+                  }
+                />
+                <span className="home-service-order-option-label">{bocetosCopy.variationFullBody}</span>
+                <span className="home-service-order-option-price">
+                  +{bocetosCopy.variationFullBodyPriceUsd} USD
+                </span>
+              </label>
+            </li>
+            <li>
+              <label className="home-service-order-option">
+                <input
+                  type="checkbox"
+                  checked={order.simpleBackground}
+                  disabled={sketchLocked}
+                  onChange={(event) =>
+                    setOrder((prev) => ({
+                      ...prev,
+                      poseSheet: "none",
+                      simpleBackground: event.target.checked,
+                    }))
+                  }
+                />
+                <span className="home-service-order-option-label">
+                  {bocetosCopy.variationSimpleBackground}
+                </span>
+                <span className="home-service-order-option-price">
+                  +{bocetosCopy.variationSimpleBackgroundPriceUsd} USD
+                </span>
+              </label>
+            </li>
+          </ul>
+        </fieldset>
+      </ServiceCardDetailsSection>
+
+      <ServiceCardDetailsSection variants={variants}>
+        <fieldset className="home-service-order-field">
+          <legend className="home-service-card-section-label home-service-card-section-label-strong">
+            {bocetosCopy.poseSheetTitle}
+          </legend>
+          <ul className="home-service-order-options">
+            <li>
+              <label className="home-service-order-option">
+                <input
+                  type="radio"
+                  name={`${poseSheetFieldName}-pose`}
+                  checked={order.poseSheet === "none"}
+                  onChange={() => setOrder((prev) => ({ ...prev, poseSheet: "none" }))}
+                />
+                <span className="home-service-order-option-label">{bocetosCopy.poseSheetNone}</span>
+              </label>
+            </li>
+            <li>
+              <label className="home-service-order-option">
+                <input
+                  type="radio"
+                  name={`${poseSheetFieldName}-pose`}
+                  checked={order.poseSheet === "noColor"}
+                  onChange={() =>
+                    setOrder({
+                      poseSheet: "noColor",
+                      baseId: baseOptions[0]?.id ?? "noColor",
+                      fullBody: false,
+                      simpleBackground: false,
+                      extraPeople: 0,
+                    })
+                  }
+                />
+                <span className="home-service-order-option-label">{bocetosCopy.poseSheetNoColor}</span>
+                <span className="home-service-order-option-price">
+                  +{bocetosCopy.poseSheetNoColorPriceUsd} USD
+                </span>
+              </label>
+            </li>
+            <li>
+              <label className="home-service-order-option">
+                <input
+                  type="radio"
+                  name={`${poseSheetFieldName}-pose`}
+                  checked={order.poseSheet === "withColor"}
+                  onChange={() =>
+                    setOrder({
+                      poseSheet: "withColor",
+                      baseId: baseOptions[0]?.id ?? "noColor",
+                      fullBody: false,
+                      simpleBackground: false,
+                      extraPeople: 0,
+                    })
+                  }
+                />
+                <span className="home-service-order-option-label">{bocetosCopy.poseSheetWithColor}</span>
+                <span className="home-service-order-option-price">
+                  +{bocetosCopy.poseSheetWithColorPriceUsd} USD
+                </span>
+              </label>
+            </li>
+          </ul>
+        </fieldset>
+      </ServiceCardDetailsSection>
+
+      <ServiceCardDetailsSection variants={variants}>
+        <div className="home-service-order-summary" aria-live="polite">
+          <p className="home-service-order-summary-label">{orderCopy.estimatedTotal}</p>
+          <p className="home-service-order-summary-total">{formatUsd(totalUsd)}</p>
+          <ul className="home-service-order-summary-lines">
+            {lineItems.map((item) => (
+              <li key={item.label}>
+                <span>{item.label}</span>
+                <span>{formatUsd(item.priceUsd)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </ServiceCardDetailsSection>
+
+      <ServiceCardDetailsSection variants={variants}>
+        <div className="home-service-order-actions">
+          <button
+            type="button"
+            className="home-service-card-cta home-service-card-cta-primary"
+            onClick={handleAddToCart}
+          >
+            {orderCopy.buy}
+            <span className="home-service-card-cta-arrow" aria-hidden="true">
+              →
+            </span>
+          </button>
+        </div>
+      </ServiceCardDetailsSection>
+    </>
+  );
+}
+
+type CompletosOrderState = {
+  baseId: HomeServiceBaseOption["id"];
+  fullBody: boolean;
+  flatBackground: boolean;
+  detailedBackground: boolean;
+  extraPeople: number;
+};
+
+const defaultCompletosOrder = (baseOptions: HomeServiceBaseOption[]): CompletosOrderState => ({
+  baseId: baseOptions[0]?.id ?? "onePersonFlat",
+  fullBody: false,
+  flatBackground: false,
+  detailedBackground: false,
+  extraPeople: 0,
+});
+
+function CompletosOrderBuilder({
+  serviceTitle,
+  variants,
+  baseOptions,
+  completosCopy,
+  orderCopy,
+}: {
+  serviceTitle: string;
+  variants: Variants;
+  baseOptions: HomeServiceBaseOption[];
+  completosCopy: HomeMessages["services"]["completos"];
+  orderCopy: HomeMessages["services"]["order"];
+}) {
+  const [order, setOrder] = useState<CompletosOrderState>(() => defaultCompletosOrder(baseOptions));
+  const { addItem } = useHomeCart();
+  const baseFieldName = useId();
+
+  const { lineItems, totalUsd } = useMemo(() => {
+    const base = baseOptions.find((option) => option.id === order.baseId)!;
+    const items: { label: string; priceUsd: number }[] = [
+      { label: base.label, priceUsd: base.priceUsd },
+    ];
+
+    if (order.extraPeople > 0) {
+      items.push({
+        label: orderCopy.extraPersonLine(order.extraPeople),
+        priceUsd: completosCopy.variationExtraPersonPriceUsd * order.extraPeople,
+      });
+    }
+    if (order.fullBody) {
+      items.push({
+        label: completosCopy.variationFullBody,
+        priceUsd: completosCopy.variationFullBodyPriceUsd,
+      });
+    }
+    if (order.flatBackground) {
+      items.push({
+        label: completosCopy.variationFlatBackground,
+        priceUsd: completosCopy.variationFlatBackgroundPriceUsd,
+      });
+    }
+    if (order.detailedBackground) {
+      items.push({
+        label: completosCopy.variationDetailedBackground,
+        priceUsd: completosCopy.variationDetailedBackgroundPriceUsd,
+      });
+    }
+
+    const total = items.reduce((sum, item) => sum + item.priceUsd, 0);
+    return { lineItems: items, totalUsd: total };
+  }, [baseOptions, completosCopy, order, orderCopy]);
+
+  const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
+    addItem(
+      {
+        serviceTitle,
+        lines: lineItems.map((item) => ({
+          label: item.label,
+          priceUsd: item.priceUsd,
+        })),
+        totalUsd,
+      },
+      { flyFrom: event.currentTarget },
+    );
+  };
+
+  return (
+    <>
+      <ServiceCardDetailsSection variants={variants}>
+        <fieldset className="home-service-order-field">
+          <legend className="home-service-card-section-label home-service-card-section-label-strong">
+            {orderCopy.base}
+          </legend>
+          <ul className="home-service-order-options">
+            {baseOptions.map((option) => (
+              <li key={option.id}>
+                <label className="home-service-order-option">
+                  <input
+                    type="radio"
+                    name={`${baseFieldName}-base`}
+                    checked={order.baseId === option.id}
+                    onChange={() => setOrder((prev) => ({ ...prev, baseId: option.id }))}
+                  />
+                  <span className="home-service-order-option-label">{option.label}</span>
+                  <span className="home-service-order-option-price">{formatUsd(option.priceUsd)}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </fieldset>
+      </ServiceCardDetailsSection>
+
+      <ServiceCardDetailsSection variants={variants}>
+        <fieldset className="home-service-order-field">
+          <legend className="home-service-card-section-label home-service-card-section-label-strong">
+            {orderCopy.variations}
+          </legend>
+          <ul className="home-service-order-options">
+            <li>
+              <div className="home-service-order-option home-service-order-option-quantity">
+                <span className="home-service-order-option-label">{completosCopy.variationExtraPerson}</span>
+                <div className="home-service-order-quantity">
+                  <button
+                    type="button"
+                    className="home-service-order-quantity-btn"
+                    aria-label={orderCopy.removeExtraPersonAria}
+                    disabled={order.extraPeople === 0}
+                    onClick={() =>
+                      setOrder((prev) => ({
+                        ...prev,
+                        extraPeople: Math.max(0, prev.extraPeople - 1),
+                      }))
+                    }
+                  >
+                    −
+                  </button>
+                  <span className="home-service-order-quantity-value" aria-live="polite">
+                    {order.extraPeople}
+                  </span>
+                  <button
+                    type="button"
+                    className="home-service-order-quantity-btn"
+                    aria-label={orderCopy.addExtraPersonAria}
+                    onClick={() =>
+                      setOrder((prev) => ({
+                        ...prev,
+                        extraPeople: Math.min(5, prev.extraPeople + 1),
+                      }))
+                    }
+                  >
+                    +
+                  </button>
+                </div>
+                <span className="home-service-order-option-price">{completosCopy.extraPersonEach}</span>
+              </div>
+            </li>
+            <li>
+              <label className="home-service-order-option">
+                <input
+                  type="checkbox"
+                  checked={order.fullBody}
+                  onChange={(event) =>
+                    setOrder((prev) => ({ ...prev, fullBody: event.target.checked }))
+                  }
+                />
+                <span className="home-service-order-option-label">{completosCopy.variationFullBody}</span>
+                <span className="home-service-order-option-price">
+                  +{completosCopy.variationFullBodyPriceUsd} USD
+                </span>
+              </label>
+            </li>
+            <li>
+              <label className="home-service-order-option">
+                <input
+                  type="checkbox"
+                  checked={order.flatBackground}
+                  onChange={(event) =>
+                    setOrder((prev) => ({ ...prev, flatBackground: event.target.checked }))
+                  }
+                />
+                <span className="home-service-order-option-label">
+                  {completosCopy.variationFlatBackground}
+                </span>
+                <span className="home-service-order-option-price">
+                  +{completosCopy.variationFlatBackgroundPriceUsd} USD
+                </span>
+              </label>
+            </li>
+            <li>
+              <label className="home-service-order-option">
+                <input
+                  type="checkbox"
+                  checked={order.detailedBackground}
+                  onChange={(event) =>
+                    setOrder((prev) => ({ ...prev, detailedBackground: event.target.checked }))
+                  }
+                />
+                <span className="home-service-order-option-label">
+                  {completosCopy.variationDetailedBackground}
+                </span>
+                <span className="home-service-order-option-price">
+                  +{completosCopy.variationDetailedBackgroundPriceUsd} USD
+                </span>
+              </label>
+            </li>
+          </ul>
         </fieldset>
       </ServiceCardDetailsSection>
 
@@ -458,7 +1010,7 @@ function ServiceCardItem({
           <span className="home-commissions-step-corner home-commissions-step-corner-br" />
         </div>
         <div className="home-service-card-visual">
-          <ArtworkCarousel />
+          <ArtworkCarousel variant={service.carouselVariant} />
         </div>
         <div className="home-service-card-body">
           <span className="home-service-card-badge" data-tone={service.badgeTone}>
@@ -532,7 +1084,18 @@ function ServiceCardItem({
                     <ServicePriceList rows={service.variations} />
                   </ServiceCardDetailsSection>
                 ) : null}
-                {service.calculator && service.bundle ? (
+                {service.extraPrices && service.extraPrices.length > 0 ? (
+                  <ServiceCardDetailsSection
+                    className="home-service-card-detail-block"
+                    variants={detailsContentMotion.item}
+                  >
+                    <h4 className="home-service-card-section-label home-service-card-section-label-strong">
+                      {service.extraSectionTitle ?? orderCopy.extra}
+                    </h4>
+                    <ServicePriceList rows={service.extraPrices} />
+                  </ServiceCardDetailsSection>
+                ) : null}
+                {service.calculator && service.baseOptions ? (
                   <ServiceCardDetailsSection
                     className="home-service-card-calc-block"
                     variants={detailsContentMotion.item}
@@ -573,14 +1136,34 @@ function ServiceCardItem({
                         detailsClassName="home-service-card-details home-service-order-panel"
                         ariaLabel={cardCopy.buildOrderAria}
                       >
-                        <SimplistaOrderBuilder
-                          key={orderResetKey}
-                          variants={detailsContentMotion.item}
-                          serviceTitle={service.title}
-                          bundle={service.bundle!}
-                          baseOptions={service.baseOptions}
-                          orderCopy={orderCopy}
-                        />
+                        {service.orderKind === "bocetos" ? (
+                          <BocetosOrderBuilder
+                            key={orderResetKey}
+                            variants={detailsContentMotion.item}
+                            serviceTitle={service.title}
+                            baseOptions={service.baseOptions}
+                            bocetosCopy={servicesCopy.bocetos}
+                            orderCopy={orderCopy}
+                          />
+                        ) : service.orderKind === "completos" ? (
+                          <CompletosOrderBuilder
+                            key={orderResetKey}
+                            variants={detailsContentMotion.item}
+                            serviceTitle={service.title}
+                            baseOptions={service.baseOptions}
+                            completosCopy={servicesCopy.completos}
+                            orderCopy={orderCopy}
+                          />
+                        ) : service.bundle ? (
+                          <SimplistaOrderBuilder
+                            key={orderResetKey}
+                            variants={detailsContentMotion.item}
+                            serviceTitle={service.title}
+                            bundle={service.bundle}
+                            baseOptions={service.baseOptions}
+                            orderCopy={orderCopy}
+                          />
+                        ) : null}
                       </ServiceCardDetailsReveal>
                     </div>
                   </ServiceCardDetailsSection>
@@ -590,7 +1173,7 @@ function ServiceCardItem({
             </>
           ) : null}
 
-          {!service.calculator ? (
+          {!service.calculator && !service.prices ? (
             <Link className="home-service-card-cta" href={service.ctaHref}>
               {service.ctaLabel}
               <span className="home-service-card-cta-arrow" aria-hidden="true">
@@ -598,6 +1181,43 @@ function ServiceCardItem({
               </span>
             </Link>
           ) : null}
+        </div>
+      </article>
+    </li>
+  );
+}
+
+function HomeServicesNsfwComingSoonCard({
+  copy,
+}: {
+  copy: HomeMessages["services"]["nsfwComingSoon"];
+}) {
+  return (
+    <li className="home-services-reveal-item home-services-reveal-item--card home-services-reveal-item--card-1">
+      <article
+        className="home-service-card home-service-card--nsfw-soon"
+        aria-labelledby="home-services-nsfw-soon-title"
+      >
+        <div className="home-commissions-step-frame" aria-hidden="true">
+          <span className="home-commissions-step-corner home-commissions-step-corner-tl" />
+          <span className="home-commissions-step-corner home-commissions-step-corner-tr" />
+          <span className="home-commissions-step-corner home-commissions-step-corner-bl" />
+          <span className="home-commissions-step-corner home-commissions-step-corner-br" />
+        </div>
+        <div
+          className="home-service-card-visual home-service-card-visual--coming-soon"
+          aria-hidden="true"
+        >
+          <p className="home-service-card-visual--coming-soon__label">{copy.visualLabel}</p>
+        </div>
+        <div className="home-service-card-body">
+          <span className="home-service-card-badge" data-tone="rose">
+            {copy.badge}
+          </span>
+          <h3 id="home-services-nsfw-soon-title" className="home-service-card-title">
+            {copy.title}
+          </h3>
+          <p className="home-service-card-description">{copy.description}</p>
         </div>
       </article>
     </li>
@@ -705,11 +1325,11 @@ export function HomeServices() {
             />
           ))}
         </ul>
-      ) : (
-        <p className="home-services-empty home-services-reveal-item home-services-reveal-item--empty">
-          {servicesCopy.emptyNsfw}
-        </p>
-      )}
+      ) : contentRating === "nsfw" ? (
+        <ul className="home-services-grid">
+          <HomeServicesNsfwComingSoonCard copy={servicesCopy.nsfwComingSoon} />
+        </ul>
+      ) : null}
     </section>
   );
 }

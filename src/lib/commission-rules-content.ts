@@ -70,7 +70,7 @@ export const COMMISSION_RULES_SECTIONS: CommissionRulesSection[] = [
       "Desde ésta página el cliente enviará una **solicitud** para realizar su comisión, el artista podrá decidir si **aceptarla** (o **cancelarla** si no cumple con los términos de servicio)",
       "Si la solicitud es aceptada el artista se pondrá en contacto con el cliente y se le enviará los datos necesarios para realizar el **pago inicial** a través del método de pago seleccionado en el formulario de solicitud.",
       "Luego de abonar el **monto inicial** acordado, el cliente deberá proporcionar una **descripción escrita** e **imágenes** de lo que desea para la comisión, manteniendo siempre una comunicación **respetuosa y laboral**.",
-      "En caso de solicitar una comisión basada en **personas reales**, el cliente podrá proporcionar **fotografías de sus rostros** (consultar reglamentos). También podrá enviar cualquier otra referencia que considere útil para ayudarme a comprender y representar correctamente lo solicitado.",
+      "En caso de solicitar una comisión basada en **personas reales**, el cliente es responsable de asegurarse de contar con el **consentimiento y/o autorización** necesarios de las personas representadas. No me hago responsable por la falta de consentimiento, autorización o cualquier conflicto derivado del uso de la imagen de una persona sin su permiso.",
       "Al finalizar el trabajo y abonar el **monto restante** acordado, la comisión **sin firma ni marca de agua** es entregada a través de una **carpeta en drive**.",
       "Incluirá: Dibujo **con fondo** (dependiendo la comisión), **sin fondo** (fondo blanco) y el **PNG** (fondo transparente).",
       "Pasados unos meses, esa carpeta y sus archivos **serán eliminados**.",

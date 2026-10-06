@@ -39,6 +39,11 @@ function SubmissionCard({ row }: { row: CartSubmissionRow }) {
             {" · "}
             <span>{row.social_username}</span>
           </p>
+          {row.payment_method?.trim() ? (
+            <p className="sales-page__card-payment">
+              Método de pago: <span>{row.payment_method}</span>
+            </p>
+          ) : null}
         </div>
         <p className="sales-page__card-total">{formatHomeCartUsd(row.total_usd)}</p>
       </header>

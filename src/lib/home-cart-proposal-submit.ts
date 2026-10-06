@@ -5,6 +5,7 @@ export type SubmitCartProposalInput = {
   clientName: string;
   socialNetworkLabel: string;
   socialUsername: string;
+  paymentMethodLabel: string;
   notes: string;
   items: HomeCartItem[];
 };
@@ -38,6 +39,7 @@ export async function submitCartProposalToSupabase(input: SubmitCartProposalInpu
     client_name: input.clientName.trim() || null,
     social_network: input.socialNetworkLabel,
     social_username: input.socialUsername.trim(),
+    payment_method: input.paymentMethodLabel,
     notes: input.notes.trim() || null,
     items: input.items,
     total_usd: totalUsd,

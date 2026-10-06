@@ -87,7 +87,6 @@ export function HomeAnimations() {
         </div>
         <div className="home-animations-header-meta">
           <p className="home-animations-count">{animations.count}</p>
-          <p className="home-animations-tags">{animations.tags}</p>
         </div>
       </header>
 

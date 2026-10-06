@@ -29,15 +29,8 @@ import {
 import { useHomeHeroStableViewport } from "@/hooks/use-home-hero-stable-viewport";
 import { SATO_LOGO_HEIGHT, SATO_LOGO_SRC, SATO_LOGO_WIDTH } from "@/lib/brand-assets";
 import { useHomeMessages } from "@/hooks/use-home-messages";
+import { HOME_HERO_EDITORIAL_TILES } from "@/lib/home-hero-editorial-tiles";
 import { ensurePortalMenuRuleCatsPreloaded } from "@/lib/portal-menu-assets";
-
-const HERO_EDITORIAL_TILE = "/works/placeholder/dibujo-1.png" as const;
-
-const HERO_EDITORIAL_TILES = [
-  { id: "01", src: HERO_EDITORIAL_TILE },
-  { id: "02", src: HERO_EDITORIAL_TILE },
-  { id: "03", src: HERO_EDITORIAL_TILE },
-] as const;
 
 /** Temporary: hide header nav links until routes/sections are ready for launch. */
 const HOME_HEADER_NAV_VISIBLE = false;
@@ -185,13 +178,17 @@ export default function Home() {
                 <span>SATO WORKS</span>
               </div>
               <div className="home-editorial-tiles">
-                {HERO_EDITORIAL_TILES.map((tile, index) => (
+                {HOME_HERO_EDITORIAL_TILES.map((tile, index) => (
                   <div
-                    className={`home-editorial-tile home-hero-replay-item home-hero-replay-item--tile home-hero-replay-item--tile-${index + 1}`}
+                    className={`home-editorial-tile home-hero-replay-item home-hero-replay-item--tile home-hero-replay-item--tile-${index + 1}${
+                      tile.bleedCover ? " home-editorial-tile--bleed-cover" : ""
+                    }`}
                     key={tile.id}
                   >
                     <Image
-                      className="home-editorial-tile-image"
+                      className={`home-editorial-tile-image${
+                        tile.bleedCover ? " home-editorial-tile-image--bleed-cover" : ""
+                      }`}
                       src={tile.src}
                       alt={`Obra de muestra ${tile.id}`}
                       fill
@@ -281,10 +278,16 @@ export default function Home() {
             >
               ←
             </button>
-            <figure className="home-gallery-single">
+            <figure
+              className={`home-gallery-single${
+                HOME_HERO_EDITORIAL_TILES[activeWork]?.bleedCover
+                  ? " home-gallery-single--bleed-cover"
+                  : ""
+              }`}
+            >
               <Image
-                src="/works/placeholder/dibujo-1.png"
-                alt={`Obra ampliada ${activeWork + 1}`}
+                src={HOME_HERO_EDITORIAL_TILES[activeWork].src}
+                alt={`Obra ampliada ${HOME_HERO_EDITORIAL_TILES[activeWork].id}`}
                 fill
                 sizes="100vw"
               />

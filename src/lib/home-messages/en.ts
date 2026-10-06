@@ -34,8 +34,13 @@ export const homeMessagesEn: HomeMessages = {
     subtitle: "Available commission types",
     filterAriaLabel: "Filter by content rating",
     nsfwAriaLabel: "NSFW, adult content for ages 18 and over",
-    emptyNsfw:
-      "No NSFW services are published yet. Switch back to SFW or ask about custom work.",
+    nsfwComingSoon: {
+      badge: "NSFW",
+      title: "COMING SOON",
+      description:
+        "NSFW services with their own rates and samples will be added here. For now, browse SFW commissions or reach out via contact.",
+      visualLabel: "NSFW",
+    },
     card: {
       from: "From",
       prices: "Prices",
@@ -83,6 +88,64 @@ export const homeMessagesEn: HomeMessages = {
       ],
       ctaLabel: "Request commission",
     },
+    bocetos: {
+      badge: "Hips up",
+      title: "SKETCHES",
+      description:
+        "Complex unfinished drawings with rough, messy linework. If you choose “sketch without color,” simple shading or mood can be included at no extra charge.",
+      fromPrice: "30 USD",
+      baseOptions: [
+        {
+          id: "noColor",
+          label: "1-person sketch without color (+ flat background)",
+          priceUsd: 30,
+        },
+        {
+          id: "withColor",
+          label: "1-person sketch with color (+ flat background)",
+          priceUsd: 40,
+        },
+      ],
+      variationExtraPerson: "Extra person",
+      variationExtraPersonPriceUsd: 15,
+      variationFullBody: "Full bodies",
+      variationFullBodyPriceUsd: 10,
+      variationSimpleBackground: "Simple background",
+      variationSimpleBackgroundPriceUsd: 25,
+      extraPersonEach: "+15 USD each",
+      poseSheetTitle:
+        "1-character pose sheet (1 full body + 2 bust-ups + chibi or head)",
+      poseSheetNoColor: "Without color",
+      poseSheetNoColorPriceUsd: 55,
+      poseSheetWithColor: "With color",
+      poseSheetWithColorPriceUsd: 65,
+      poseSheetNone: "None (build sketch)",
+      ctaLabel: "Request commission",
+    },
+    completos: {
+      badge: "Hips up",
+      title: "FULL RENDER",
+      description:
+        "Detailed drawings with clean line art, shading, and color; carefully worked details.",
+      fromPrice: "120 USD",
+      baseOptions: [
+        {
+          id: "onePersonFlat",
+          label: "Full render 1 person (+ flat background)",
+          priceUsd: 120,
+        },
+      ],
+      variationExtraPerson: "Extra person",
+      variationExtraPersonPriceUsd: 80,
+      variationFullBody: "Full bodies",
+      variationFullBodyPriceUsd: 50,
+      variationFlatBackground: "Flat background",
+      variationFlatBackgroundPriceUsd: 50,
+      variationDetailedBackground: "Detailed background",
+      variationDetailedBackgroundPriceUsd: 100,
+      extraPersonEach: "+80 USD each",
+      ctaLabel: "Request commission",
+    },
     nsfwGate: {
       closeAria: "Close warning",
       title: "Content for ages 18 and over",
@@ -91,6 +154,16 @@ export const homeMessagesEn: HomeMessages = {
       cancel: "Cancel",
       enter: "Enter",
     },
+    carouselAria: "Service samples",
+    carouselSampleAlt: (index) => `Simplista style sample ${index}`,
+    carouselSketchSampleAlt: (index) => `Sketch sample ${index}`,
+    carouselCompletosSampleAlt: (index) => `Full render sample ${index}`,
+    carouselExpandAria: (alt) => `Enlarge: ${alt}`,
+    carouselLightboxCloseAria: "Close enlarged image",
+    carouselLightboxPrevAria: "Previous sample",
+    carouselLightboxNextAria: "Next sample",
+    carouselLightboxWorkLabel: (index, total) =>
+      `WORK ${String(index).padStart(2, "0")} / ${String(total).padStart(2, "0")}`,
   },
   faq: {
     title: "Questions, answered",
@@ -128,21 +201,22 @@ export const homeMessagesEn: HomeMessages = {
     ],
   },
   contact: {
-    titleLine1: "Shall we talk",
-    titleEmphasis: "about an idea?",
+    titleLine1: "Your opinion",
+    titleEmphasis: "matters to me",
     illustrationAlt: "Placeholder illustration of Milo, Teo, and Luki",
     emailLabel: "Email",
     messageLabel: "Message",
-    messagePlaceholder: "Tell me about your idea…",
+    messagePlaceholder: "Support us by leaving your review, please",
     submit: "Send email",
     hint: "Your mail app will open to confirm sending.",
     hintAfterSubmit: "Your mail app will open to confirm sending.",
+    fieldRequired: "Please complete this field.",
   },
   animations: {
-    title: "Animation",
-    subtitle: "A small selection of my animated work.",
+    title: "COMING SOON",
+    subtitle:
+      "ANIMATIONS, STICKERS, PNGTUBERS, THUMBNAILS, ADOPTABLES, ASSETS, EMOTES, TRANSITIONS, BANNERS, BACKGROUNDS, AND MORE!",
     count: "COMMISSIONS · COMING SOON",
-    tags: "ANIMATION · LOOP · MV · 2D",
     tileAria: (number, title) => `Animation ${number}: ${title}`,
     works: [
       {
@@ -195,6 +269,12 @@ export const homeMessagesEn: HomeMessages = {
     namePlaceholder: "Your name",
     socialLabel: "Social network",
     socialPlaceholder: "Choose a network",
+    paymentLabel: "Payment method",
+    paymentPlaceholder: "Choose a method",
+    paymentMethods: [
+      { id: "mercado-pago", label: "Bank transfer — Mercado Pago" },
+      { id: "paypal", label: "PayPal" },
+    ],
     usernameLabel: "Username",
     usernamePlaceholder: "@your_handle",
     notesLabel: "Message",
@@ -204,6 +284,7 @@ export const homeMessagesEn: HomeMessages = {
     submitErrorFallback: "Could not send the proposal. Please try again.",
     iconAria: "Cart",
     iconAriaWithCount: (count) => `Cart, ${count} item${count === 1 ? "" : "s"}`,
+    fieldRequired: "Please complete this field.",
   },
   cookies: {
     closeAria: "Close cookie notice",

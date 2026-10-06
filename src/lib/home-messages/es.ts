@@ -34,8 +34,13 @@ export const homeMessagesEs: HomeMessages = {
     subtitle: "Tipos de encargo disponibles",
     filterAriaLabel: "Filtrar por contenido",
     nsfwAriaLabel: "NSFW, contenido para mayores de 18 años",
-    emptyNsfw:
-      "No hay servicios NSFW publicados todavía. Volvé a SFW o consultá por encargos personalizados.",
+    nsfwComingSoon: {
+      badge: "NSFW",
+      title: "PRÓXIMAMENTE",
+      description:
+        "Se agregarán servicios NSFW con tarifas y muestras propias. Mientras tanto, podés ver los encargos SFW o escribirme por contacto.",
+      visualLabel: "NSFW",
+    },
     card: {
       from: "Desde",
       prices: "Precios",
@@ -83,6 +88,64 @@ export const homeMessagesEs: HomeMessages = {
       ],
       ctaLabel: "Solicitar comisión",
     },
+    bocetos: {
+      badge: "De caderas hacia arriba",
+      title: "BOCETOS",
+      description:
+        "Dibujos complejos sin terminar, con líneas sucias y desaliñadas. En caso de elegir «sketch sin color» se puede incluir sombras/ambientación simples sin cargos extra.",
+      fromPrice: "30 USD",
+      baseOptions: [
+        {
+          id: "noColor",
+          label: "Sketch 1 persona sin color (+ fondo plano)",
+          priceUsd: 30,
+        },
+        {
+          id: "withColor",
+          label: "Sketch 1 persona + coloreado (+ fondo plano)",
+          priceUsd: 40,
+        },
+      ],
+      variationExtraPerson: "Persona extra",
+      variationExtraPersonPriceUsd: 15,
+      variationFullBody: "Cuerpos completos",
+      variationFullBodyPriceUsd: 10,
+      variationSimpleBackground: "Fondo simple",
+      variationSimpleBackgroundPriceUsd: 25,
+      extraPersonEach: "+15 USD c/u",
+      poseSheetTitle:
+        "Hoja de poses de 1 personaje (1 cuerpo completo + 2 bust up + chibi o cabeza)",
+      poseSheetNoColor: "Sin colores",
+      poseSheetNoColorPriceUsd: 55,
+      poseSheetWithColor: "Con colores",
+      poseSheetWithColorPriceUsd: 65,
+      poseSheetNone: "Ninguna (armar sketch)",
+      ctaLabel: "Solicitar comisión",
+    },
+    completos: {
+      badge: "De caderas hacia arriba",
+      title: "COMPLETOS",
+      description:
+        "Dibujos detallados, lineart limpio, sombreados y coloreados, detalles cuidados trabajados.",
+      fromPrice: "120 USD",
+      baseOptions: [
+        {
+          id: "onePersonFlat",
+          label: "Completo 1 persona (+ fondo plano)",
+          priceUsd: 120,
+        },
+      ],
+      variationExtraPerson: "Persona extra",
+      variationExtraPersonPriceUsd: 80,
+      variationFullBody: "Cuerpos completos",
+      variationFullBodyPriceUsd: 50,
+      variationFlatBackground: "Fondo plano",
+      variationFlatBackgroundPriceUsd: 50,
+      variationDetailedBackground: "Fondo detallado",
+      variationDetailedBackgroundPriceUsd: 100,
+      extraPersonEach: "+80 USD c/u",
+      ctaLabel: "Solicitar comisión",
+    },
     nsfwGate: {
       closeAria: "Cerrar advertencia",
       title: "Contenido para mayores de 18 años",
@@ -91,21 +154,31 @@ export const homeMessagesEs: HomeMessages = {
       cancel: "Cancelar",
       enter: "Entrar",
     },
+    carouselAria: "Muestras del servicio",
+    carouselSampleAlt: (index) => `Muestra de estilo simplista ${index}`,
+    carouselSketchSampleAlt: (index) => `Muestra de boceto ${index}`,
+    carouselCompletosSampleAlt: (index) => `Muestra de estilo completo ${index}`,
+    carouselExpandAria: (alt) => `Ampliar: ${alt}`,
+    carouselLightboxCloseAria: "Cerrar imagen ampliada",
+    carouselLightboxPrevAria: "Muestra anterior",
+    carouselLightboxNextAria: "Muestra siguiente",
+    carouselLightboxWorkLabel: (index, total) =>
+      `OBRA ${String(index).padStart(2, "0")} / ${String(total).padStart(2, "0")}`,
   },
   faq: {
     title: "Preguntas, respondidas",
     items: [
       {
         id: "process",
-        question: "¿Cómo funciona el proceso de una comisión?",
+        question: "¿Cómo es el proceso de una comisión?",
         answer:
-          "Primero charlamos tu idea por redes o correo, definimos alcance y presupuesto. Luego sigo los pasos de boceto, revisión y entrega final que ves en la sección de comisiones.",
+          "Luego del pago, deberás enviarme todo lo que creas necesario para armar la idea juntos. Fotos, imágenes, dibujos, textos largos! Luego de charlarlo empezaremos a bocetar todas las ideas hasta que estés conforme y sigamos a los próximos pasos hasta terminarla. Para más información leé los términos de servicio.",
       },
       {
         id: "payment",
         question: "¿Cómo se manejan los pagos?",
         answer:
-          "Los detalles de pago (anticipo, métodos disponibles y saldo final) se acuerdan en el mensaje inicial. Este texto es provisional hasta definir la política real.",
+          "Los detalles de pago (anticipo, métodos disponibles y saldo final) se acuerdan en el mensaje inicial. Podés leer los términos de servicio, donde se explica a más detalle esta sección.",
       },
       {
         id: "revisions",
@@ -117,32 +190,33 @@ export const homeMessagesEs: HomeMessages = {
         id: "refunds",
         question: "¿Qué pasa con cancelaciones o reembolsos?",
         answer:
-          "Las condiciones dependen de en qué etapa esté el trabajo. Aquí irá la política oficial cuando esté lista; por ahora es solo texto de maqueta.",
+          "El cliente puede pedir la cancelación de su pedido o su reembolso si cumple con las condiciones descritas en «Reembolsos» en la sección de «términos de servicio».",
       },
       {
         id: "files",
         question: "¿En qué formato recibo los archivos?",
         answer:
-          "Normalmente archivos listos para web o impresión según el tipo de pieza. El formato exacto se confirma al cerrar la comisión.",
+          "El cliente puede decidir el tamaño; si no, lo elegiré yo en base a otras comisiones o el que considere mejor para esa ilustración. Los archivos son en formato .PNG — 300 dpi.",
       },
     ],
   },
   contact: {
-    titleLine1: "¿Hablamos",
-    titleEmphasis: "de una idea?",
+    titleLine1: "Tu opinión",
+    titleEmphasis: "me importa",
     illustrationAlt: "Ilustración placeholder de Milo, Teo y Luki",
     emailLabel: "Email",
     messageLabel: "Mensaje",
-    messagePlaceholder: "Contame tu idea…",
+    messagePlaceholder: "Apoyanos dejando tu reseña, por favor",
     submit: "Enviar email",
     hint: "Se abrirá tu correo para confirmar el envío.",
     hintAfterSubmit: "Se abrirá tu correo para confirmar el envío.",
+    fieldRequired: "Completá este campo.",
   },
   animations: {
-    title: "Animaciones",
-    subtitle: "Una pequeña selección de mis trabajos animados.",
+    title: "PRÓXIMAMENTE",
+    subtitle:
+      "ANIMACIONES, STICKERS, PNGTUBERS, MINIATURAS, ADOPTABLES, ASSETS, EMOTES, TRANSICIONES, BANNERS, FONDOS Y MÁS.",
     count: "COMISIONES · PRÓXIMAMENTE",
-    tags: "ANIMACIÓN · LOOP · MV · 2D",
     tileAria: (number, title) => `Animación ${number}: ${title}`,
     works: [
       {
@@ -195,6 +269,12 @@ export const homeMessagesEs: HomeMessages = {
     namePlaceholder: "Tu nombre",
     socialLabel: "Red social",
     socialPlaceholder: "Elegí una red",
+    paymentLabel: "Método de pago",
+    paymentPlaceholder: "Elegí un método",
+    paymentMethods: [
+      { id: "mercado-pago", label: "Transferencia — Mercado Pago" },
+      { id: "paypal", label: "PayPal" },
+    ],
     usernameLabel: "Usuario",
     usernamePlaceholder: "@tu_usuario",
     notesLabel: "Mensaje",
@@ -205,6 +285,7 @@ export const homeMessagesEs: HomeMessages = {
     iconAria: "Carrito",
     iconAriaWithCount: (count) =>
       `Carrito, ${count} pedido${count === 1 ? "" : "s"}`,
+    fieldRequired: "Completá este campo.",
   },
   cookies: {
     closeAria: "Cerrar aviso de cookies",

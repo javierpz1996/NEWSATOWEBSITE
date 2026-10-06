@@ -7,6 +7,7 @@ export type CartSubmissionRow = {
   client_name: string | null;
   social_network: string;
   social_username: string;
+  payment_method: string | null;
   notes: string | null;
   items: HomeCartItem[];
   total_usd: number;
@@ -44,7 +45,7 @@ export async function listCartSubmissions(): Promise<{
   const { data, error } = await supabase
     .from("cart_submissions")
     .select(
-      "id, created_at, client_name, social_network, social_username, notes, items, total_usd",
+      "id, created_at, client_name, social_network, social_username, payment_method, notes, items, total_usd",
     )
     .order("created_at", { ascending: false });
 
@@ -58,6 +59,7 @@ export async function listCartSubmissions(): Promise<{
     client_name: row.client_name ?? null,
     social_network: String(row.social_network),
     social_username: String(row.social_username),
+    payment_method: row.payment_method != null ? String(row.payment_method) : null,
     notes: row.notes ?? null,
     items: normalizeItems(row.items),
     total_usd: Number(row.total_usd),

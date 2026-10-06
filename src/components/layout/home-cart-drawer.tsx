@@ -20,11 +20,24 @@ import {
 } from "@/lib/home-cart-proposal-submit";
 import {
   CART_PROPOSAL_SOCIAL_OPTIONS,
+  getCartProposalPaymentLabel,
   getCartProposalSocialLabel,
 } from "@/lib/home-cart-proposal";
 import { useHomeCart } from "@/components/layout/home-cart-context";
 import { HomePortalMenuKanjiArrow } from "@/components/layout/home-portal-menu-kanji-arrow";
 import { useHomeMessages } from "@/hooks/use-home-messages";
+import {
+  fieldInvalidClassName,
+  fieldWrapperClassName,
+  focusFormField,
+  getEmptyFormFieldNames,
+} from "@/lib/home-form-validation";
+
+const PROPOSAL_REQUIRED_FIELDS = [
+  "socialNetwork",
+  "socialUsername",
+  "paymentMethod",
+] as const;
 
 const MOTION_EASE_OUT = [0.23, 1, 0.32, 1] as const;
 const MOTION_EASE_DRAWER = [0.32, 0.72, 0, 1] as const;
@@ -179,6 +192,7 @@ export function HomeCartDrawer() {
   const nameFieldId = useId();
   const socialFieldId = useId();
   const socialUsernameFieldId = useId();
+  const paymentFieldId = useId();
   const notesFieldId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const viewHeightsRef = useRef<Partial<Record<DrawerViewKey, number>>>({});
@@ -188,6 +202,9 @@ export function HomeCartDrawer() {
   const [proposalSent, setProposalSent] = useState(false);
   const [proposalSubmitting, setProposalSubmitting] = useState(false);
   const [proposalError, setProposalError] = useState<string | null>(null);
+  const [proposalInvalidFields, setProposalInvalidFields] = useState<
+    ReadonlySet<string>
+  >(() => new Set());
   const [stageHeight, setStageHeight] = useState<number | undefined>(undefined);
   const reduceMotion = useReducedMotion() ?? false;
   const drawerViewVariants = reduceMotion ? drawerViewVariantsReduced : drawerViewVariantsFull;
@@ -223,12 +240,22 @@ export function HomeCartDrawer() {
     [drawerViewKey, items.length],
   );
 
+  const clearProposalFieldError = useCallback((fieldName: string) => {
+    setProposalInvalidFields((current) => {
+      if (!current.has(fieldName)) return current;
+      const next = new Set(current);
+      next.delete(fieldName);
+      return next;
+    });
+  }, []);
+
   const closeCart = useCallback(() => {
     homeCartDrawerNavDirection = 1;
     setProposalOpen(false);
     setProposalSent(false);
     setProposalSubmitting(false);
     setProposalError(null);
+    setProposalInvalidFields(new Set());
     setStageHeight(undefined);
     viewHeightsRef.current = {};
     closeCartContext();
@@ -247,6 +274,7 @@ export function HomeCartDrawer() {
     setProposalSent(false);
     setProposalSubmitting(false);
     setProposalError(null);
+    setProposalInvalidFields(new Set());
   }, [applyCachedStageHeight, items.length]);
 
   useEffect(() => {
@@ -298,15 +326,28 @@ export function HomeCartDrawer() {
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const form = event.currentTarget;
+
+      if (items.length === 0) return;
+
+      const empty = getEmptyFormFieldNames(form, PROPOSAL_REQUIRED_FIELDS);
+      setProposalInvalidFields(empty);
+
+      if (empty.size > 0) {
+        focusFormField(form, PROPOSAL_REQUIRED_FIELDS, empty);
+        return;
+      }
+
       const data = new FormData(form);
 
       const clientName = String(data.get("clientName") ?? "").trim();
       const socialId = String(data.get("socialNetwork") ?? "").trim();
       const socialUsername = String(data.get("socialUsername") ?? "").trim();
+      const paymentId = String(data.get("paymentMethod") ?? "").trim();
       const notes = String(data.get("notes") ?? "").trim();
       const socialNetworkLabel = getCartProposalSocialLabel(socialId);
+      const paymentMethodLabel = getCartProposalPaymentLabel(paymentId, cart.paymentMethods);
 
-      if (!socialNetworkLabel || !socialUsername || items.length === 0) return;
+      if (!socialNetworkLabel || !paymentMethodLabel) return;
 
       setProposalError(null);
       setProposalSubmitting(true);
@@ -316,11 +357,13 @@ export function HomeCartDrawer() {
           clientName,
           socialNetworkLabel,
           socialUsername,
+          paymentMethodLabel,
           notes,
           items,
         });
 
         form.reset();
+        setProposalInvalidFields(new Set());
         homeCartDrawerNavDirection = 1;
         applyCachedStageHeight("success", false);
         setProposalSent(true);
@@ -334,7 +377,7 @@ export function HomeCartDrawer() {
         setProposalSubmitting(false);
       }
     },
-    [applyCachedStageHeight, cart.submitErrorFallback, items],
+    [applyCachedStageHeight, cart.paymentMethods, cart.submitErrorFallback, items],
   );
 
   const dialogTitle =
@@ -447,37 +490,130 @@ export function HomeCartDrawer() {
                         />
                       </div>
 
-                      <div className="home-contact-form__field">
+                      <div
+                        className={fieldWrapperClassName(
+                          proposalInvalidFields,
+                          "socialNetwork",
+                        )}
+                      >
                         <label className="home-contact-form__label" htmlFor={socialFieldId}>
                           {cart.socialLabel}
                         </label>
                         <select
                           id={socialFieldId}
-                          className="home-contact-form__input home-contact-form__select"
+                          className={fieldInvalidClassName(
+                            "home-contact-form__input home-contact-form__select",
+                            "socialNetwork",
+                            proposalInvalidFields,
+                          )}
                           name="socialNetwork"
                           defaultValue=""
                           required
+                          aria-invalid={proposalInvalidFields.has("socialNetwork")}
+                          aria-describedby={
+                            proposalInvalidFields.has("socialNetwork")
+                              ? `${socialFieldId}-error`
+                              : undefined
+                          }
+                          onChange={() => clearProposalFieldError("socialNetwork")}
                         >
                           <option value="" disabled>{cart.socialPlaceholder}</option>
                           {CART_PROPOSAL_SOCIAL_OPTIONS.map((option) => (
                             <option key={option.id} value={option.id}>{option.label}</option>
                           ))}
                         </select>
+                        {proposalInvalidFields.has("socialNetwork") ? (
+                          <p
+                            id={`${socialFieldId}-error`}
+                            className="home-contact-form__field-error"
+                            role="alert"
+                          >
+                            {cart.fieldRequired}
+                          </p>
+                        ) : null}
                       </div>
 
-                      <div className="home-contact-form__field">
+                      <div
+                        className={fieldWrapperClassName(
+                          proposalInvalidFields,
+                          "socialUsername",
+                        )}
+                      >
                         <label className="home-contact-form__label" htmlFor={socialUsernameFieldId}>
                           {cart.usernameLabel}
                         </label>
                         <input
                           id={socialUsernameFieldId}
-                          className="home-contact-form__input"
+                          className={fieldInvalidClassName(
+                            "home-contact-form__input",
+                            "socialUsername",
+                            proposalInvalidFields,
+                          )}
                           type="text"
                           name="socialUsername"
                           autoComplete="username"
                           placeholder={cart.usernamePlaceholder}
                           required
+                          aria-invalid={proposalInvalidFields.has("socialUsername")}
+                          aria-describedby={
+                            proposalInvalidFields.has("socialUsername")
+                              ? `${socialUsernameFieldId}-error`
+                              : undefined
+                          }
+                          onInput={() => clearProposalFieldError("socialUsername")}
                         />
+                        {proposalInvalidFields.has("socialUsername") ? (
+                          <p
+                            id={`${socialUsernameFieldId}-error`}
+                            className="home-contact-form__field-error"
+                            role="alert"
+                          >
+                            {cart.fieldRequired}
+                          </p>
+                        ) : null}
+                      </div>
+
+                      <div
+                        className={fieldWrapperClassName(
+                          proposalInvalidFields,
+                          "paymentMethod",
+                        )}
+                      >
+                        <label className="home-contact-form__label" htmlFor={paymentFieldId}>
+                          {cart.paymentLabel}
+                        </label>
+                        <select
+                          id={paymentFieldId}
+                          className={fieldInvalidClassName(
+                            "home-contact-form__input home-contact-form__select",
+                            "paymentMethod",
+                            proposalInvalidFields,
+                          )}
+                          name="paymentMethod"
+                          defaultValue=""
+                          required
+                          aria-invalid={proposalInvalidFields.has("paymentMethod")}
+                          aria-describedby={
+                            proposalInvalidFields.has("paymentMethod")
+                              ? `${paymentFieldId}-error`
+                              : undefined
+                          }
+                          onChange={() => clearProposalFieldError("paymentMethod")}
+                        >
+                          <option value="" disabled>{cart.paymentPlaceholder}</option>
+                          {cart.paymentMethods.map((option) => (
+                            <option key={option.id} value={option.id}>{option.label}</option>
+                          ))}
+                        </select>
+                        {proposalInvalidFields.has("paymentMethod") ? (
+                          <p
+                            id={`${paymentFieldId}-error`}
+                            className="home-contact-form__field-error"
+                            role="alert"
+                          >
+                            {cart.fieldRequired}
+                          </p>
+                        ) : null}
                       </div>
 
                       <div className="home-contact-form__field home-contact-form__field--message">

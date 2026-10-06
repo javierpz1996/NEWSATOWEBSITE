@@ -18,10 +18,19 @@ export function getCartProposalSocialLabel(socialId: string): string | null {
   return match?.label ?? null;
 }
 
+export function getCartProposalPaymentLabel(
+  paymentId: string,
+  options: ReadonlyArray<{ id: string; label: string }>,
+): string | null {
+  const match = options.find((option) => option.id === paymentId);
+  return match?.label ?? null;
+}
+
 export type CartProposalMailtoPayload = {
   clientName: string;
   socialNetworkLabel: string;
   socialUsername: string;
+  paymentMethodLabel: string;
   notes: string;
   items: HomeCartItem[];
 };
@@ -36,6 +45,7 @@ function formatCartProposalBody(payload: CartProposalMailtoPayload): string {
   lines.push(
     `Red social: ${payload.socialNetworkLabel}`,
     `Usuario: ${payload.socialUsername.trim()}`,
+    `Método de pago: ${payload.paymentMethodLabel}`,
     "",
     "--- Pedido ---",
   );

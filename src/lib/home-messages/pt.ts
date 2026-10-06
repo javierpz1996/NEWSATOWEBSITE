@@ -34,8 +34,13 @@ export const homeMessagesPt: HomeMessages = {
     subtitle: "Tipos de encomenda disponíveis",
     filterAriaLabel: "Filtrar por conteúdo",
     nsfwAriaLabel: "NSFW, conteúdo para maiores de 18 anos",
-    emptyNsfw:
-      "Ainda não há serviços NSFW publicados. Volte para SFW ou pergunte sobre encomendas personalizadas.",
+    nsfwComingSoon: {
+      badge: "NSFW",
+      title: "EM BREVE",
+      description:
+        "Serão adicionados serviços NSFW com tarifas e amostras próprias. Por enquanto, veja os encargos SFW ou escreva pelo contato.",
+      visualLabel: "NSFW",
+    },
     card: {
       from: "A partir de",
       prices: "Preços",
@@ -83,6 +88,64 @@ export const homeMessagesPt: HomeMessages = {
       ],
       ctaLabel: "Solicitar comissão",
     },
+    bocetos: {
+      badge: "Do quadril para cima",
+      title: "RASCUNHOS",
+      description:
+        "Desenhos complexos inacabados, com linhas sujas e desalinhadas. Se escolher «sketch sem cor», sombras/ambientação simples podem ser incluídas sem custo extra.",
+      fromPrice: "30 USD",
+      baseOptions: [
+        {
+          id: "noColor",
+          label: "Sketch 1 pessoa sem cor (+ fundo plano)",
+          priceUsd: 30,
+        },
+        {
+          id: "withColor",
+          label: "Sketch 1 pessoa + colorido (+ fundo plano)",
+          priceUsd: 40,
+        },
+      ],
+      variationExtraPerson: "Pessoa extra",
+      variationExtraPersonPriceUsd: 15,
+      variationFullBody: "Corpos inteiros",
+      variationFullBodyPriceUsd: 10,
+      variationSimpleBackground: "Fundo simples",
+      variationSimpleBackgroundPriceUsd: 25,
+      extraPersonEach: "+15 USD cada",
+      poseSheetTitle:
+        "Folha de poses de 1 personagem (1 corpo inteiro + 2 bustos + chibi ou cabeça)",
+      poseSheetNoColor: "Sem cores",
+      poseSheetNoColorPriceUsd: 55,
+      poseSheetWithColor: "Com cores",
+      poseSheetWithColorPriceUsd: 65,
+      poseSheetNone: "Nenhuma (montar sketch)",
+      ctaLabel: "Solicitar comissão",
+    },
+    completos: {
+      badge: "Do quadril para cima",
+      title: "COMPLETOS",
+      description:
+        "Desenhos detalhados, lineart limpo, sombreados e coloridos, com detalhes trabalhados com cuidado.",
+      fromPrice: "120 USD",
+      baseOptions: [
+        {
+          id: "onePersonFlat",
+          label: "Completo 1 pessoa (+ fundo plano)",
+          priceUsd: 120,
+        },
+      ],
+      variationExtraPerson: "Pessoa extra",
+      variationExtraPersonPriceUsd: 80,
+      variationFullBody: "Corpos inteiros",
+      variationFullBodyPriceUsd: 50,
+      variationFlatBackground: "Fundo plano",
+      variationFlatBackgroundPriceUsd: 50,
+      variationDetailedBackground: "Fundo detalhado",
+      variationDetailedBackgroundPriceUsd: 100,
+      extraPersonEach: "+80 USD cada",
+      ctaLabel: "Solicitar comissão",
+    },
     nsfwGate: {
       closeAria: "Fechar aviso",
       title: "Conteúdo para maiores de 18 anos",
@@ -91,6 +154,16 @@ export const homeMessagesPt: HomeMessages = {
       cancel: "Cancelar",
       enter: "Entrar",
     },
+    carouselAria: "Amostras do serviço",
+    carouselSampleAlt: (index) => `Amostra de estilo simplista ${index}`,
+    carouselSketchSampleAlt: (index) => `Amostra de rascunho ${index}`,
+    carouselCompletosSampleAlt: (index) => `Amostra de estilo completo ${index}`,
+    carouselExpandAria: (alt) => `Ampliar: ${alt}`,
+    carouselLightboxCloseAria: "Fechar imagem ampliada",
+    carouselLightboxPrevAria: "Amostra anterior",
+    carouselLightboxNextAria: "Próxima amostra",
+    carouselLightboxWorkLabel: (index, total) =>
+      `OBRA ${String(index).padStart(2, "0")} / ${String(total).padStart(2, "0")}`,
   },
   faq: {
     title: "Perguntas, respondidas",
@@ -128,21 +201,22 @@ export const homeMessagesPt: HomeMessages = {
     ],
   },
   contact: {
-    titleLine1: "Vamos conversar",
-    titleEmphasis: "sobre uma ideia?",
+    titleLine1: "Sua opinião",
+    titleEmphasis: "importa para mim",
     illustrationAlt: "Ilustração placeholder de Milo, Teo e Luki",
     emailLabel: "E-mail",
     messageLabel: "Mensagem",
-    messagePlaceholder: "Conte sua ideia…",
+    messagePlaceholder: "Apoie-nos deixando sua avaliação, por favor",
     submit: "Enviar e-mail",
     hint: "Seu app de e-mail abrirá para confirmar o envio.",
     hintAfterSubmit: "Seu app de e-mail abrirá para confirmar o envio.",
+    fieldRequired: "Preencha este campo.",
   },
   animations: {
-    title: "Animações",
-    subtitle: "Uma pequena seleção dos meus trabalhos animados.",
+    title: "EM BREVE",
+    subtitle:
+      "ANIMAÇÕES, STICKERS, PNGTUBERS, MINIATURAS, ADOPTABLES, ASSETS, EMOTES, TRANSIÇÕES, BANNERS, FUNDOS E MUITO MAIS!",
     count: "COMISSÕES · EM BREVE",
-    tags: "ANIMAÇÃO · LOOP · MV · 2D",
     tileAria: (number, title) => `Animação ${number}: ${title}`,
     works: [
       {
@@ -195,6 +269,12 @@ export const homeMessagesPt: HomeMessages = {
     namePlaceholder: "Seu nome",
     socialLabel: "Rede social",
     socialPlaceholder: "Escolha uma rede",
+    paymentLabel: "Método de pagamento",
+    paymentPlaceholder: "Escolha um método",
+    paymentMethods: [
+      { id: "mercado-pago", label: "Transferência — Mercado Pago" },
+      { id: "paypal", label: "PayPal" },
+    ],
     usernameLabel: "Usuário",
     usernamePlaceholder: "@seu_usuario",
     notesLabel: "Mensagem",
@@ -205,6 +285,7 @@ export const homeMessagesPt: HomeMessages = {
     iconAria: "Carrinho",
     iconAriaWithCount: (count) =>
       `Carrinho, ${count} pedido${count === 1 ? "" : "s"}`,
+    fieldRequired: "Preencha este campo.",
   },
   cookies: {
     closeAria: "Fechar aviso de cookies",
