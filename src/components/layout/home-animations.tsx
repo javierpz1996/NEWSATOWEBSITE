@@ -12,11 +12,11 @@ type AnimationWork = {
 };
 
 const ANIMATION_SRC_BY_ID: Record<string, `/works/animation/${string}`> = {
-  "animation-1": "/works/animation/animation5.gif",
+  "animation-1": "/works/animation/animation8.gif",
   "animation-2": "/works/animation/animation2.gif",
-  "animation-3": "/works/animation/animation3.gif",
+  "animation-3": "/works/animation/animation7.gif",
   "animation-4": "/works/animation/animation4.gif",
-  "animation-5": "/works/animation/animation1.gif",
+  "animation-5": "/works/animation/animation9.gif",
 };
 
 function workById(works: AnimationWork[], id: string) {
