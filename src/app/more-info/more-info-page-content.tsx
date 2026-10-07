@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useHomeMessages } from "@/hooks/use-home-messages";
+import { renderLegalInlineText } from "@/lib/legal-inline-text";
 import "@/styles/legal-page.css";
 
 export function MoreInfoPageContent() {
@@ -23,6 +24,17 @@ export function MoreInfoPageContent() {
             {moreInfoPage.storyParagraphs.map((paragraph, index) => (
               <p key={`story-${index}`} className="legal-page__paragraph">
                 {paragraph}
+              </p>
+            ))}
+          </section>
+
+          <section aria-labelledby="more-info-pricing">
+            <p className="legal-page__pricing-highlight" id="more-info-pricing">
+              {moreInfoPage.pricingHighlight}
+            </p>
+            {moreInfoPage.pricingParagraphs.map((paragraph, index) => (
+              <p key={`pricing-${index}`} className="legal-page__paragraph">
+                {renderLegalInlineText(paragraph)}
               </p>
             ))}
           </section>

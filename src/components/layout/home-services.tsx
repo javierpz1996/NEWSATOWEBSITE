@@ -18,14 +18,53 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
+import { useHomeCurrency } from "@/hooks/use-home-currency";
 import { useHomeMessages } from "@/hooks/use-home-messages";
+import type { HomeCartLine } from "@/lib/home-cart";
+import type { HomeCurrency } from "@/lib/home-currency";
 import {
   buildHomeServiceCards,
   type HomeServiceCard,
   type ServiceBundle,
   type ServicePriceRow,
 } from "@/lib/home-service-cards";
+import {
+  HOME_SERVICE_PRICING,
+  formatHomeMoney,
+  formatHomeMoneyDelta,
+  lineDisplayAmount,
+  moneyAmount,
+  pricedLine,
+  pricedLineQty,
+  sumLinesDisplay,
+  sumLinesUsd,
+  type PricedLine,
+} from "@/lib/home-service-pricing";
 import type { HomeMessages, HomeServiceBaseOption } from "@/lib/home-messages/types";
+
+function simplistaOptionPrice(optionId: string, currency: HomeCurrency): string {
+  const pair =
+    optionId === "simple"
+      ? HOME_SERVICE_PRICING.simplista.baseSimple
+      : HOME_SERVICE_PRICING.simplista.baseFlat;
+  return formatHomeMoney(moneyAmount(pair, currency), currency);
+}
+
+function bocetosOptionPrice(optionId: string, currency: HomeCurrency): string {
+  const pair =
+    optionId === "withColor"
+      ? HOME_SERVICE_PRICING.bocetos.baseWithColor
+      : HOME_SERVICE_PRICING.bocetos.baseNoColor;
+  return formatHomeMoney(moneyAmount(pair, currency), currency);
+}
+
+function cartLinesFromPriced(lines: PricedLine[]): HomeCartLine[] {
+  return lines.map((item) => ({
+    label: item.label,
+    priceUsd: item.priceUsd,
+    priceArs: item.priceArs,
+  }));
+}
 
 function subscribeReducedMotion(onStoreChange: () => void) {
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -75,55 +114,63 @@ const defaultSimplistaOrder = (baseOptions: HomeServiceBaseOption[]): SimplistaO
   poseSheet: false,
 });
 
-function formatUsd(amount: number) {
-  return `${amount} USD`;
-}
-
 function SimplistaOrderBuilder({
   serviceTitle,
   bundle,
   variants,
   baseOptions,
   orderCopy,
+  currency,
 }: {
   serviceTitle: string;
   bundle: ServiceBundle;
   variants: Variants;
   baseOptions: HomeServiceBaseOption[];
   orderCopy: HomeMessages["services"]["order"];
+  currency: HomeCurrency;
 }) {
   const [order, setOrder] = useState<SimplistaOrderState>(() => defaultSimplistaOrder(baseOptions));
   const { addItem } = useHomeCart();
+  const poseSheetLocked = order.poseSheet;
+  const pricing = HOME_SERVICE_PRICING.simplista;
 
-  const { lineItems, totalUsd } = useMemo(() => {
+  const lineItems = useMemo(() => {
+    if (order.poseSheet) {
+      return [pricedLine(bundle.title, pricing.poseSheet)];
+    }
+
     const base = baseOptions.find((option) => option.id === order.baseId)!;
-    const items: { label: string; priceUsd: number }[] = [{ label: base.label, priceUsd: base.priceUsd }];
+    const basePair =
+      order.baseId === "simple" ? pricing.baseSimple : pricing.baseFlat;
+    const items: PricedLine[] = [pricedLine(base.label, basePair)];
 
     if (order.fullBody) {
-      items.push({ label: orderCopy.fullBody, priceUsd: 5 });
+      items.push(pricedLine(orderCopy.fullBody, pricing.fullBody));
     }
     if (order.extraPeople > 0) {
-      items.push({
-        label: orderCopy.extraPersonLine(order.extraPeople),
-        priceUsd: 7 * order.extraPeople,
-      });
-    }
-    if (order.poseSheet) {
-      items.push({ label: bundle.title, priceUsd: 40 });
+      items.push(
+        pricedLineQty(
+          orderCopy.extraPersonLine(order.extraPeople),
+          pricing.extraPerson,
+          order.extraPeople,
+        ),
+      );
     }
 
-    const total = items.reduce((sum, item) => sum + item.priceUsd, 0);
-    return { lineItems: items, totalUsd: total };
-  }, [baseOptions, bundle.title, order, orderCopy]);
+    return items;
+  }, [baseOptions, bundle.title, order, orderCopy, pricing]);
+
+  const totalUsd = useMemo(() => sumLinesUsd(lineItems), [lineItems]);
+  const totalDisplay = useMemo(
+    () => sumLinesDisplay(lineItems, currency),
+    [lineItems, currency],
+  );
 
   const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
     addItem(
       {
         serviceTitle,
-        lines: lineItems.map((item) => ({
-          label: item.label,
-          priceUsd: item.priceUsd,
-        })),
+        lines: cartLinesFromPriced(lineItems),
         totalUsd,
       },
       { flyFrom: event.currentTarget },
@@ -135,7 +182,7 @@ function SimplistaOrderBuilder({
   return (
     <>
       <ServiceCardDetailsSection variants={variants}>
-        <fieldset className="home-service-order-field">
+        <fieldset className="home-service-order-field" disabled={poseSheetLocked}>
           <legend className="home-service-card-section-label home-service-card-section-label-strong">
             {orderCopy.base}
           </legend>
@@ -147,10 +194,15 @@ function SimplistaOrderBuilder({
                     type="radio"
                     name={`${baseFieldName}-base`}
                     checked={order.baseId === option.id}
-                    onChange={() => setOrder((prev) => ({ ...prev, baseId: option.id }))}
+                    disabled={poseSheetLocked}
+                    onChange={() =>
+                      setOrder((prev) => ({ ...prev, baseId: option.id, poseSheet: false }))
+                    }
                   />
                   <span className="home-service-order-option-label">{option.label}</span>
-                  <span className="home-service-order-option-price">{formatUsd(option.priceUsd)}</span>
+                  <span className="home-service-order-option-price">
+                    {simplistaOptionPrice(option.id, currency)}
+                  </span>
                 </label>
               </li>
             ))}
@@ -159,7 +211,7 @@ function SimplistaOrderBuilder({
       </ServiceCardDetailsSection>
 
       <ServiceCardDetailsSection variants={variants}>
-        <fieldset className="home-service-order-field">
+        <fieldset className="home-service-order-field" disabled={poseSheetLocked}>
           <legend className="home-service-card-section-label home-service-card-section-label-strong">
             {orderCopy.variations}
           </legend>
@@ -169,12 +221,19 @@ function SimplistaOrderBuilder({
                 <input
                   type="checkbox"
                   checked={order.fullBody}
+                  disabled={poseSheetLocked}
                   onChange={(event) =>
-                    setOrder((prev) => ({ ...prev, fullBody: event.target.checked }))
+                    setOrder((prev) => ({
+                      ...prev,
+                      poseSheet: false,
+                      fullBody: event.target.checked,
+                    }))
                   }
                 />
                 <span className="home-service-order-option-label">{orderCopy.fullBody}</span>
-                <span className="home-service-order-option-price">+5 USD</span>
+                <span className="home-service-order-option-price">
+                  {formatHomeMoneyDelta(moneyAmount(pricing.fullBody, currency), currency)}
+                </span>
               </label>
             </li>
             <li>
@@ -185,10 +244,11 @@ function SimplistaOrderBuilder({
                     type="button"
                     className="home-service-order-quantity-btn"
                     aria-label={orderCopy.removeExtraPersonAria}
-                    disabled={order.extraPeople === 0}
+                    disabled={poseSheetLocked || order.extraPeople === 0}
                     onClick={() =>
                       setOrder((prev) => ({
                         ...prev,
+                        poseSheet: false,
                         extraPeople: Math.max(0, prev.extraPeople - 1),
                       }))
                     }
@@ -202,9 +262,11 @@ function SimplistaOrderBuilder({
                     type="button"
                     className="home-service-order-quantity-btn"
                     aria-label={orderCopy.addExtraPersonAria}
+                    disabled={poseSheetLocked}
                     onClick={() =>
                       setOrder((prev) => ({
                         ...prev,
+                        poseSheet: false,
                         extraPeople: Math.min(5, prev.extraPeople + 1),
                       }))
                     }
@@ -212,7 +274,10 @@ function SimplistaOrderBuilder({
                     +
                   </button>
                 </div>
-                <span className="home-service-order-option-price">{orderCopy.extraPersonEach}</span>
+                <span className="home-service-order-option-price">
+                  {formatHomeMoneyDelta(moneyAmount(pricing.extraPerson, currency), currency)}{" "}
+                  {orderCopy.extraPersonEach}
+                </span>
               </div>
             </li>
           </ul>
@@ -231,11 +296,22 @@ function SimplistaOrderBuilder({
                   type="checkbox"
                   checked={order.poseSheet}
                   onChange={(event) =>
-                    setOrder((prev) => ({ ...prev, poseSheet: event.target.checked }))
+                    setOrder(
+                      event.target.checked
+                        ? {
+                            baseId: baseOptions[0]?.id ?? "flat",
+                            fullBody: false,
+                            extraPeople: 0,
+                            poseSheet: true,
+                          }
+                        : { ...order, poseSheet: false },
+                    )
                   }
                 />
                 <span className="home-service-order-option-label">{bundle.title}</span>
-                <span className="home-service-order-option-price">40 USD</span>
+                <span className="home-service-order-option-price">
+                  {formatHomeMoney(moneyAmount(pricing.poseSheet, currency), currency)}
+                </span>
               </label>
             </li>
           </ul>
@@ -255,12 +331,14 @@ function SimplistaOrderBuilder({
       <ServiceCardDetailsSection variants={variants}>
         <div className="home-service-order-summary" aria-live="polite">
           <p className="home-service-order-summary-label">{orderCopy.estimatedTotal}</p>
-          <p className="home-service-order-summary-total">{formatUsd(totalUsd)}</p>
+          <p className="home-service-order-summary-total">
+            {formatHomeMoney(totalDisplay, currency)}
+          </p>
           <ul className="home-service-order-summary-lines">
             {lineItems.map((item) => (
               <li key={item.label}>
                 <span>{item.label}</span>
-                <span>{formatUsd(item.priceUsd)}</span>
+                <span>{formatHomeMoney(lineDisplayAmount(item, currency), currency)}</span>
               </li>
             ))}
           </ul>
@@ -309,72 +387,68 @@ function BocetosOrderBuilder({
   baseOptions,
   bocetosCopy,
   orderCopy,
+  currency,
 }: {
   serviceTitle: string;
   variants: Variants;
   baseOptions: HomeServiceBaseOption[];
   bocetosCopy: HomeMessages["services"]["bocetos"];
   orderCopy: HomeMessages["services"]["order"];
+  currency: HomeCurrency;
 }) {
   const [order, setOrder] = useState<BocetosOrderState>(() => defaultBocetosOrder(baseOptions));
   const { addItem } = useHomeCart();
+  const pricing = HOME_SERVICE_PRICING.bocetos;
 
   const sketchLocked = order.poseSheet !== "none";
   const baseFieldName = useId();
   const poseSheetFieldName = useId();
 
-  const { lineItems, totalUsd } = useMemo(() => {
+  const lineItems = useMemo(() => {
     if (order.poseSheet === "noColor") {
       const label = `${bocetosCopy.poseSheetTitle} — ${bocetosCopy.poseSheetNoColor}`;
-      return {
-        lineItems: [{ label, priceUsd: bocetosCopy.poseSheetNoColorPriceUsd }],
-        totalUsd: bocetosCopy.poseSheetNoColorPriceUsd,
-      };
+      return [pricedLine(label, pricing.poseSheetNoColor)];
     }
     if (order.poseSheet === "withColor") {
       const label = `${bocetosCopy.poseSheetTitle} — ${bocetosCopy.poseSheetWithColor}`;
-      return {
-        lineItems: [{ label, priceUsd: bocetosCopy.poseSheetWithColorPriceUsd }],
-        totalUsd: bocetosCopy.poseSheetWithColorPriceUsd,
-      };
+      return [pricedLine(label, pricing.poseSheetWithColor)];
     }
 
     const base = baseOptions.find((option) => option.id === order.baseId)!;
-    const items: { label: string; priceUsd: number }[] = [
-      { label: base.label, priceUsd: base.priceUsd },
-    ];
+    const basePair =
+      order.baseId === "withColor" ? pricing.baseWithColor : pricing.baseNoColor;
+    const items: PricedLine[] = [pricedLine(base.label, basePair)];
 
     if (order.fullBody) {
-      items.push({
-        label: bocetosCopy.variationFullBody,
-        priceUsd: bocetosCopy.variationFullBodyPriceUsd,
-      });
+      items.push(pricedLine(bocetosCopy.variationFullBody, pricing.fullBody));
     }
     if (order.simpleBackground) {
-      items.push({
-        label: bocetosCopy.variationSimpleBackground,
-        priceUsd: bocetosCopy.variationSimpleBackgroundPriceUsd,
-      });
+      items.push(pricedLine(bocetosCopy.variationSimpleBackground, pricing.simpleBackground));
     }
     if (order.extraPeople > 0) {
-      items.push({
-        label: orderCopy.extraPersonLine(order.extraPeople),
-        priceUsd: bocetosCopy.variationExtraPersonPriceUsd * order.extraPeople,
-      });
+      items.push(
+        pricedLineQty(
+          orderCopy.extraPersonLine(order.extraPeople),
+          pricing.extraPerson,
+          order.extraPeople,
+        ),
+      );
     }
 
-    const total = items.reduce((sum, item) => sum + item.priceUsd, 0);
-    return { lineItems: items, totalUsd: total };
-  }, [baseOptions, bocetosCopy, order, orderCopy]);
+    return items;
+  }, [baseOptions, bocetosCopy, order, orderCopy, pricing]);
+
+  const totalUsd = useMemo(() => sumLinesUsd(lineItems), [lineItems]);
+  const totalDisplay = useMemo(
+    () => sumLinesDisplay(lineItems, currency),
+    [lineItems, currency],
+  );
 
   const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
     addItem(
       {
         serviceTitle,
-        lines: lineItems.map((item) => ({
-          label: item.label,
-          priceUsd: item.priceUsd,
-        })),
+        lines: cartLinesFromPriced(lineItems),
         totalUsd,
       },
       { flyFrom: event.currentTarget },
@@ -402,7 +476,9 @@ function BocetosOrderBuilder({
                     }
                   />
                   <span className="home-service-order-option-label">{option.label}</span>
-                  <span className="home-service-order-option-price">{formatUsd(option.priceUsd)}</span>
+                  <span className="home-service-order-option-price">
+                    {bocetosOptionPrice(option.id, currency)}
+                  </span>
                 </label>
               </li>
             ))}
@@ -454,7 +530,10 @@ function BocetosOrderBuilder({
                     +
                   </button>
                 </div>
-                <span className="home-service-order-option-price">{bocetosCopy.extraPersonEach}</span>
+                <span className="home-service-order-option-price">
+                  {formatHomeMoneyDelta(moneyAmount(pricing.extraPerson, currency), currency)}{" "}
+                  {bocetosCopy.extraPersonEach}
+                </span>
               </div>
             </li>
             <li>
@@ -473,7 +552,7 @@ function BocetosOrderBuilder({
                 />
                 <span className="home-service-order-option-label">{bocetosCopy.variationFullBody}</span>
                 <span className="home-service-order-option-price">
-                  +{bocetosCopy.variationFullBodyPriceUsd} USD
+                  {formatHomeMoneyDelta(moneyAmount(pricing.fullBody, currency), currency)}
                 </span>
               </label>
             </li>
@@ -495,7 +574,7 @@ function BocetosOrderBuilder({
                   {bocetosCopy.variationSimpleBackground}
                 </span>
                 <span className="home-service-order-option-price">
-                  +{bocetosCopy.variationSimpleBackgroundPriceUsd} USD
+                  {formatHomeMoneyDelta(moneyAmount(pricing.simpleBackground, currency), currency)}
                 </span>
               </label>
             </li>
@@ -538,7 +617,7 @@ function BocetosOrderBuilder({
                 />
                 <span className="home-service-order-option-label">{bocetosCopy.poseSheetNoColor}</span>
                 <span className="home-service-order-option-price">
-                  +{bocetosCopy.poseSheetNoColorPriceUsd} USD
+                  {formatHomeMoney(moneyAmount(pricing.poseSheetNoColor, currency), currency)}
                 </span>
               </label>
             </li>
@@ -560,7 +639,7 @@ function BocetosOrderBuilder({
                 />
                 <span className="home-service-order-option-label">{bocetosCopy.poseSheetWithColor}</span>
                 <span className="home-service-order-option-price">
-                  +{bocetosCopy.poseSheetWithColorPriceUsd} USD
+                  {formatHomeMoney(moneyAmount(pricing.poseSheetWithColor, currency), currency)}
                 </span>
               </label>
             </li>
@@ -571,12 +650,14 @@ function BocetosOrderBuilder({
       <ServiceCardDetailsSection variants={variants}>
         <div className="home-service-order-summary" aria-live="polite">
           <p className="home-service-order-summary-label">{orderCopy.estimatedTotal}</p>
-          <p className="home-service-order-summary-total">{formatUsd(totalUsd)}</p>
+          <p className="home-service-order-summary-total">
+            {formatHomeMoney(totalDisplay, currency)}
+          </p>
           <ul className="home-service-order-summary-lines">
             {lineItems.map((item) => (
               <li key={item.label}>
                 <span>{item.label}</span>
-                <span>{formatUsd(item.priceUsd)}</span>
+                <span>{formatHomeMoney(lineDisplayAmount(item, currency), currency)}</span>
               </li>
             ))}
           </ul>
@@ -606,6 +687,7 @@ type CompletosOrderState = {
   fullBody: boolean;
   flatBackground: boolean;
   detailedBackground: boolean;
+  poseSheet: boolean;
   extraPeople: number;
 };
 
@@ -614,6 +696,7 @@ const defaultCompletosOrder = (baseOptions: HomeServiceBaseOption[]): CompletosO
   fullBody: false,
   flatBackground: false,
   detailedBackground: false,
+  poseSheet: false,
   extraPeople: 0,
 });
 
@@ -623,65 +706,70 @@ function CompletosOrderBuilder({
   baseOptions,
   completosCopy,
   orderCopy,
+  currency,
 }: {
   serviceTitle: string;
   variants: Variants;
   baseOptions: HomeServiceBaseOption[];
   completosCopy: HomeMessages["services"]["completos"];
   orderCopy: HomeMessages["services"]["order"];
+  currency: HomeCurrency;
 }) {
   const [order, setOrder] = useState<CompletosOrderState>(() => defaultCompletosOrder(baseOptions));
   const { addItem } = useHomeCart();
   const baseFieldName = useId();
+  const pricing = HOME_SERVICE_PRICING.completos;
 
-  const { lineItems, totalUsd } = useMemo(() => {
+  const lineItems = useMemo(() => {
     const base = baseOptions.find((option) => option.id === order.baseId)!;
-    const items: { label: string; priceUsd: number }[] = [
-      { label: base.label, priceUsd: base.priceUsd },
-    ];
+    const items: PricedLine[] = [pricedLine(base.label, pricing.baseOnePerson)];
 
     if (order.extraPeople > 0) {
-      items.push({
-        label: orderCopy.extraPersonLine(order.extraPeople),
-        priceUsd: completosCopy.variationExtraPersonPriceUsd * order.extraPeople,
-      });
+      items.push(
+        pricedLineQty(
+          orderCopy.extraPersonLine(order.extraPeople),
+          pricing.extraPerson,
+          order.extraPeople,
+        ),
+      );
     }
     if (order.fullBody) {
-      items.push({
-        label: completosCopy.variationFullBody,
-        priceUsd: completosCopy.variationFullBodyPriceUsd,
-      });
+      items.push(pricedLine(completosCopy.variationFullBody, pricing.fullBody));
     }
     if (order.flatBackground) {
-      items.push({
-        label: completosCopy.variationFlatBackground,
-        priceUsd: completosCopy.variationFlatBackgroundPriceUsd,
-      });
+      items.push(pricedLine(completosCopy.variationFlatBackground, pricing.simpleBackground));
     }
     if (order.detailedBackground) {
-      items.push({
-        label: completosCopy.variationDetailedBackground,
-        priceUsd: completosCopy.variationDetailedBackgroundPriceUsd,
-      });
+      items.push(pricedLine(completosCopy.variationDetailedBackground, pricing.detailedBackground));
+    }
+    if (order.poseSheet) {
+      items.push(pricedLine(completosCopy.variationPoseSheet, pricing.poseSheet));
     }
 
-    const total = items.reduce((sum, item) => sum + item.priceUsd, 0);
-    return { lineItems: items, totalUsd: total };
-  }, [baseOptions, completosCopy, order, orderCopy]);
+    return items;
+  }, [baseOptions, completosCopy, order, orderCopy, pricing]);
+
+  const totalUsd = useMemo(() => sumLinesUsd(lineItems), [lineItems]);
+  const totalDisplay = useMemo(
+    () => sumLinesDisplay(lineItems, currency),
+    [lineItems, currency],
+  );
 
   const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
     addItem(
       {
         serviceTitle,
-        lines: lineItems.map((item) => ({
-          label: item.label,
-          priceUsd: item.priceUsd,
-        })),
+        lines: cartLinesFromPriced(lineItems),
         totalUsd,
       },
       { flyFrom: event.currentTarget },
     );
   };
+
+  const completosBasePrice = formatHomeMoney(
+    moneyAmount(pricing.baseOnePerson, currency),
+    currency,
+  );
 
   return (
     <>
@@ -701,7 +789,7 @@ function CompletosOrderBuilder({
                     onChange={() => setOrder((prev) => ({ ...prev, baseId: option.id }))}
                   />
                   <span className="home-service-order-option-label">{option.label}</span>
-                  <span className="home-service-order-option-price">{formatUsd(option.priceUsd)}</span>
+                  <span className="home-service-order-option-price">{completosBasePrice}</span>
                 </label>
               </li>
             ))}
@@ -750,7 +838,10 @@ function CompletosOrderBuilder({
                     +
                   </button>
                 </div>
-                <span className="home-service-order-option-price">{completosCopy.extraPersonEach}</span>
+                <span className="home-service-order-option-price">
+                  {formatHomeMoneyDelta(moneyAmount(pricing.extraPerson, currency), currency)}{" "}
+                  {completosCopy.extraPersonEach}
+                </span>
               </div>
             </li>
             <li>
@@ -764,7 +855,7 @@ function CompletosOrderBuilder({
                 />
                 <span className="home-service-order-option-label">{completosCopy.variationFullBody}</span>
                 <span className="home-service-order-option-price">
-                  +{completosCopy.variationFullBodyPriceUsd} USD
+                  {formatHomeMoneyDelta(moneyAmount(pricing.fullBody, currency), currency)}
                 </span>
               </label>
             </li>
@@ -781,7 +872,7 @@ function CompletosOrderBuilder({
                   {completosCopy.variationFlatBackground}
                 </span>
                 <span className="home-service-order-option-price">
-                  +{completosCopy.variationFlatBackgroundPriceUsd} USD
+                  {formatHomeMoneyDelta(moneyAmount(pricing.simpleBackground, currency), currency)}
                 </span>
               </label>
             </li>
@@ -798,7 +889,24 @@ function CompletosOrderBuilder({
                   {completosCopy.variationDetailedBackground}
                 </span>
                 <span className="home-service-order-option-price">
-                  +{completosCopy.variationDetailedBackgroundPriceUsd} USD
+                  {formatHomeMoneyDelta(moneyAmount(pricing.detailedBackground, currency), currency)}
+                </span>
+              </label>
+            </li>
+            <li>
+              <label className="home-service-order-option">
+                <input
+                  type="checkbox"
+                  checked={order.poseSheet}
+                  onChange={(event) =>
+                    setOrder((prev) => ({ ...prev, poseSheet: event.target.checked }))
+                  }
+                />
+                <span className="home-service-order-option-label">
+                  {completosCopy.variationPoseSheet}
+                </span>
+                <span className="home-service-order-option-price">
+                  {formatHomeMoneyDelta(moneyAmount(pricing.poseSheet, currency), currency)}
                 </span>
               </label>
             </li>
@@ -809,12 +917,14 @@ function CompletosOrderBuilder({
       <ServiceCardDetailsSection variants={variants}>
         <div className="home-service-order-summary" aria-live="polite">
           <p className="home-service-order-summary-label">{orderCopy.estimatedTotal}</p>
-          <p className="home-service-order-summary-total">{formatUsd(totalUsd)}</p>
+          <p className="home-service-order-summary-total">
+            {formatHomeMoney(totalDisplay, currency)}
+          </p>
           <ul className="home-service-order-summary-lines">
             {lineItems.map((item) => (
               <li key={item.label}>
                 <span>{item.label}</span>
-                <span>{formatUsd(item.priceUsd)}</span>
+                <span>{formatHomeMoney(lineDisplayAmount(item, currency), currency)}</span>
               </li>
             ))}
           </ul>
@@ -972,9 +1082,11 @@ function ServiceCardDetailsSection({
 function ServiceCardItem({
   service,
   revealIndex,
+  currency,
 }: {
   service: HomeServiceCard;
   revealIndex: number;
+  currency: HomeCurrency;
 }) {
   const { services: servicesCopy } = useHomeMessages();
   const cardCopy = servicesCopy.card;
@@ -1144,6 +1256,7 @@ function ServiceCardItem({
                             baseOptions={service.baseOptions}
                             bocetosCopy={servicesCopy.bocetos}
                             orderCopy={orderCopy}
+                            currency={currency}
                           />
                         ) : service.orderKind === "completos" ? (
                           <CompletosOrderBuilder
@@ -1153,6 +1266,7 @@ function ServiceCardItem({
                             baseOptions={service.baseOptions}
                             completosCopy={servicesCopy.completos}
                             orderCopy={orderCopy}
+                            currency={currency}
                           />
                         ) : service.bundle ? (
                           <SimplistaOrderBuilder
@@ -1162,6 +1276,7 @@ function ServiceCardItem({
                             bundle={service.bundle}
                             baseOptions={service.baseOptions}
                             orderCopy={orderCopy}
+                            currency={currency}
                           />
                         ) : null}
                       </ServiceCardDetailsReveal>
@@ -1226,10 +1341,11 @@ function HomeServicesNsfwComingSoonCard({
 
 export function HomeServices() {
   const messages = useHomeMessages();
+  const currency = useHomeCurrency();
   const servicesCopy = messages.services;
   const serviceCards = useMemo(
-    () => buildHomeServiceCards(servicesCopy),
-    [servicesCopy],
+    () => buildHomeServiceCards(servicesCopy, currency),
+    [servicesCopy, currency],
   );
   const sectionRef = useRef<HTMLElement>(null);
   const reveal = useSectionScrollReveal(sectionRef);
@@ -1322,6 +1438,7 @@ export function HomeServices() {
               key={service.id}
               service={service}
               revealIndex={Math.min(index + 1, 4)}
+              currency={currency}
             />
           ))}
         </ul>

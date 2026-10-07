@@ -1,3 +1,10 @@
+import type { HomeCurrency } from "@/lib/home-currency";
+import {
+  formatHomeMoney,
+  formatHomeMoneyDelta,
+  HOME_SERVICE_PRICING,
+  moneyAmount,
+} from "@/lib/home-service-pricing";
 import type { HomeMessages, HomeServiceBaseOption } from "@/lib/home-messages/types";
 
 export type ServicePriceRow = {
@@ -38,28 +45,48 @@ export type HomeServiceCard = {
   extraSectionTitle?: string;
 };
 
+function simplistaBasePair(optionId: string) {
+  return optionId === "simple"
+    ? HOME_SERVICE_PRICING.simplista.baseSimple
+    : HOME_SERVICE_PRICING.simplista.baseFlat;
+}
+
+function bocetosBasePair(optionId: string) {
+  return optionId === "withColor"
+    ? HOME_SERVICE_PRICING.bocetos.baseWithColor
+    : HOME_SERVICE_PRICING.bocetos.baseNoColor;
+}
+
 function buildSimplistaCard(
   simplista: HomeMessages["services"]["simplista"],
   card: HomeMessages["services"]["card"],
+  currency: HomeCurrency,
 ): Omit<HomeServiceCard, "id" | "contentRating"> {
+  const p = HOME_SERVICE_PRICING.simplista;
   return {
     badge: simplista.badge,
     badgeTone: "mint",
     title: simplista.title,
-    fromPrice: simplista.fromPrice,
+    fromPrice: formatHomeMoney(moneyAmount(p.baseFlat, currency), currency),
     description: simplista.description,
     carouselVariant: "simplista",
     prices: simplista.baseOptions.map((option) => ({
       label: option.label,
-      price: `${option.priceUsd} USD`,
+      price: formatHomeMoney(moneyAmount(simplistaBasePair(option.id), currency), currency),
     })),
     variations: [
-      { label: simplista.variationFullBody, price: "+5 USD" },
-      { label: simplista.variationExtraPerson, price: "+7 USD" },
+      {
+        label: simplista.variationFullBody,
+        price: formatHomeMoneyDelta(moneyAmount(p.fullBody, currency), currency),
+      },
+      {
+        label: simplista.variationExtraPerson,
+        price: formatHomeMoneyDelta(moneyAmount(p.extraPerson, currency), currency),
+      },
     ],
     bundle: {
       title: simplista.bundleTitle,
-      price: simplista.bundlePrice,
+      price: formatHomeMoney(moneyAmount(p.poseSheet, currency), currency),
       includes: simplista.poseSheetIncludes,
     },
     calculator: true,
@@ -73,32 +100,43 @@ function buildSimplistaCard(
 function buildBocetosCard(
   bocetos: HomeMessages["services"]["bocetos"],
   card: HomeMessages["services"]["card"],
+  currency: HomeCurrency,
 ): Omit<HomeServiceCard, "id" | "contentRating"> {
+  const p = HOME_SERVICE_PRICING.bocetos;
   return {
     badge: bocetos.badge,
     badgeTone: "blue",
     title: bocetos.title,
-    fromPrice: bocetos.fromPrice,
+    fromPrice: formatHomeMoney(moneyAmount(p.baseNoColor, currency), currency),
     description: bocetos.description,
     carouselVariant: "bocetos",
     prices: bocetos.baseOptions.map((option) => ({
       label: option.label,
-      price: `${option.priceUsd} USD`,
+      price: formatHomeMoney(moneyAmount(bocetosBasePair(option.id), currency), currency),
     })),
     variations: [
-      { label: bocetos.variationExtraPerson, price: "+15 USD" },
-      { label: bocetos.variationFullBody, price: "+10 USD" },
-      { label: bocetos.variationSimpleBackground, price: "+25 USD" },
+      {
+        label: bocetos.variationExtraPerson,
+        price: formatHomeMoneyDelta(moneyAmount(p.extraPerson, currency), currency),
+      },
+      {
+        label: bocetos.variationFullBody,
+        price: formatHomeMoneyDelta(moneyAmount(p.fullBody, currency), currency),
+      },
+      {
+        label: bocetos.variationSimpleBackground,
+        price: formatHomeMoneyDelta(moneyAmount(p.simpleBackground, currency), currency),
+      },
     ],
     extraSectionTitle: bocetos.poseSheetTitle,
     extraPrices: [
       {
         label: bocetos.poseSheetNoColor,
-        price: `+${bocetos.poseSheetNoColorPriceUsd} USD`,
+        price: formatHomeMoneyDelta(moneyAmount(p.poseSheetNoColor, currency), currency),
       },
       {
         label: bocetos.poseSheetWithColor,
-        price: `+${bocetos.poseSheetWithColorPriceUsd} USD`,
+        price: formatHomeMoneyDelta(moneyAmount(p.poseSheetWithColor, currency), currency),
       },
     ],
     calculator: true,
@@ -112,23 +150,41 @@ function buildBocetosCard(
 function buildCompletosCard(
   completos: HomeMessages["services"]["completos"],
   card: HomeMessages["services"]["card"],
+  currency: HomeCurrency,
 ): Omit<HomeServiceCard, "id" | "contentRating"> {
+  const p = HOME_SERVICE_PRICING.completos;
   return {
     badge: completos.badge,
     badgeTone: "lilac",
     title: completos.title,
-    fromPrice: completos.fromPrice,
+    fromPrice: formatHomeMoney(moneyAmount(p.baseOnePerson, currency), currency),
     description: completos.description,
     carouselVariant: "completos",
     prices: completos.baseOptions.map((option) => ({
       label: option.label,
-      price: `${option.priceUsd} USD`,
+      price: formatHomeMoney(moneyAmount(p.baseOnePerson, currency), currency),
     })),
     variations: [
-      { label: completos.variationExtraPerson, price: "+80 USD" },
-      { label: completos.variationFullBody, price: "+50 USD" },
-      { label: completos.variationFlatBackground, price: "+50 USD" },
-      { label: completos.variationDetailedBackground, price: "+100 USD" },
+      {
+        label: completos.variationExtraPerson,
+        price: formatHomeMoneyDelta(moneyAmount(p.extraPerson, currency), currency),
+      },
+      {
+        label: completos.variationFullBody,
+        price: formatHomeMoneyDelta(moneyAmount(p.fullBody, currency), currency),
+      },
+      {
+        label: completos.variationFlatBackground,
+        price: formatHomeMoneyDelta(moneyAmount(p.simpleBackground, currency), currency),
+      },
+      {
+        label: completos.variationDetailedBackground,
+        price: formatHomeMoneyDelta(moneyAmount(p.detailedBackground, currency), currency),
+      },
+      {
+        label: completos.variationPoseSheet,
+        price: formatHomeMoneyDelta(moneyAmount(p.poseSheet, currency), currency),
+      },
     ],
     calculator: true,
     orderKind: "completos",
@@ -152,10 +208,13 @@ function buildRatedServiceCards(
   ];
 }
 
-export function buildHomeServiceCards(services: HomeMessages["services"]): HomeServiceCard[] {
-  const simplista = buildSimplistaCard(services.simplista, services.card);
-  const bocetos = buildBocetosCard(services.bocetos, services.card);
-  const completos = buildCompletosCard(services.completos, services.card);
+export function buildHomeServiceCards(
+  services: HomeMessages["services"],
+  currency: HomeCurrency,
+): HomeServiceCard[] {
+  const simplista = buildSimplistaCard(services.simplista, services.card, currency);
+  const bocetos = buildBocetosCard(services.bocetos, services.card, currency);
+  const completos = buildCompletosCard(services.completos, services.card, currency);
 
   return buildRatedServiceCards("sfw", "sfw", simplista, bocetos, completos);
 }

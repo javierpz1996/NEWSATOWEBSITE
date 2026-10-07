@@ -20,6 +20,14 @@ export type HomeMessages = {
     ariaLabel: string;
     menuAriaLabel: string;
   };
+  currencySwitcher: {
+    ariaLabel: string;
+    menuAriaLabel: string;
+    options: {
+      usd: string;
+      ars: string;
+    };
+  };
   footer: {
     homeAriaLabel: string;
     navAriaLabel: string;
@@ -125,6 +133,8 @@ export type HomeMessages = {
       variationFlatBackgroundPriceUsd: number;
       variationDetailedBackground: string;
       variationDetailedBackgroundPriceUsd: number;
+      variationPoseSheet: string;
+      variationPoseSheetPriceUsd: number;
       extraPersonEach: string;
       ctaLabel: string;
     };
@@ -249,6 +259,8 @@ export type HomeMessages = {
     backLabel: string;
     title: string;
     storyParagraphs: string[];
+    pricingHighlight: string;
+    pricingParagraphs: string[];
     visionTitle: string;
     visionParagraphs: string[];
   };

@@ -1,5 +1,11 @@
 import { CONTACT_EMAIL } from "@/lib/contact";
-import { formatHomeCartUsd, type HomeCartItem } from "@/lib/home-cart";
+import type { HomeCurrency } from "@/lib/home-currency";
+import {
+  formatHomeCartGrandTotal,
+  formatHomeCartItemTotal,
+  formatHomeCartLine,
+  type HomeCartItem,
+} from "@/lib/home-cart";
 
 export const CART_PROPOSAL_MAILTO_SUBJECT = "Propuesta de comisión";
 
@@ -33,9 +39,11 @@ export type CartProposalMailtoPayload = {
   paymentMethodLabel: string;
   notes: string;
   items: HomeCartItem[];
+  currency: HomeCurrency;
 };
 
-function formatCartProposalBody(payload: CartProposalMailtoPayload): string {
+export function formatCartProposalBody(payload: CartProposalMailtoPayload): string {
+  const { currency } = payload;
   const lines: string[] = ["Propuesta desde el carrito del sitio", ""];
 
   const name = payload.clientName.trim();
@@ -50,17 +58,15 @@ function formatCartProposalBody(payload: CartProposalMailtoPayload): string {
     "--- Pedido ---",
   );
 
-  let grandTotal = 0;
   for (const item of payload.items) {
     lines.push(item.serviceTitle);
     for (const line of item.lines) {
-      lines.push(`  · ${line.label}: ${formatHomeCartUsd(line.priceUsd)}`);
+      lines.push(`  · ${line.label}: ${formatHomeCartLine(line, currency)}`);
     }
-    lines.push(`  Total ítem: ${formatHomeCartUsd(item.totalUsd)}`, "");
-    grandTotal += item.totalUsd;
+    lines.push(`  Total ítem: ${formatHomeCartItemTotal(item, currency)}`, "");
   }
 
-  lines.push(`Total estimado: ${formatHomeCartUsd(grandTotal)}`);
+  lines.push(`Total estimado: ${formatHomeCartGrandTotal(payload.items, currency)}`);
 
   const notes = payload.notes.trim();
   if (notes) {

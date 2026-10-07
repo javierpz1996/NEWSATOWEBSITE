@@ -12,7 +12,12 @@ import {
   type ReactNode,
 } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { clearHomeCart, formatHomeCartUsd } from "@/lib/home-cart";
+import {
+  clearHomeCart,
+  formatHomeCartItemTotal,
+  formatHomeCartLine,
+} from "@/lib/home-cart";
+import { useHomeCurrency } from "@/hooks/use-home-currency";
 import { fireHomeCartProposalConfetti } from "@/lib/home-cart-proposal-confetti";
 import {
   CartProposalSubmitError,
@@ -189,6 +194,7 @@ function getDrawerViewTransition(reduceMotion: boolean, viewKey: DrawerViewKey) 
 
 export function HomeCartDrawer() {
   const { cart } = useHomeMessages();
+  const currency = useHomeCurrency();
   const titleId = useId();
   const nameFieldId = useId();
   const socialFieldId = useId();
@@ -360,6 +366,7 @@ export function HomeCartDrawer() {
           paymentMethodLabel,
           notes,
           items,
+          currency,
         });
 
         form.reset();
@@ -385,7 +392,7 @@ export function HomeCartDrawer() {
         setProposalSubmitting(false);
       }
     },
-    [applyCachedStageHeight, cart.paymentMethods, cart.submitErrorFallback, items],
+    [applyCachedStageHeight, cart.paymentMethods, cart.submitErrorFallback, currency, items],
   );
 
   const dialogTitle = proposalSent
@@ -706,12 +713,13 @@ export function HomeCartDrawer() {
                             {item.lines.map((line) => (
                               <li key={`${item.id}-${line.label}`}>
                                 <span>{line.label}</span>
-                                <span>{formatHomeCartUsd(line.priceUsd)}</span>
+                                <span>{formatHomeCartLine(line, currency)}</span>
                               </li>
                             ))}
                           </ul>
                           <p className="home-cart-drawer__item-total">
-                            {cart.totalLabel} <strong>{formatHomeCartUsd(item.totalUsd)}</strong>
+                            {cart.totalLabel}{" "}
+                            <strong>{formatHomeCartItemTotal(item, currency)}</strong>
                           </p>
                         </li>
                       ))}

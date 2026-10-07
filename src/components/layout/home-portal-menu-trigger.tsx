@@ -3,6 +3,7 @@
 import { Menu } from "lucide-react";
 import Image from "next/image";
 import { HomeCartIconButton } from "@/components/layout/home-cart-icon-button";
+import { HomeCurrencySwitcher } from "@/components/layout/home-currency-switcher";
 import { HomeLocaleSwitcher } from "@/components/layout/home-locale-switcher";
 import { HOME_CART_BUTTON_ID } from "@/lib/home-cart";
 import {
@@ -237,6 +238,7 @@ export const HomePortalMenuTrigger = forwardRef<
     <div className="home-portal-menu-trigger-wrap">
       <div className="home-portal-menu-kanji-row">
         <HomeLocaleSwitcher />
+        <HomeCurrencySwitcher />
         <HomeCartIconButton
           id={HOME_CART_BUTTON_ID}
           className="home-portal-menu-cart-btn"

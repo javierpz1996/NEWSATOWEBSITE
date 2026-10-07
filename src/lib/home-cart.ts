@@ -1,3 +1,6 @@
+import type { HomeCurrency } from "@/lib/home-currency";
+import { formatHomeMoney, lineDisplayAmount, type PricedLine } from "@/lib/home-service-pricing";
+
 export const HOME_CART_STORAGE_KEY = "sato-home-cart" as const;
 export const HOME_CART_BUTTON_ID = "home-cart-button" as const;
 
@@ -18,6 +21,7 @@ const HOME_CART_CHANGE_EVENT = "sato-home-cart-change";
 export type HomeCartLine = {
   label: string;
   priceUsd: number;
+  priceArs?: number;
 };
 
 export type HomeCartItem = {
@@ -124,4 +128,42 @@ export function subscribeHomeCart(onStoreChange: () => void): () => void {
 
 export function formatHomeCartUsd(amount: number): string {
   return `${amount} USD`;
+}
+
+export function formatHomeCartLine(
+  line: HomeCartLine,
+  currency: HomeCurrency,
+): string {
+  const priced: PricedLine = {
+    label: line.label,
+    priceUsd: line.priceUsd,
+    priceArs: line.priceArs ?? line.priceUsd,
+  };
+  return formatHomeMoney(lineDisplayAmount(priced, currency), currency);
+}
+
+export function homeCartItemDisplayTotal(item: HomeCartItem, currency: HomeCurrency): number {
+  if (currency === "usd") {
+    return item.totalUsd;
+  }
+  return item.lines.reduce((sum, line) => {
+    const priced: PricedLine = {
+      label: line.label,
+      priceUsd: line.priceUsd,
+      priceArs: line.priceArs ?? line.priceUsd,
+    };
+    return sum + lineDisplayAmount(priced, currency);
+  }, 0);
+}
+
+export function formatHomeCartItemTotal(item: HomeCartItem, currency: HomeCurrency): string {
+  return formatHomeMoney(homeCartItemDisplayTotal(item, currency), currency);
+}
+
+export function sumHomeCartDisplayTotal(items: HomeCartItem[], currency: HomeCurrency): number {
+  return items.reduce((sum, item) => sum + homeCartItemDisplayTotal(item, currency), 0);
+}
+
+export function formatHomeCartGrandTotal(items: HomeCartItem[], currency: HomeCurrency): string {
+  return formatHomeMoney(sumHomeCartDisplayTotal(items, currency), currency);
 }

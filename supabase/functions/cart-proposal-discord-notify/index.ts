@@ -3,15 +3,23 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 const TABLE_NAME = "cart_submissions";
 const SCHEMA_NAME = "public";
 
+type HomeCurrency = "usd" | "ars";
+
 type CartLine = {
   label?: string;
   priceUsd?: number;
+  priceArs?: number;
 };
 
 type CartItem = {
   serviceTitle?: string;
   totalUsd?: number;
   lines?: CartLine[];
+};
+
+type CartSubmissionItemsDocument = {
+  displayCurrency?: string;
+  items?: CartItem[];
 };
 
 type CartSubmissionRecord = {
@@ -21,8 +29,9 @@ type CartSubmissionRecord = {
   social_username?: string;
   payment_method?: string | null;
   notes?: string | null;
-  items?: CartItem[];
+  items?: CartItem[] | CartSubmissionItemsDocument | null;
   total_usd?: number | string;
+  display_currency?: string | null;
 };
 
 type DatabaseWebhookPayload = {
@@ -38,24 +47,110 @@ function truncate(value: string, maxLength: number): string {
   return `${value.slice(0, maxLength - 1)}…`;
 }
 
-function formatUsd(value: number | string | undefined): string {
-  if (value === undefined || value === null || value === "") return "—";
-  const n = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(n)) return String(value);
-  return `$${n.toFixed(2)}`;
+function parseSubmissionItems(raw: CartSubmissionRecord["items"]): {
+  items: CartItem[];
+  embeddedCurrency: HomeCurrency | null;
+} {
+  if (Array.isArray(raw)) {
+    return { items: raw, embeddedCurrency: null };
+  }
+  if (raw && typeof raw === "object" && Array.isArray(raw.items)) {
+    const embeddedCurrency =
+      raw.displayCurrency === "ars"
+        ? "ars"
+        : raw.displayCurrency === "usd"
+          ? "usd"
+          : null;
+    return { items: raw.items, embeddedCurrency };
+  }
+  return { items: [], embeddedCurrency: null };
 }
 
-function formatItemsSummary(items: CartItem[] | undefined): string {
+function inferCurrencyFromLinePrices(items: CartItem[]): HomeCurrency | null {
+  for (const item of items) {
+    for (const line of item.lines ?? []) {
+      const ars = line.priceArs;
+      const usd = line.priceUsd;
+      if (
+        typeof ars === "number" &&
+        Number.isFinite(ars) &&
+        typeof usd === "number" &&
+        Number.isFinite(usd) &&
+        ars !== usd &&
+        ars >= 1_000
+      ) {
+        return "ars";
+      }
+    }
+  }
+  return null;
+}
+
+function resolveDisplayCurrency(
+  record: CartSubmissionRecord,
+  embeddedCurrency: HomeCurrency | null,
+  cartItems: CartItem[],
+): HomeCurrency {
+  if (record.display_currency === "ars") return "ars";
+  if (embeddedCurrency === "ars") return "ars";
+  return inferCurrencyFromLinePrices(cartItems) ?? "usd";
+}
+
+function formatMoney(amount: number, currency: HomeCurrency): string {
+  if (!Number.isFinite(amount)) return "—";
+  if (currency === "usd") return `${amount} USD`;
+  return `${amount.toLocaleString("es-AR")} ARS`;
+}
+
+function parseTotalUsd(value: number | string | undefined): number {
+  if (value === undefined || value === null || value === "") return 0;
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function lineAmount(line: CartLine, currency: HomeCurrency): number {
+  if (currency === "usd") {
+    return typeof line.priceUsd === "number" && Number.isFinite(line.priceUsd) ? line.priceUsd : 0;
+  }
+  if (typeof line.priceArs === "number" && Number.isFinite(line.priceArs)) {
+    return line.priceArs;
+  }
+  return typeof line.priceUsd === "number" && Number.isFinite(line.priceUsd) ? line.priceUsd : 0;
+}
+
+function itemDisplayTotal(item: CartItem, currency: HomeCurrency): number {
+  if (currency === "usd") {
+    return typeof item.totalUsd === "number" && Number.isFinite(item.totalUsd) ? item.totalUsd : 0;
+  }
+  return (item.lines ?? []).reduce((sum, line) => sum + lineAmount(line, currency), 0);
+}
+
+function cartDisplayGrandTotal(
+  record: CartSubmissionRecord,
+  currency: HomeCurrency,
+  cartItems: CartItem[],
+): number {
+  if (currency === "usd") {
+    return parseTotalUsd(record.total_usd);
+  }
+  return cartItems.reduce((sum, item) => sum + itemDisplayTotal(item, currency), 0);
+}
+
+function formatItemsSummary(items: CartItem[] | undefined, currency: HomeCurrency): string {
   if (!items?.length) return "—";
 
   const lines: string[] = [];
   for (const item of items) {
     const title = item.serviceTitle ?? "Servicio";
-    lines.push(`• **${truncate(title, 80)}** — ${formatUsd(item.totalUsd)}`);
+    lines.push(
+      `• **${truncate(title, 80)}** — ${formatMoney(itemDisplayTotal(item, currency), currency)}`,
+    );
     if (item.lines?.length) {
       for (const line of item.lines) {
         const label = line.label ?? "—";
-        lines.push(`  └ ${truncate(label, 100)} (${formatUsd(line.priceUsd)})`);
+        lines.push(
+          `  └ ${truncate(label, 100)} (${formatMoney(lineAmount(line, currency), currency)})`,
+        );
       }
     }
   }
@@ -76,6 +171,10 @@ function buildDiscordPayload(payload: DatabaseWebhookPayload): {
     80,
   )}`;
 
+  const { items: cartItems, embeddedCurrency } = parseSubmissionItems(record.items);
+  const currency = resolveDisplayCurrency(record, embeddedCurrency, cartItems);
+  const grandTotal = cartDisplayGrandTotal(record, currency, cartItems);
+
   const fields: Array<{ name: string; value: string; inline?: boolean }> = [
     {
       name: "Nombre",
@@ -94,12 +193,12 @@ function buildDiscordPayload(payload: DatabaseWebhookPayload): {
     },
     {
       name: "Total",
-      value: formatUsd(record.total_usd),
+      value: formatMoney(grandTotal, currency),
       inline: true,
     },
     {
       name: "Ítems",
-      value: formatItemsSummary(record.items),
+      value: formatItemsSummary(cartItems, currency),
       inline: false,
     },
     {

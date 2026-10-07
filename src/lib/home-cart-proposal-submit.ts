@@ -1,4 +1,6 @@
+import { buildCartSubmissionItemsDocument } from "@/lib/cart-submission-items";
 import type { HomeCartItem } from "@/lib/home-cart";
+import type { HomeCurrency } from "@/lib/home-currency";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser-client";
 
 export type SubmitCartProposalInput = {
@@ -8,6 +10,7 @@ export type SubmitCartProposalInput = {
   paymentMethodLabel: string;
   notes: string;
   items: HomeCartItem[];
+  currency: HomeCurrency;
 };
 
 export class CartProposalSubmitError extends Error {
@@ -34,6 +37,7 @@ export async function submitCartProposalToSupabase(input: SubmitCartProposalInpu
   }
 
   const totalUsd = sumCartTotalUsd(input.items);
+  const itemsDocument = buildCartSubmissionItemsDocument(input.currency, input.items);
 
   const { error } = await supabase.from("cart_submissions").insert({
     client_name: input.clientName.trim() || null,
@@ -41,8 +45,9 @@ export async function submitCartProposalToSupabase(input: SubmitCartProposalInpu
     social_username: input.socialUsername.trim(),
     payment_method: input.paymentMethodLabel,
     notes: input.notes.trim() || null,
-    items: input.items,
+    items: itemsDocument,
     total_usd: totalUsd,
+    display_currency: input.currency,
   });
 
   if (error) {

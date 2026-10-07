@@ -575,6 +575,15 @@
   outline-offset: -2px;
 }
 
+.home-portal-menu-locale-switch__option--currency {
+  white-space: nowrap;
+}
+
+.home-portal-menu-locale-switch__option-label--currency {
+  color: inherit;
+  font-weight: 600;
+}
+
 .home-portal-menu-locale-switch__option-code {
   min-width: 1.5rem;
   font-weight: 600;
@@ -3394,8 +3403,24 @@
   border-right-width: 1.5px;
 }
 
+.home-page .home-services-grid {
+  align-items: stretch;
+}
+
+.home-page .home-services-grid > li {
+  display: flex;
+  min-width: 0;
+}
+
+.home-page .home-services-grid > li > .home-service-card {
+  flex: 1;
+  width: 100%;
+}
+
 .home-page .home-service-card-visual {
-  height: auto;
+  flex-shrink: 0;
+  height: clamp(150px, 16vw, 210px);
+  min-height: clamp(150px, 16vw, 210px);
   overflow: hidden;
   background: color-mix(in srgb, var(--foreground) 5%, var(--background) 95%);
 }
@@ -3422,14 +3447,15 @@
 }
 
 .home-page .home-service-card-visual .home-artwork-carousel-service {
-  height: auto;
+  height: 100%;
   padding: clamp(12px, 1.5vw, 16px) clamp(10px, 1.2vw, 14px);
+  box-sizing: border-box;
 }
 
 .home-page .home-service-card-visual .home-artwork-carousel [data-slot="carousel-content"] {
   container-type: inline-size;
   container-name: home-service-carousel;
-  height: auto;
+  height: 100%;
   overflow: hidden;
   overflow-x: clip;
 }
@@ -3451,6 +3477,7 @@
 }
 
 .home-page .home-service-card-body {
+  flex: 1;
   gap: clamp(12px, 1.5vh, 16px);
   padding: clamp(20px, 2.2vw, 26px);
 }

@@ -10,7 +10,8 @@
 
 ## Tabla `cart_submissions`
 
-Cada fila es un «Envío realizado» del carrito: contacto, notas, ítems (`jsonb`) y total USD.
+Cada fila es un «Envío realizado» del carrito: contacto, notas, ítems (`jsonb`), total USD
+(canónico) y `display_currency` (`usd` | `ars`) para alertas en la moneda que vio el cliente.
 
 Lectura: Table Editor o SQL en el dashboard (no está expuesta al sitio por RLS).
 

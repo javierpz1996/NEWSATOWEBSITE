@@ -1,4 +1,6 @@
+import { parseCartSubmissionItems } from "@/lib/cart-submission-items";
 import type { HomeCartItem } from "@/lib/home-cart";
+import type { HomeCurrency } from "@/lib/home-currency";
 import { createSupabaseAdminClient } from "@/lib/supabase/server-admin";
 
 export type CartSubmissionRow = {
@@ -11,23 +13,8 @@ export type CartSubmissionRow = {
   notes: string | null;
   items: HomeCartItem[];
   total_usd: number;
+  display_currency: HomeCurrency;
 };
-
-function isHomeCartItem(value: unknown): value is HomeCartItem {
-  if (!value || typeof value !== "object") return false;
-  const item = value as HomeCartItem;
-  return (
-    typeof item.id === "string" &&
-    typeof item.serviceTitle === "string" &&
-    Array.isArray(item.lines) &&
-    typeof item.totalUsd === "number"
-  );
-}
-
-function normalizeItems(raw: unknown): HomeCartItem[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.filter(isHomeCartItem);
-}
 
 export async function listCartSubmissions(): Promise<{
   rows: CartSubmissionRow[];
@@ -45,7 +32,7 @@ export async function listCartSubmissions(): Promise<{
   const { data, error } = await supabase
     .from("cart_submissions")
     .select(
-      "id, created_at, client_name, social_network, social_username, payment_method, notes, items, total_usd",
+      "id, created_at, client_name, social_network, social_username, payment_method, notes, items, total_usd, display_currency",
     )
     .order("created_at", { ascending: false });
 
@@ -61,7 +48,17 @@ export async function listCartSubmissions(): Promise<{
     social_username: String(row.social_username),
     payment_method: row.payment_method != null ? String(row.payment_method) : null,
     notes: row.notes ?? null,
-    items: normalizeItems(row.items),
+    ...(() => {
+      const parsed = parseCartSubmissionItems(row.items);
+      const columnCurrency =
+        row.display_currency === "ars" || row.display_currency === "usd"
+          ? row.display_currency
+          : null;
+      return {
+        items: parsed.items,
+        display_currency: columnCurrency ?? parsed.displayCurrency ?? "usd",
+      };
+    })(),
     total_usd: Number(row.total_usd),
   }));
 

@@ -79,6 +79,19 @@
   text-underline-offset: 0.22em;
 }
 
+.legal-page__pricing-highlight {
+  margin: 0 0 clamp(1rem, 2vh, 1.25rem);
+  padding: clamp(0.55rem, 1.1vw, 0.75rem) clamp(0.75rem, 1.6vw, 1rem);
+  border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+  background: color-mix(in srgb, var(--pastel-rose) 88%, #ffffff 12%);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(1rem, 1.25vw, 1.125rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: var(--foreground);
+}
+
 .legal-page__paragraph {
   margin: 0 0 0.85rem;
   color: var(--foreground);

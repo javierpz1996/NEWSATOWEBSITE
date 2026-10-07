@@ -5,6 +5,14 @@ export const homeMessagesPt: HomeMessages = {
     ariaLabel: "Idioma",
     menuAriaLabel: "Idioma",
   },
+  currencySwitcher: {
+    ariaLabel: "Moeda",
+    menuAriaLabel: "Moeda",
+    options: {
+      usd: "USD (Dólares)",
+      ars: "ARS (Pesos)",
+    },
+  },
   footer: {
     homeAriaLabel: "Início",
     navAriaLabel: "Seções da página",
@@ -67,7 +75,7 @@ export const homeMessagesPt: HomeMessages = {
       extraPerson: "Pessoa extra",
       removeExtraPersonAria: "Remover pessoa extra",
       addExtraPersonAria: "Adicionar pessoa extra",
-      extraPersonEach: "+7 USD cada",
+      extraPersonEach: "cada",
       includesLabel: "Inclui:",
       extraPersonLine: (count) => `Pessoa extra × ${count}`,
     },
@@ -117,7 +125,7 @@ export const homeMessagesPt: HomeMessages = {
       variationFullBodyPriceUsd: 10,
       variationSimpleBackground: "Fundo simples",
       variationSimpleBackgroundPriceUsd: 25,
-      extraPersonEach: "+15 USD cada",
+      extraPersonEach: "cada",
       poseSheetTitle:
         "Folha de poses de 1 personagem (1 corpo inteiro + 2 bustos + chibi ou cabeça)",
       poseSheetNoColor: "Sem cores",
@@ -136,7 +144,7 @@ export const homeMessagesPt: HomeMessages = {
       baseOptions: [
         {
           id: "onePersonFlat",
-          label: "Completo 1 pessoa (+ fundo plano)",
+          label: "Completo 1 pessoa (+ fundo simples)",
           priceUsd: 120,
         },
       ],
@@ -144,11 +152,14 @@ export const homeMessagesPt: HomeMessages = {
       variationExtraPersonPriceUsd: 80,
       variationFullBody: "Corpos inteiros",
       variationFullBodyPriceUsd: 50,
-      variationFlatBackground: "Fundo plano",
+      variationFlatBackground: "Fundo simples",
       variationFlatBackgroundPriceUsd: 50,
       variationDetailedBackground: "Fundo detalhado",
       variationDetailedBackgroundPriceUsd: 100,
-      extraPersonEach: "+80 USD cada",
+      variationPoseSheet:
+        "Folha de poses do personagem (1 corpo inteiro + 2 bust up + chibi ou cabeça ou acessórios). Inclui fundo a gosto do cliente",
+      variationPoseSheetPriceUsd: 270,
+      extraPersonEach: "cada",
       ctaLabel: "Solicitar comissão",
     },
     nsfwGate: {
@@ -339,6 +350,11 @@ export const homeMessagesPt: HomeMessages = {
     storyParagraphs: [
       "Esta página começou como um projeto para mostrar meu trabalho e receber comissões de um jeito mais simples, tanto para mim quanto para quem quiser me encomendar algo.",
       "Sendo sincera, no meu caso como artista, sempre sofri com as tarifas ou comissões que outras páginas cobram de nós artistas para poder vender nosso serviço. Hoje somos uma comunidade meio machucada e sem muitos recursos; quando você está começando, seja pelo motivo que for, esse dinheiro faz muita falta. Só espero que artistas pequenos e iniciantes possam continuar divulgando e vendendo nossa arte sem essas complicações.",
+    ],
+    pricingHighlight: "A arte é um LUXO, não uma NECESSIDADE",
+    pricingParagraphs: [
+      "Meus preços se baseiam nos de outros artistas de nível parecido ao meu e da América Latina. Mesmo assim, tive que adaptar os valores para a Argentina, porque a situação econômica do país é algo que levo em conta ao calcular quanto cobrar pelas minhas horas de trabalho.",
+      "Uma comissão pode me levar mais de 30 horas no total. Isso é trabalho, e meus preços buscam que todo esse tempo e esforço sejam reconhecidos e também acessíveis.",
     ],
     visionTitle: "O que eu gostaria de fazer depois",
     visionParagraphs: [
