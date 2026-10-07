@@ -183,6 +183,8 @@ export type HomeMessages = {
   animations: {
     title: string;
     subtitle: string;
+    subtitleSeeMore: string;
+    subtitleSeeLess: string;
     count: string;
     tileAria: (number: string, title: string) => string;
     works: Array<{

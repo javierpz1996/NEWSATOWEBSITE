@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import { useHomeMessages } from "@/hooks/use-home-messages";
 
 type AnimationWork = {
@@ -59,6 +60,7 @@ function AnimationTile({
 
 export function HomeAnimations() {
   const { animations } = useHomeMessages();
+  const [subtitleExpanded, setSubtitleExpanded] = useState(false);
   const animationWorks: AnimationWork[] = animations.works.map((work) => ({
     ...work,
     src: ANIMATION_SRC_BY_ID[work.id]!,
@@ -81,9 +83,25 @@ export function HomeAnimations() {
       <header className="home-animations-header">
         <div className="home-animations-header-copy">
           <h2 id="home-animations-title">{animations.title}</h2>
-          <p id="home-animations-subtitle" className="home-animations-subtitle">
-            {animations.subtitle}
-          </p>
+          <div className="home-animations-subtitle-wrap">
+            <p
+              id="home-animations-subtitle"
+              className={`home-animations-subtitle${
+                subtitleExpanded ? " home-animations-subtitle--expanded" : ""
+              }`}
+            >
+              {animations.subtitle}
+            </p>
+            <button
+              type="button"
+              className="home-animations-subtitle-toggle"
+              aria-expanded={subtitleExpanded}
+              aria-controls="home-animations-subtitle"
+              onClick={() => setSubtitleExpanded((open) => !open)}
+            >
+              {subtitleExpanded ? animations.subtitleSeeLess : animations.subtitleSeeMore}
+            </button>
+          </div>
         </div>
         <div className="home-animations-header-meta">
           <p className="home-animations-count">{animations.count}</p>

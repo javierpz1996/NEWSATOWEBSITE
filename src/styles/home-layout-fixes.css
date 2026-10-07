@@ -841,6 +841,105 @@
   height: clamp(16px, 1.8vw, 20px);
 }
 
+@media (max-width: 760px) {
+  .home-page .home-header-left {
+    gap: 8px;
+  }
+
+  .home-page .home-header-portal-cluster {
+    transform: translateX(0);
+    max-width: min(100%, calc(100vw - var(--home-header-inline) * 2 - clamp(112px, 28vw, 140px)));
+  }
+
+  .home-page .home-header-portal-stack {
+    gap: 5px;
+    max-width: 100%;
+  }
+
+  .home-page .home-portal-menu-trigger-wrap {
+    gap: 4px;
+    margin-top: 4px;
+    max-width: 100%;
+  }
+
+  .home-page .home-portal-menu-kanji-row {
+    --home-header-toolbar-gap: 5px;
+    --home-header-toolbar-chip-size: 34px;
+    --home-header-toolbar-chip-radius: 10px;
+    --home-header-toolbar-chip-icon: 17px;
+    width: auto;
+    max-width: 100%;
+    flex-wrap: nowrap;
+  }
+
+  .home-page .home-portal-menu-kanji-row .home-portal-menu-locale-switch {
+    gap: 3px;
+    min-height: var(--home-header-toolbar-chip-size);
+    padding: 0 7px 0 5px;
+    border-radius: 999px;
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 8%),
+      0 3px 10px rgb(0 0 0 / 6%);
+  }
+
+  .home-page .home-portal-menu-kanji-row .home-portal-menu-locale-switch__globe {
+    width: 12px;
+    height: 12px;
+  }
+
+  .home-page .home-portal-menu-kanji-row .home-portal-menu-locale-switch__code {
+    font-size: 11px;
+  }
+
+  .home-page .home-portal-menu-kanji-row .home-portal-menu-locale-switch__chevron {
+    width: 10px;
+    height: 10px;
+    margin-left: 0;
+  }
+
+  .home-page
+    .home-portal-menu-kanji-row
+    .home-portal-menu-cart-btn.home-cart-icon-button--chip
+    .home-cart-icon-button__badge {
+    top: -2px;
+    right: -2px;
+    min-width: 15px;
+    min-height: 15px;
+    padding: 2px 4px;
+    font-size: 9px;
+  }
+
+  .home-page .home-portal-menu-kanji-row .home-portal-menu-label--toolbar {
+    width: var(--home-header-toolbar-chip-size);
+    min-width: var(--home-header-toolbar-chip-size);
+    min-height: var(--home-header-toolbar-chip-size);
+    padding: 0;
+    justify-content: center;
+    gap: 0;
+    border-radius: var(--home-header-toolbar-chip-radius);
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 12%),
+      0 3px 10px rgb(0 0 0 / 10%);
+  }
+
+  .home-page .home-portal-menu-kanji-row .home-portal-menu-label--toolbar .home-portal-menu-label__text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .home-page .home-portal-menu-kanji-row .home-portal-menu-label--toolbar .home-portal-menu-label__icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 .home-page .home-portal-menu-label-rule-row {
   display: flex;
   width: 100%;
@@ -3328,6 +3427,50 @@
 
 .home-page .home-animations {
   background: var(--home-surface-animations);
+}
+
+.home-page .home-animations-subtitle-wrap {
+  min-width: 0;
+}
+
+.home-page .home-animations-subtitle-toggle {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .home-page .home-animations-subtitle:not(.home-animations-subtitle--expanded) {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .home-page .home-animations-subtitle-toggle {
+    display: inline-flex;
+    align-items: center;
+    margin: 8px 0 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--foreground);
+    font-family: var(--font-jetbrains-mono), monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  .home-page .home-animations-subtitle-toggle:focus {
+    outline: none;
+  }
+
+  .home-page .home-animations-subtitle-toggle:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
 }
 
 /* Servicios — referencia (header, toggle +18, tarjetas) */

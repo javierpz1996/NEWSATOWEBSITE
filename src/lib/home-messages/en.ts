@@ -245,6 +245,8 @@ export const homeMessagesEn: HomeMessages = {
     title: "COMING SOON",
     subtitle:
       "ANIMATIONS, STICKERS, PNGTUBERS, THUMBNAILS, ADOPTABLES, ASSETS, EMOTES, TRANSITIONS, BANNERS, BACKGROUNDS, AND MORE!",
+    subtitleSeeMore: "See more",
+    subtitleSeeLess: "See less",
     count: "COMMISSIONS · COMING SOON",
     tileAria: (number, title) => `Animation ${number}: ${title}`,
     works: [

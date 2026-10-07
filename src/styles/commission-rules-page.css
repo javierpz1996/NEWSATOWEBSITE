@@ -313,6 +313,6 @@
     width: clamp(7rem, 36vw, 9.5rem);
     max-width: none;
     height: auto;
-    transform: translateX(-50%);
+    transform: translate(-50%, clamp(1.75rem, 8vw, 2.75rem));
   }
 }
