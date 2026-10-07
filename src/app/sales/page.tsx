@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { listCartSubmissions, type CartSubmissionRow } from "@/lib/cart-submissions";
 import { formatHomeCartUsd } from "@/lib/home-cart";
-import { isSalesAccessGranted, getSalesAccessTokenEnv } from "@/lib/sales-access";
+import {
+  isSalesAccessGranted,
+  isSalesAccessTokenConfiguredInEnv,
+} from "@/lib/sales-access";
 import { SalesAccessGate } from "@/app/sales/sales-access-gate";
 import { SalesDeleteSubmissionButton } from "@/app/sales/sales-delete-submission-button";
 import "@/styles/sales-page.css";
@@ -96,7 +99,7 @@ export default async function SalesPage() {
   }
 
   const { rows, error } = await listCartSubmissions();
-  const accessTokenConfigured = Boolean(getSalesAccessTokenEnv());
+  const accessTokenConfigured = isSalesAccessTokenConfiguredInEnv();
 
   return (
     <main className="sales-page">
@@ -114,8 +117,8 @@ export default async function SalesPage() {
 
         {!accessTokenConfigured ? (
           <p className="sales-page__banner" role="status">
-            Configurá <code>SALES_ACCESS_TOKEN</code> en el servidor para proteger esta ruta en
-            producción.
+            Acceso con clave por defecto del proyecto. En producción podés definir{" "}
+            <code>SALES_ACCESS_TOKEN</code> en el servidor.
           </p>
         ) : null}
 

@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { formatCommissionDateLabel } from "@/lib/commission-date-format";
 import { listCommissionsInProgressServer } from "@/lib/commissions-in-progress-db";
-import { getSalesAccessTokenEnv, isSalesAccessGranted } from "@/lib/sales-access";
+import {
+  isSalesAccessGranted,
+  isSalesAccessTokenConfiguredInEnv,
+} from "@/lib/sales-access";
 import { SalesAccessGate } from "@/app/sales/sales-access-gate";
 import { NewWorkCreateForm } from "@/app/new-work/new-work-create-form";
 import { NewWorkDeleteButton } from "@/app/new-work/new-work-delete-button";
@@ -26,7 +29,7 @@ export default async function NewWorkPage() {
   }
 
   const { rows, error } = await listCommissionsInProgressServer();
-  const accessTokenConfigured = Boolean(getSalesAccessTokenEnv());
+  const accessTokenConfigured = isSalesAccessTokenConfiguredInEnv();
 
   return (
     <main className="sales-page new-work-page">
@@ -44,7 +47,8 @@ export default async function NewWorkPage() {
 
         {!accessTokenConfigured ? (
           <p className="sales-page__banner" role="status">
-            Configurá <code>SALES_ACCESS_TOKEN</code> para proteger esta ruta.
+            Acceso con clave por defecto del proyecto. Podés definir{" "}
+            <code>SALES_ACCESS_TOKEN</code> en el servidor.
           </p>
         ) : null}
 

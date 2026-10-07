@@ -39,9 +39,7 @@ export function SalesAccessGate({ title = "Pedidos" }: SalesAccessGateProps) {
     <main className="sales-page">
       <div className="sales-page__inner sales-page__inner--narrow">
         <h1 className="sales-page__title">{title}</h1>
-        <p className="sales-page__lead">
-          Esta vista es privada. Ingresá la clave de acceso configurada en el servidor.
-        </p>
+        <p className="sales-page__lead">Esta vista es privada. Ingresá la clave de acceso.</p>
         <form className="sales-page__gate-form" onSubmit={onSubmit}>
           <label className="sales-page__gate-label" htmlFor="sales-access-token">
             Clave de acceso

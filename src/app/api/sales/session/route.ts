@@ -3,12 +3,6 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   const expected = getSalesAccessTokenEnv();
-  if (!expected) {
-    return NextResponse.json(
-      { ok: false, message: "SALES_ACCESS_TOKEN no está configurado en el servidor." },
-      { status: 503 },
-    );
-  }
 
   let body: { token?: string };
   try {
