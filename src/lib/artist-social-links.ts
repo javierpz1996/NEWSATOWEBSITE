@@ -5,7 +5,14 @@ export const ARTIST_SOCIAL_URLS = {
   youtube: "https://www.youtube.com/@sato.canvas",
   tiktok: "https://www.tiktok.com/@satito_",
   deviantart: "https://www.deviantart.com/satodibuja",
+  cafecito: "https://cafecito.app/satito",
 } as const;
+
+/** Public Cafecito profile — keep in sync with `ARTIST_SOCIAL_URLS.cafecito`. */
+export const CAFECITO_PROFILE_URL = ARTIST_SOCIAL_URLS.cafecito;
+
+/** Round mark for Cafecito (source: cdn.cafecito.app). */
+export const CAFECITO_LOGO_SRC = "/works/placeholder/cafecito-logo-round.png" as const;
 
 export type ArtistSocialId = keyof typeof ARTIST_SOCIAL_URLS;
 

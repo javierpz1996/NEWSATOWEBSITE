@@ -1,14 +1,21 @@
 "use client";
 
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { useHomeMessages } from "@/hooks/use-home-messages";
-import { ARTIST_SOCIAL_URLS } from "@/lib/artist-social-links";
+import {
+  ARTIST_SOCIAL_URLS,
+  CAFECITO_LOGO_SRC,
+  CAFECITO_PROFILE_URL,
+} from "@/lib/artist-social-links";
 
 type SocialLink = {
   id: string;
   label: string;
   href: string;
-  icon: ReactNode;
+  icon?: ReactNode;
+  imageSrc?: string;
+  imageAlt?: string;
 };
 
 function SnsSvg({ children }: { children: ReactNode }) {
@@ -84,6 +91,13 @@ const socialLinks: SocialLink[] = [
     href: ARTIST_SOCIAL_URLS.deviantart,
     icon: <IconDeviantArt />,
   },
+  {
+    id: "cafecito",
+    label: "Cafecito",
+    href: CAFECITO_PROFILE_URL,
+    imageSrc: CAFECITO_LOGO_SRC,
+    imageAlt: "Cafecito",
+  },
 ];
 
 function SocialLinkItem({ link }: { link: SocialLink }) {
@@ -96,7 +110,21 @@ function SocialLinkItem({ link }: { link: SocialLink }) {
         target="_blank"
         rel="noopener noreferrer"
       >
-        <span className="home-sns-icon">{link.icon}</span>
+        <span className="home-sns-icon">
+          {link.imageSrc ? (
+            <Image
+              className="home-sns-icon-image"
+              src={link.imageSrc}
+              alt={link.imageAlt ?? link.label}
+              width={500}
+              height={461}
+              sizes="(max-width: 760px) 20px, 36px"
+              unoptimized
+            />
+          ) : (
+            link.icon
+          )}
+        </span>
         <span className="home-sns-label">{link.label}</span>
       </a>
     </li>
