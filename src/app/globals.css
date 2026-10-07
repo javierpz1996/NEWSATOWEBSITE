@@ -3204,8 +3204,8 @@ a:focus-visible, button:focus-visible {
 }
 .home-footer .home-logo img {
   display: block;
-  width: 40px;
-  height: 40px;
+  width: auto;
+  height: auto;
   object-fit: contain;
 }
 @media (max-width: 760px) {

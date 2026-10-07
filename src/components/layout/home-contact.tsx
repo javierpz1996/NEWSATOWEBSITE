@@ -6,8 +6,11 @@ import {
   sectionScrollRevealClassName,
   useSectionScrollReveal,
 } from "@/hooks/use-section-scroll-reveal";
-import { buildContactMailtoHref, CONTACT_EMAIL } from "@/lib/contact";
 import { useHomeMessages } from "@/hooks/use-home-messages";
+import {
+  ContactMessageSubmitError,
+  submitContactMessageToSupabase,
+} from "@/lib/home-contact-submit";
 import {
   fieldInvalidClassName,
   fieldWrapperClassName,
@@ -20,14 +23,16 @@ const HOME_CONTACT_ILLUSTRATION_SRC =
 const HOME_CONTACT_ILLUSTRATION_WIDTH = 2532;
 const HOME_CONTACT_ILLUSTRATION_HEIGHT = 1908;
 
-const CONTACT_REQUIRED_FIELDS = ["message"] as const;
+const CONTACT_REQUIRED_FIELDS = ["title", "message"] as const;
 
 export function HomeContact() {
   const { contact } = useHomeMessages();
   const sectionRef = useRef<HTMLElement>(null);
   const reveal = useSectionScrollReveal(sectionRef);
-  const [submitHint, setSubmitHint] = useState<string | null>(null);
   const [invalidFields, setInvalidFields] = useState<ReadonlySet<string>>(() => new Set());
+  const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const clearFieldError = useCallback((fieldName: string) => {
     setInvalidFields((current) => {
@@ -38,12 +43,21 @@ export function HomeContact() {
     });
   }, []);
 
+  const resetForm = useCallback(() => {
+    setSent(false);
+    setSubmitError(null);
+    setInvalidFields(new Set());
+  }, []);
+
   const handleSubmit = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
+    async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+      if (submitting) return;
+
       const form = event.currentTarget;
       const empty = getEmptyFormFieldNames(form, CONTACT_REQUIRED_FIELDS);
       setInvalidFields(empty);
+      setSubmitError(null);
 
       if (empty.size > 0) {
         focusFormField(form, CONTACT_REQUIRED_FIELDS, empty);
@@ -51,14 +65,26 @@ export function HomeContact() {
       }
 
       const data = new FormData(form);
+      const title = String(data.get("title") ?? "").trim();
       const message = String(data.get("message") ?? "").trim();
-      const href = buildContactMailtoHref({ message });
-      window.location.href = href;
-      setSubmitHint(contact.hintAfterSubmit);
-      setInvalidFields(new Set());
-      form.reset();
+
+      setSubmitting(true);
+      try {
+        await submitContactMessageToSupabase({ title, message });
+        setSent(true);
+        setInvalidFields(new Set());
+        form.reset();
+      } catch (error) {
+        const messageText =
+          error instanceof ContactMessageSubmitError
+            ? error.message
+            : contact.submitError;
+        setSubmitError(messageText);
+      } finally {
+        setSubmitting(false);
+      }
     },
-    [contact.hintAfterSubmit],
+    [contact.submitError, submitting],
   );
 
   return (
@@ -93,75 +119,119 @@ export function HomeContact() {
         </div>
 
         <div className="home-contact-form-slot">
-          <form
-            className="home-contact-form home-contact-reveal-item home-contact-reveal-item--cta"
-            onSubmit={handleSubmit}
-            noValidate
-          >
-            <div className="home-contact-form__field">
-              <label className="home-contact-form__label" htmlFor="home-contact-email">
-                {contact.emailLabel}
-              </label>
-              <input
-                id="home-contact-email"
-                className="home-contact-form__input home-contact-form__input--fixed"
-                type="email"
-                name="email"
-                value={CONTACT_EMAIL}
-                readOnly
-                aria-readonly="true"
-              />
-            </div>
-
+          {sent ? (
             <div
-              className={`${fieldWrapperClassName(invalidFields, "message")} home-contact-form__field--message`}
+              className="home-contact-form home-contact-form--success home-contact-reveal-item home-contact-reveal-item--cta"
+              role="status"
+              aria-live="polite"
             >
-              <label
-                className="home-contact-form__label"
-                htmlFor="home-contact-message"
+              <p className="home-contact-form__success-mark" aria-hidden="true">✓</p>
+              <p className="home-contact-form__success-title">{contact.successTitle}</p>
+              <p className="home-contact-form__success-text">{contact.successText}</p>
+              <button
+                type="button"
+                className="home-contact-form__submit home-contact-form__success-action"
+                onClick={resetForm}
               >
-                {contact.messageLabel}
-              </label>
-              <textarea
-                id="home-contact-message"
-                className={fieldInvalidClassName(
-                  "home-contact-form__textarea",
-                  "message",
-                  invalidFields,
-                )}
-                name="message"
-                rows={5}
-                placeholder={contact.messagePlaceholder}
-                required
-                aria-invalid={invalidFields.has("message")}
-                aria-describedby={
-                  invalidFields.has("message") ? "home-contact-message-error" : undefined
-                }
-                onInput={() => clearFieldError("message")}
-              />
-              {invalidFields.has("message") ? (
-                <p
-                  id="home-contact-message-error"
-                  className="home-contact-form__field-error"
-                  role="alert"
+                {contact.sendAnother}
+              </button>
+            </div>
+          ) : (
+            <form
+              className="home-contact-form home-contact-reveal-item home-contact-reveal-item--cta"
+              onSubmit={handleSubmit}
+              noValidate
+            >
+              <div
+                className={`${fieldWrapperClassName(invalidFields, "title")} home-contact-form__field`}
+              >
+                <label className="home-contact-form__label" htmlFor="home-contact-title">
+                  {contact.subjectLabel}
+                </label>
+                <input
+                  id="home-contact-title"
+                  className={fieldInvalidClassName(
+                    "home-contact-form__input",
+                    "title",
+                    invalidFields,
+                  )}
+                  type="text"
+                  name="title"
+                  placeholder={contact.subjectPlaceholder}
+                  required
+                  disabled={submitting}
+                  autoComplete="off"
+                  aria-invalid={invalidFields.has("title")}
+                  aria-describedby={
+                    invalidFields.has("title") ? "home-contact-title-error" : undefined
+                  }
+                  onInput={() => clearFieldError("title")}
+                />
+                {invalidFields.has("title") ? (
+                  <p
+                    id="home-contact-title-error"
+                    className="home-contact-form__field-error"
+                    role="alert"
+                  >
+                    {contact.fieldRequired}
+                  </p>
+                ) : null}
+              </div>
+
+              <div
+                className={`${fieldWrapperClassName(invalidFields, "message")} home-contact-form__field--message`}
+              >
+                <label
+                  className="home-contact-form__label"
+                  htmlFor="home-contact-message"
                 >
-                  {contact.fieldRequired}
+                  {contact.messageLabel}
+                </label>
+                <textarea
+                  id="home-contact-message"
+                  className={fieldInvalidClassName(
+                    "home-contact-form__textarea",
+                    "message",
+                    invalidFields,
+                  )}
+                  name="message"
+                  rows={5}
+                  placeholder={contact.messagePlaceholder}
+                  required
+                  disabled={submitting}
+                  aria-invalid={invalidFields.has("message")}
+                  aria-describedby={
+                    invalidFields.has("message") ? "home-contact-message-error" : undefined
+                  }
+                  onInput={() => clearFieldError("message")}
+                />
+                {invalidFields.has("message") ? (
+                  <p
+                    id="home-contact-message-error"
+                    className="home-contact-form__field-error"
+                    role="alert"
+                  >
+                    {contact.fieldRequired}
+                  </p>
+                ) : null}
+              </div>
+
+              <button
+                type="submit"
+                className="home-contact-form__submit"
+                disabled={submitting}
+              >
+                {submitting ? contact.sending : contact.submit}{" "}
+                {!submitting ? <span aria-hidden="true">↗</span> : null}
+              </button>
+
+              {submitError ? (
+                <p className="home-contact-form__field-error" role="alert">
+                  {submitError}
                 </p>
               ) : null}
-            </div>
-
-            <button type="submit" className="home-contact-form__submit">
-              {contact.submit} <span aria-hidden="true">↗</span>
-            </button>
-
-            {submitHint ? (
-              <p className="home-contact-form__hint" role="status">{submitHint}</p>
-            ) : (
-              <p className="home-contact-form__hint">
-                {contact.hint}
-              </p>
-            )}
-          </form>
+            </form>
+          )}
         </div>
       </div>
     </section>

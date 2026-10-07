@@ -1,0 +1,11 @@
+# Supabase CLI — https://supabase.com/docs/guides/cli/config
+# Database Webhooks se configuran en el Dashboard (ver supabase/README.md).
+
+[functions.commissions-discord-notify]
+verify_jwt = false
+
+[functions.cart-proposal-discord-notify]
+verify_jwt = false
+
+[functions.contact-message-discord-notify]
+verify_jwt = false

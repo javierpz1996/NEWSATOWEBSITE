@@ -150,13 +150,17 @@ export type HomeMessages = {
     titleLine1: string;
     titleEmphasis: string;
     illustrationAlt: string;
-    emailLabel: string;
+    subjectLabel: string;
+    subjectPlaceholder: string;
     messageLabel: string;
     messagePlaceholder: string;
     submit: string;
-    hint: string;
-    hintAfterSubmit: string;
+    sending: string;
     fieldRequired: string;
+    submitError: string;
+    successTitle: string;
+    successText: string;
+    sendAnother: string;
   };
   animations: {
     title: string;

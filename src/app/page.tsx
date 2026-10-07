@@ -27,7 +27,14 @@ import {
   useHomeHeroReplay,
 } from "@/hooks/use-home-hero-replay";
 import { useHomeHeroStableViewport } from "@/hooks/use-home-hero-stable-viewport";
-import { SATO_LOGO_HEIGHT, SATO_LOGO_SRC, SATO_LOGO_WIDTH } from "@/lib/brand-assets";
+import {
+  HOME_FOOTER_LOGO_HEIGHT,
+  HOME_FOOTER_LOGO_SRC,
+  HOME_FOOTER_LOGO_WIDTH,
+  SATO_LOGO_HEIGHT,
+  SATO_LOGO_SRC,
+  SATO_LOGO_WIDTH,
+} from "@/lib/brand-assets";
 import { useHomeMessages } from "@/hooks/use-home-messages";
 import { HOME_HERO_EDITORIAL_TILES } from "@/lib/home-hero-editorial-tiles";
 import { ensurePortalMenuRuleCatsPreloaded } from "@/lib/portal-menu-assets";
@@ -311,10 +318,10 @@ export default function Home() {
         <Link href="/" className="home-logo home-footer-brand" aria-label={messages.footer.homeAriaLabel}>
           <Image
             className="home-logo-mark home-logo-mark--footer"
-            src={SATO_LOGO_SRC}
-            alt="Sato"
-            width={SATO_LOGO_WIDTH}
-            height={SATO_LOGO_HEIGHT}
+            src={HOME_FOOTER_LOGO_SRC}
+            alt=""
+            width={HOME_FOOTER_LOGO_WIDTH}
+            height={HOME_FOOTER_LOGO_HEIGHT}
             unoptimized
           />
         </Link>

@@ -29,7 +29,7 @@
     calc(100% - clamp(8px, 1.2vw, 20px)),
     var(--home-section-rail-max)
   );
-  --home-footer-logo-mark-filter: brightness(0);
+  --home-footer-logo-mark-filter: none;
   --home-sections-dot-border-width: clamp(52px, 6vw, 84px);
   --home-sections-dot-fill: color-mix(in srgb, var(--pastel-rose) 78%, var(--background) 22%);
   --home-sections-dot-ink: color-mix(in srgb, var(--muted-foreground) 48%, var(--border) 52%);
@@ -126,9 +126,11 @@
 
 .home-page .home-footer .home-logo img,
 .home-page .home-footer .home-logo-mark--footer {
-  max-width: clamp(88px, 10vw, 132px);
-  width: 100%;
+  width: auto;
+  max-width: clamp(88px, 11vw, 120px);
+  max-height: clamp(128px, 17vh, 168px);
   height: auto;
+  object-fit: contain;
   filter: var(--home-footer-logo-mark-filter);
 }
 
@@ -178,7 +180,8 @@
 
   .home-page .home-footer .home-logo img,
   .home-page .home-footer .home-logo-mark--footer {
-    max-width: clamp(72px, 22vw, 96px);
+    max-width: clamp(80px, 24vw, 108px);
+    max-height: clamp(112px, 22vh, 148px);
   }
 
   .home-page .home-footer-nav {
@@ -2632,6 +2635,91 @@
   letter-spacing: 0.02em;
 }
 
+.home-contact-form--success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 1.6vh, 16px);
+  padding: clamp(28px, 3.5vh, 40px) clamp(16px, 2.5vw, 20px);
+  text-align: center;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--background) 92%, var(--foreground) 8%);
+  animation: home-contact-success-in 0.45s ease-out both;
+}
+
+.home-contact-form__success-mark {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(44px, 5vw, 52px);
+  height: clamp(44px, 5vw, 52px);
+  border-radius: 999px;
+  border: 1px solid #ffffff48;
+  background: #1c1b1d;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(20px, 2vw, 24px);
+  font-weight: 700;
+  color: #fff;
+}
+
+.home-contact-form__success-title {
+  margin: 0;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(18px, 1.6vw, 21px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+
+.home-contact-form__success-text {
+  margin: 0;
+  max-width: 22rem;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(14px, 1.1vw, 15px);
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.home-contact-form__success-action {
+  margin-top: clamp(8px, 1vh, 12px);
+  width: 100%;
+}
+
+.home-contact-form--success .home-contact-form__submit.home-contact-form__success-action {
+  background: #1c1b1d;
+  color: #fff;
+  border-color: #ffffff48;
+}
+
+.home-contact-form--success .home-contact-form__submit.home-contact-form__success-action:hover {
+  background: #2a292b;
+  color: #fff;
+}
+
+.home-contact-form--success .home-contact-form__submit.home-contact-form__success-action:focus-visible {
+  outline-color: #8d7b9c;
+}
+
+@keyframes home-contact-success-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-contact-form--success {
+    animation: none;
+  }
+}
+
 /* Contact + READ balloon — below desktop (base rules unchanged from 1025px up). */
 @media (max-width: 1024px) {
   .home-contact .home-contact-row {
@@ -2767,9 +2855,15 @@
 }
 
 .home-page .home-commissions-in-progress-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(12px, 1.45vw, 16px);
+  --home-commissions-in-progress-gap: clamp(8px, 1.1vw, 14px);
+  --home-commissions-in-progress-card-width: calc(
+    (100% - 2 * var(--home-commissions-in-progress-gap)) / 3
+  );
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: var(--home-commissions-in-progress-gap);
   max-width: var(--home-section-rail-width);
   margin: 0 auto clamp(24px, 3vh, 36px);
   padding: 0;
@@ -2778,7 +2872,14 @@
 
 .home-page .home-commissions-in-progress-list > li {
   display: flex;
+  flex: 0 0 var(--home-commissions-in-progress-card-width);
+  max-width: var(--home-commissions-in-progress-card-width);
   min-width: 0;
+}
+
+.home-page .home-commissions-in-progress-list > li:has(.home-commissions-in-progress-empty) {
+  flex: 1 1 100%;
+  max-width: 100%;
 }
 
 .home-page .home-commissions-in-progress-empty {
@@ -2798,11 +2899,11 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: clamp(16px, 2.2vh, 22px);
+  gap: clamp(10px, 1.4vh, 16px);
   width: 100%;
   min-height: 100%;
   margin: 0;
-  padding: clamp(22px, 2.2vw, 28px);
+  padding: clamp(12px, 1.6vw, 22px);
   background: var(--home-commissions-panel);
 }
 
@@ -2815,94 +2916,86 @@
 .home-page .home-commissions-in-progress-eyebrow {
   margin: 0;
   font-family: var(--font-jetbrains-mono), monospace;
-  font-size: clamp(11px, 0.95vw, 13px);
+  font-size: clamp(8px, 0.72vw, 11px);
   font-weight: 500;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
   text-transform: uppercase;
   color: var(--muted-foreground);
 }
 
 .home-page .home-commissions-in-progress-heading-row {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: clamp(10px, 1.4vw, 14px);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(6px, 0.8vh, 8px);
 }
 
 .home-page .home-commissions-in-progress-title {
   margin: 0;
-  flex: 1 1 auto;
+  width: 100%;
   min-width: 0;
-  font-size: clamp(18px, 1.55vw, 24px);
+  font-size: clamp(13px, 1.15vw, 18px);
   font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.12;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
   color: var(--foreground);
+  overflow-wrap: anywhere;
 }
 
 .home-page .home-commissions-in-progress-status {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
+  padding: 4px 8px;
   border: 1px solid color-mix(in srgb, var(--foreground) 22%, transparent);
   background: var(--card);
   font-family: var(--font-jetbrains-mono), monospace;
-  font-size: clamp(11px, 0.95vw, 13px);
+  font-size: clamp(8px, 0.72vw, 11px);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
   text-transform: uppercase;
   color: var(--foreground);
 }
 
 .home-page .home-commissions-in-progress-client {
   margin: 0;
-  font-size: clamp(13px, 1.02vw, 15px);
-  line-height: 1.45;
+  font-size: clamp(10px, 0.88vw, 13px);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
   color: color-mix(in srgb, var(--foreground) 58%, var(--muted-foreground) 42%);
 }
 
 .home-page .home-commissions-in-progress-meta {
   display: grid;
-  gap: clamp(12px, 1.6vh, 16px);
+  gap: clamp(8px, 1vh, 12px);
   margin: 0;
 }
 
 .home-page .home-commissions-in-progress-meta-row {
   display: grid;
-  grid-template-columns: minmax(0, 9rem) minmax(0, 1fr);
-  gap: clamp(8px, 1.2vw, 12px);
-  align-items: baseline;
+  grid-template-columns: 1fr;
+  gap: 2px;
+  align-items: start;
 }
 
 .home-page .home-commissions-in-progress-meta-row dt {
   margin: 0;
   font-family: var(--font-jetbrains-mono), monospace;
-  font-size: clamp(11px, 0.95vw, 13px);
+  font-size: clamp(8px, 0.72vw, 11px);
   font-weight: 500;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
   text-transform: uppercase;
   color: var(--muted-foreground);
 }
 
 .home-page .home-commissions-in-progress-meta-row dd {
   margin: 0;
-  font-size: clamp(14px, 1.1vw, 16px);
+  font-size: clamp(10px, 0.9vw, 13px);
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.3;
   color: var(--foreground);
-}
-
-@media (max-width: 980px) {
-  .home-page .home-commissions-in-progress-list {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .home-page .home-commissions-in-progress-meta-row {
-    grid-template-columns: 1fr;
-    gap: 4px;
-  }
 }
 
 .home-page .home-commissions-steps {
