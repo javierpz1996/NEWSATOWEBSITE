@@ -1810,6 +1810,10 @@
   margin-bottom: 8px;
 }
 
+.home-service-order-field-nested {
+  margin-top: clamp(12px, 1.5vh, 16px);
+}
+
 .home-service-order-quantity {
   display: inline-flex;
   align-items: center;
@@ -3404,7 +3408,7 @@
 }
 
 .home-page .home-services-grid {
-  align-items: stretch;
+  align-items: start;
 }
 
 .home-page .home-services-grid > li {
@@ -3413,8 +3417,11 @@
 }
 
 .home-page .home-services-grid > li > .home-service-card {
-  flex: 1;
   width: 100%;
+}
+
+.home-page .home-services-grid > li > .home-service-card[data-details-open="false"] {
+  min-height: var(--home-service-card-collapsed-min-h, auto);
 }
 
 .home-page .home-service-card-visual {

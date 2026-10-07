@@ -126,13 +126,15 @@ export const homeMessagesEn: HomeMessages = {
       variationSimpleBackground: "Simple background",
       variationSimpleBackgroundPriceUsd: 25,
       extraPersonEach: "each",
+      poseSheetCheckboxLabel: "Character pose sheet",
+      poseSheetIncludes: ["1 full body", "2 bust-ups", "Chibi or head"],
+      poseSheetColorLabel: "Color",
       poseSheetTitle:
         "1-character pose sheet (1 full body + 2 bust-ups + chibi or head)",
       poseSheetNoColor: "Without color",
       poseSheetNoColorPriceUsd: 55,
       poseSheetWithColor: "With color",
       poseSheetWithColorPriceUsd: 65,
-      poseSheetNone: "None (build sketch)",
       ctaLabel: "Request commission",
     },
     completos: {
@@ -156,6 +158,13 @@ export const homeMessagesEn: HomeMessages = {
       variationFlatBackgroundPriceUsd: 50,
       variationDetailedBackground: "Detailed background",
       variationDetailedBackgroundPriceUsd: 100,
+      poseSheetCheckboxLabel: "Character pose sheet",
+      poseSheetIncludes: [
+        "1 full body",
+        "2 bust-ups",
+        "Chibi, head, or accessories",
+        "Background to client’s taste",
+      ],
       variationPoseSheet:
         "Character pose sheet (1 full body + 2 bust up + chibi, head, or accessories). Includes background to client’s taste",
       variationPoseSheetPriceUsd: 270,

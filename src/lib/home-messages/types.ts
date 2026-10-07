@@ -111,12 +111,14 @@ export type HomeMessages = {
       variationSimpleBackground: string;
       variationSimpleBackgroundPriceUsd: number;
       extraPersonEach: string;
+      poseSheetCheckboxLabel: string;
+      poseSheetIncludes: string[];
+      poseSheetColorLabel: string;
       poseSheetTitle: string;
       poseSheetNoColor: string;
       poseSheetNoColorPriceUsd: number;
       poseSheetWithColor: string;
       poseSheetWithColorPriceUsd: number;
-      poseSheetNone: string;
       ctaLabel: string;
     };
     completos: {
@@ -133,6 +135,8 @@ export type HomeMessages = {
       variationFlatBackgroundPriceUsd: number;
       variationDetailedBackground: string;
       variationDetailedBackgroundPriceUsd: number;
+      poseSheetCheckboxLabel: string;
+      poseSheetIncludes: string[];
       variationPoseSheet: string;
       variationPoseSheetPriceUsd: number;
       extraPersonEach: string;

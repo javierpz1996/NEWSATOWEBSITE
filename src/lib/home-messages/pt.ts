@@ -126,13 +126,15 @@ export const homeMessagesPt: HomeMessages = {
       variationSimpleBackground: "Fundo simples",
       variationSimpleBackgroundPriceUsd: 25,
       extraPersonEach: "cada",
+      poseSheetCheckboxLabel: "Folha de personagem",
+      poseSheetIncludes: ["1 corpo inteiro", "2 bust up", "Chibi ou cabeça"],
+      poseSheetColorLabel: "Colorido",
       poseSheetTitle:
         "Folha de poses de 1 personagem (1 corpo inteiro + 2 bustos + chibi ou cabeça)",
       poseSheetNoColor: "Sem cores",
       poseSheetNoColorPriceUsd: 55,
       poseSheetWithColor: "Com cores",
       poseSheetWithColorPriceUsd: 65,
-      poseSheetNone: "Nenhuma (montar sketch)",
       ctaLabel: "Solicitar comissão",
     },
     completos: {
@@ -156,6 +158,13 @@ export const homeMessagesPt: HomeMessages = {
       variationFlatBackgroundPriceUsd: 50,
       variationDetailedBackground: "Fundo detalhado",
       variationDetailedBackgroundPriceUsd: 100,
+      poseSheetCheckboxLabel: "Folha de poses do personagem",
+      poseSheetIncludes: [
+        "1 corpo inteiro",
+        "2 bust up",
+        "Chibi, cabeça ou acessórios",
+        "Fundo a gosto do cliente",
+      ],
       variationPoseSheet:
         "Folha de poses do personagem (1 corpo inteiro + 2 bust up + chibi ou cabeça ou acessórios). Inclui fundo a gosto do cliente",
       variationPoseSheetPriceUsd: 270,

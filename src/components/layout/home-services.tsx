@@ -10,7 +10,10 @@ import {
   useSectionScrollReveal,
 } from "@/hooks/use-section-scroll-reveal";
 import {
+  useCallback,
+  useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -363,10 +366,11 @@ function SimplistaOrderBuilder({
   );
 }
 
-type BocetosPoseSheetChoice = "none" | "noColor" | "withColor";
+type BocetosPoseSheetColor = "noColor" | "withColor";
 
 type BocetosOrderState = {
-  poseSheet: BocetosPoseSheetChoice;
+  poseSheet: boolean;
+  poseSheetColor: BocetosPoseSheetColor;
   baseId: HomeServiceBaseOption["id"];
   fullBody: boolean;
   simpleBackground: boolean;
@@ -374,12 +378,25 @@ type BocetosOrderState = {
 };
 
 const defaultBocetosOrder = (baseOptions: HomeServiceBaseOption[]): BocetosOrderState => ({
-  poseSheet: "none",
+  poseSheet: false,
+  poseSheetColor: "noColor",
   baseId: baseOptions[0]?.id ?? "noColor",
   fullBody: false,
   simpleBackground: false,
   extraPeople: 0,
 });
+
+function resetBocetosSketchOrder(baseOptions: HomeServiceBaseOption[]): BocetosOrderState {
+  return defaultBocetosOrder(baseOptions);
+}
+
+function enableBocetosPoseSheet(baseOptions: HomeServiceBaseOption[]): BocetosOrderState {
+  return {
+    ...resetBocetosSketchOrder(baseOptions),
+    poseSheet: true,
+    poseSheetColor: "noColor",
+  };
+}
 
 function BocetosOrderBuilder({
   serviceTitle,
@@ -400,18 +417,27 @@ function BocetosOrderBuilder({
   const { addItem } = useHomeCart();
   const pricing = HOME_SERVICE_PRICING.bocetos;
 
-  const sketchLocked = order.poseSheet !== "none";
+  const sketchLocked = order.poseSheet;
   const baseFieldName = useId();
-  const poseSheetFieldName = useId();
+  const poseSheetColorFieldName = useId();
+
+  const poseSheetDisplayPrice = useMemo(() => {
+    const pair =
+      order.poseSheet && order.poseSheetColor === "withColor"
+        ? pricing.poseSheetWithColor
+        : pricing.poseSheetNoColor;
+    return formatHomeMoney(moneyAmount(pair, currency), currency);
+  }, [currency, order.poseSheet, order.poseSheetColor, pricing]);
 
   const lineItems = useMemo(() => {
-    if (order.poseSheet === "noColor") {
-      const label = `${bocetosCopy.poseSheetTitle} — ${bocetosCopy.poseSheetNoColor}`;
-      return [pricedLine(label, pricing.poseSheetNoColor)];
-    }
-    if (order.poseSheet === "withColor") {
-      const label = `${bocetosCopy.poseSheetTitle} — ${bocetosCopy.poseSheetWithColor}`;
-      return [pricedLine(label, pricing.poseSheetWithColor)];
+    if (order.poseSheet) {
+      const isWithColor = order.poseSheetColor === "withColor";
+      const label = `${bocetosCopy.poseSheetCheckboxLabel} — ${
+        isWithColor ? bocetosCopy.poseSheetWithColor : bocetosCopy.poseSheetNoColor
+      }`;
+      return [
+        pricedLine(label, isWithColor ? pricing.poseSheetWithColor : pricing.poseSheetNoColor),
+      ];
     }
 
     const base = baseOptions.find((option) => option.id === order.baseId)!;
@@ -472,7 +498,7 @@ function BocetosOrderBuilder({
                     checked={order.baseId === option.id}
                     disabled={sketchLocked}
                     onChange={() =>
-                      setOrder((prev) => ({ ...prev, baseId: option.id, poseSheet: "none" }))
+                      setOrder((prev) => ({ ...prev, baseId: option.id, poseSheet: false }))
                     }
                   />
                   <span className="home-service-order-option-label">{option.label}</span>
@@ -504,7 +530,7 @@ function BocetosOrderBuilder({
                     onClick={() =>
                       setOrder((prev) => ({
                         ...prev,
-                        poseSheet: "none",
+                        poseSheet: false,
                         extraPeople: Math.max(0, prev.extraPeople - 1),
                       }))
                     }
@@ -522,7 +548,7 @@ function BocetosOrderBuilder({
                     onClick={() =>
                       setOrder((prev) => ({
                         ...prev,
-                        poseSheet: "none",
+                        poseSheet: false,
                         extraPeople: Math.min(5, prev.extraPeople + 1),
                       }))
                     }
@@ -545,7 +571,7 @@ function BocetosOrderBuilder({
                   onChange={(event) =>
                     setOrder((prev) => ({
                       ...prev,
-                      poseSheet: "none",
+                      poseSheet: false,
                       fullBody: event.target.checked,
                     }))
                   }
@@ -565,7 +591,7 @@ function BocetosOrderBuilder({
                   onChange={(event) =>
                     setOrder((prev) => ({
                       ...prev,
-                      poseSheet: "none",
+                      poseSheet: false,
                       simpleBackground: event.target.checked,
                     }))
                   }
@@ -585,65 +611,84 @@ function BocetosOrderBuilder({
       <ServiceCardDetailsSection variants={variants}>
         <fieldset className="home-service-order-field">
           <legend className="home-service-card-section-label home-service-card-section-label-strong">
-            {bocetosCopy.poseSheetTitle}
+            {orderCopy.extra}
           </legend>
           <ul className="home-service-order-options">
             <li>
               <label className="home-service-order-option">
                 <input
-                  type="radio"
-                  name={`${poseSheetFieldName}-pose`}
-                  checked={order.poseSheet === "none"}
-                  onChange={() => setOrder((prev) => ({ ...prev, poseSheet: "none" }))}
-                />
-                <span className="home-service-order-option-label">{bocetosCopy.poseSheetNone}</span>
-              </label>
-            </li>
-            <li>
-              <label className="home-service-order-option">
-                <input
-                  type="radio"
-                  name={`${poseSheetFieldName}-pose`}
-                  checked={order.poseSheet === "noColor"}
-                  onChange={() =>
-                    setOrder({
-                      poseSheet: "noColor",
-                      baseId: baseOptions[0]?.id ?? "noColor",
-                      fullBody: false,
-                      simpleBackground: false,
-                      extraPeople: 0,
-                    })
+                  type="checkbox"
+                  checked={order.poseSheet}
+                  onChange={(event) =>
+                    setOrder(
+                      event.target.checked
+                        ? enableBocetosPoseSheet(baseOptions)
+                        : { ...order, poseSheet: false },
+                    )
                   }
                 />
-                <span className="home-service-order-option-label">{bocetosCopy.poseSheetNoColor}</span>
-                <span className="home-service-order-option-price">
-                  {formatHomeMoney(moneyAmount(pricing.poseSheetNoColor, currency), currency)}
+                <span className="home-service-order-option-label">
+                  {bocetosCopy.poseSheetCheckboxLabel}
                 </span>
-              </label>
-            </li>
-            <li>
-              <label className="home-service-order-option">
-                <input
-                  type="radio"
-                  name={`${poseSheetFieldName}-pose`}
-                  checked={order.poseSheet === "withColor"}
-                  onChange={() =>
-                    setOrder({
-                      poseSheet: "withColor",
-                      baseId: baseOptions[0]?.id ?? "noColor",
-                      fullBody: false,
-                      simpleBackground: false,
-                      extraPeople: 0,
-                    })
-                  }
-                />
-                <span className="home-service-order-option-label">{bocetosCopy.poseSheetWithColor}</span>
-                <span className="home-service-order-option-price">
-                  {formatHomeMoney(moneyAmount(pricing.poseSheetWithColor, currency), currency)}
-                </span>
+                <span className="home-service-order-option-price">{poseSheetDisplayPrice}</span>
               </label>
             </li>
           </ul>
+          {order.poseSheet ? (
+            <>
+              <div className="home-service-order-includes">
+                <p className="home-service-card-includes-label">{orderCopy.includesLabel}</p>
+                <ul className="home-service-card-includes-list">
+                  {bocetosCopy.poseSheetIncludes.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <fieldset className="home-service-order-field home-service-order-field-nested">
+                <legend className="home-service-card-section-label home-service-card-section-label-strong">
+                  {bocetosCopy.poseSheetColorLabel}
+                </legend>
+                <ul className="home-service-order-options">
+                  <li>
+                    <label className="home-service-order-option">
+                      <input
+                        type="radio"
+                        name={`${poseSheetColorFieldName}-color`}
+                        checked={order.poseSheetColor === "noColor"}
+                        onChange={() =>
+                          setOrder((prev) => ({ ...prev, poseSheetColor: "noColor" }))
+                        }
+                      />
+                      <span className="home-service-order-option-label">
+                        {bocetosCopy.poseSheetNoColor}
+                      </span>
+                      <span className="home-service-order-option-price">
+                        {formatHomeMoney(moneyAmount(pricing.poseSheetNoColor, currency), currency)}
+                      </span>
+                    </label>
+                  </li>
+                  <li>
+                    <label className="home-service-order-option">
+                      <input
+                        type="radio"
+                        name={`${poseSheetColorFieldName}-color`}
+                        checked={order.poseSheetColor === "withColor"}
+                        onChange={() =>
+                          setOrder((prev) => ({ ...prev, poseSheetColor: "withColor" }))
+                        }
+                      />
+                      <span className="home-service-order-option-label">
+                        {bocetosCopy.poseSheetWithColor}
+                      </span>
+                      <span className="home-service-order-option-price">
+                        {formatHomeMoney(moneyAmount(pricing.poseSheetWithColor, currency), currency)}
+                      </span>
+                    </label>
+                  </li>
+                </ul>
+              </fieldset>
+            </>
+          ) : null}
         </fieldset>
       </ServiceCardDetailsSection>
 
@@ -700,6 +745,13 @@ const defaultCompletosOrder = (baseOptions: HomeServiceBaseOption[]): CompletosO
   extraPeople: 0,
 });
 
+function enableCompletosPoseSheet(baseOptions: HomeServiceBaseOption[]): CompletosOrderState {
+  return {
+    ...defaultCompletosOrder(baseOptions),
+    poseSheet: true,
+  };
+}
+
 function CompletosOrderBuilder({
   serviceTitle,
   variants,
@@ -719,8 +771,13 @@ function CompletosOrderBuilder({
   const { addItem } = useHomeCart();
   const baseFieldName = useId();
   const pricing = HOME_SERVICE_PRICING.completos;
+  const poseSheetLocked = order.poseSheet;
 
   const lineItems = useMemo(() => {
+    if (order.poseSheet) {
+      return [pricedLine(completosCopy.poseSheetCheckboxLabel, pricing.poseSheet)];
+    }
+
     const base = baseOptions.find((option) => option.id === order.baseId)!;
     const items: PricedLine[] = [pricedLine(base.label, pricing.baseOnePerson)];
 
@@ -741,9 +798,6 @@ function CompletosOrderBuilder({
     }
     if (order.detailedBackground) {
       items.push(pricedLine(completosCopy.variationDetailedBackground, pricing.detailedBackground));
-    }
-    if (order.poseSheet) {
-      items.push(pricedLine(completosCopy.variationPoseSheet, pricing.poseSheet));
     }
 
     return items;
@@ -774,7 +828,7 @@ function CompletosOrderBuilder({
   return (
     <>
       <ServiceCardDetailsSection variants={variants}>
-        <fieldset className="home-service-order-field">
+        <fieldset className="home-service-order-field" disabled={poseSheetLocked}>
           <legend className="home-service-card-section-label home-service-card-section-label-strong">
             {orderCopy.base}
           </legend>
@@ -786,7 +840,10 @@ function CompletosOrderBuilder({
                     type="radio"
                     name={`${baseFieldName}-base`}
                     checked={order.baseId === option.id}
-                    onChange={() => setOrder((prev) => ({ ...prev, baseId: option.id }))}
+                    disabled={poseSheetLocked}
+                    onChange={() =>
+                      setOrder((prev) => ({ ...prev, baseId: option.id, poseSheet: false }))
+                    }
                   />
                   <span className="home-service-order-option-label">{option.label}</span>
                   <span className="home-service-order-option-price">{completosBasePrice}</span>
@@ -798,7 +855,7 @@ function CompletosOrderBuilder({
       </ServiceCardDetailsSection>
 
       <ServiceCardDetailsSection variants={variants}>
-        <fieldset className="home-service-order-field">
+        <fieldset className="home-service-order-field" disabled={poseSheetLocked}>
           <legend className="home-service-card-section-label home-service-card-section-label-strong">
             {orderCopy.variations}
           </legend>
@@ -811,10 +868,11 @@ function CompletosOrderBuilder({
                     type="button"
                     className="home-service-order-quantity-btn"
                     aria-label={orderCopy.removeExtraPersonAria}
-                    disabled={order.extraPeople === 0}
+                    disabled={poseSheetLocked || order.extraPeople === 0}
                     onClick={() =>
                       setOrder((prev) => ({
                         ...prev,
+                        poseSheet: false,
                         extraPeople: Math.max(0, prev.extraPeople - 1),
                       }))
                     }
@@ -828,9 +886,11 @@ function CompletosOrderBuilder({
                     type="button"
                     className="home-service-order-quantity-btn"
                     aria-label={orderCopy.addExtraPersonAria}
+                    disabled={poseSheetLocked}
                     onClick={() =>
                       setOrder((prev) => ({
                         ...prev,
+                        poseSheet: false,
                         extraPeople: Math.min(5, prev.extraPeople + 1),
                       }))
                     }
@@ -849,8 +909,13 @@ function CompletosOrderBuilder({
                 <input
                   type="checkbox"
                   checked={order.fullBody}
+                  disabled={poseSheetLocked}
                   onChange={(event) =>
-                    setOrder((prev) => ({ ...prev, fullBody: event.target.checked }))
+                    setOrder((prev) => ({
+                      ...prev,
+                      poseSheet: false,
+                      fullBody: event.target.checked,
+                    }))
                   }
                 />
                 <span className="home-service-order-option-label">{completosCopy.variationFullBody}</span>
@@ -864,8 +929,14 @@ function CompletosOrderBuilder({
                 <input
                   type="checkbox"
                   checked={order.flatBackground}
+                  disabled={poseSheetLocked}
                   onChange={(event) =>
-                    setOrder((prev) => ({ ...prev, flatBackground: event.target.checked }))
+                    setOrder((prev) => ({
+                      ...prev,
+                      poseSheet: false,
+                      flatBackground: event.target.checked,
+                      detailedBackground: event.target.checked ? false : prev.detailedBackground,
+                    }))
                   }
                 />
                 <span className="home-service-order-option-label">
@@ -881,8 +952,14 @@ function CompletosOrderBuilder({
                 <input
                   type="checkbox"
                   checked={order.detailedBackground}
+                  disabled={poseSheetLocked}
                   onChange={(event) =>
-                    setOrder((prev) => ({ ...prev, detailedBackground: event.target.checked }))
+                    setOrder((prev) => ({
+                      ...prev,
+                      poseSheet: false,
+                      detailedBackground: event.target.checked,
+                      flatBackground: event.target.checked ? false : prev.flatBackground,
+                    }))
                   }
                 />
                 <span className="home-service-order-option-label">
@@ -893,24 +970,48 @@ function CompletosOrderBuilder({
                 </span>
               </label>
             </li>
+          </ul>
+        </fieldset>
+      </ServiceCardDetailsSection>
+
+      <ServiceCardDetailsSection variants={variants}>
+        <fieldset className="home-service-order-field">
+          <legend className="home-service-card-section-label home-service-card-section-label-strong">
+            {orderCopy.extra}
+          </legend>
+          <ul className="home-service-order-options">
             <li>
               <label className="home-service-order-option">
                 <input
                   type="checkbox"
                   checked={order.poseSheet}
                   onChange={(event) =>
-                    setOrder((prev) => ({ ...prev, poseSheet: event.target.checked }))
+                    setOrder(
+                      event.target.checked
+                        ? enableCompletosPoseSheet(baseOptions)
+                        : { ...order, poseSheet: false },
+                    )
                   }
                 />
                 <span className="home-service-order-option-label">
-                  {completosCopy.variationPoseSheet}
+                  {completosCopy.poseSheetCheckboxLabel}
                 </span>
                 <span className="home-service-order-option-price">
-                  {formatHomeMoneyDelta(moneyAmount(pricing.poseSheet, currency), currency)}
+                  {formatHomeMoney(moneyAmount(pricing.poseSheet, currency), currency)}
                 </span>
               </label>
             </li>
           </ul>
+          {order.poseSheet ? (
+            <div className="home-service-order-includes">
+              <p className="home-service-card-includes-label">{orderCopy.includesLabel}</p>
+              <ul className="home-service-card-includes-list">
+                {completosCopy.poseSheetIncludes.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </fieldset>
       </ServiceCardDetailsSection>
 
@@ -956,6 +1057,8 @@ const MOTION_EASE_DRAWER = [0.32, 0.72, 0, 1] as const;
 /** Accordion expand/collapse — keep under ~400ms for the grid; stagger stays subtle. */
 const DETAILS_OPEN_GRID_DURATION = 0.38;
 const DETAILS_CLOSE_GRID_DURATION = 0.28;
+/** Wait for details collapse before re-measuring card min-heights. */
+const DETAILS_CLOSE_HEIGHT_SYNC_MS = Math.round(DETAILS_CLOSE_GRID_DURATION * 1000) + 80;
 const DETAILS_ITEM_DURATION = 0.26;
 const DETAILS_STAGGER = 0.055;
 const DETAILS_DELAY_CHILDREN = 0.06;
@@ -1079,14 +1182,39 @@ function ServiceCardDetailsSection({
   );
 }
 
+function syncServiceCardsCollapsedMinHeight(
+  grid: HTMLElement | null,
+  options?: { skipWhileCollapsing?: boolean },
+) {
+  if (!grid) return;
+  if (options?.skipWhileCollapsing) return;
+  if (grid.querySelector('.home-service-card[data-details-open="true"]')) {
+    return;
+  }
+
+  grid.style.removeProperty("--home-service-card-collapsed-min-h");
+
+  const cards = grid.querySelectorAll(".home-service-card");
+  let max = 0;
+  cards.forEach((card) => {
+    max = Math.max(max, card.getBoundingClientRect().height);
+  });
+
+  if (max > 0) {
+    grid.style.setProperty("--home-service-card-collapsed-min-h", `${Math.ceil(max)}px`);
+  }
+}
+
 function ServiceCardItem({
   service,
   revealIndex,
   currency,
+  onDetailsOpenChange,
 }: {
   service: HomeServiceCard;
   revealIndex: number;
   currency: HomeCurrency;
+  onDetailsOpenChange: (afterCloseAnimation?: boolean) => void;
 }) {
   const { services: servicesCopy } = useHomeMessages();
   const cardCopy = servicesCopy.card;
@@ -1103,6 +1231,7 @@ function ServiceCardItem({
     setDetailsOpen(false);
     setIsOrderOpen(false);
     setOrderResetKey((key) => key + 1);
+    onDetailsOpenChange(true);
   };
 
   const closeOrder = () => {
@@ -1114,7 +1243,10 @@ function ServiceCardItem({
     <li
       className={`home-services-reveal-item home-services-reveal-item--card home-services-reveal-item--card-${revealIndex}`}
     >
-      <article className="home-service-card">
+      <article
+        className="home-service-card"
+        data-details-open={detailsOpen ? "true" : "false"}
+      >
         <div className="home-commissions-step-frame" aria-hidden="true">
           <span className="home-commissions-step-corner home-commissions-step-corner-tl" />
           <span className="home-commissions-step-corner home-commissions-step-corner-tr" />
@@ -1353,6 +1485,58 @@ export function HomeServices() {
   const [nsfwGateOpen, setNsfwGateOpen] = useState(false);
   const [nsfwAccessGranted, setNsfwAccessGranted] = useState(false);
   const visibleServices = serviceCards.filter((service) => service.contentRating === contentRating);
+  const servicesGridRef = useRef<HTMLUListElement>(null);
+  const isDetailsCollapsingRef = useRef(false);
+  const collapsedHeightSyncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scheduleCollapsedHeightSync = useCallback((afterCloseAnimation = false) => {
+    const grid = servicesGridRef.current;
+
+    if (collapsedHeightSyncTimeoutRef.current) {
+      clearTimeout(collapsedHeightSyncTimeoutRef.current);
+      collapsedHeightSyncTimeoutRef.current = null;
+    }
+
+    const run = () => {
+      isDetailsCollapsingRef.current = false;
+      syncServiceCardsCollapsedMinHeight(grid);
+    };
+
+    if (afterCloseAnimation) {
+      isDetailsCollapsingRef.current = true;
+      grid?.style.removeProperty("--home-service-card-collapsed-min-h");
+      collapsedHeightSyncTimeoutRef.current = setTimeout(run, DETAILS_CLOSE_HEIGHT_SYNC_MS);
+      return;
+    }
+
+    requestAnimationFrame(run);
+  }, []);
+
+  useLayoutEffect(() => {
+    syncServiceCardsCollapsedMinHeight(servicesGridRef.current);
+  }, [currency, visibleServices]);
+
+  useEffect(() => {
+    const grid = servicesGridRef.current;
+    if (!grid) return;
+
+    const onResize = () => {
+      syncServiceCardsCollapsedMinHeight(grid, {
+        skipWhileCollapsing: isDetailsCollapsingRef.current,
+      });
+    };
+    const observer = new ResizeObserver(onResize);
+    observer.observe(grid);
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", onResize);
+      if (collapsedHeightSyncTimeoutRef.current) {
+        clearTimeout(collapsedHeightSyncTimeoutRef.current);
+      }
+    };
+  }, [visibleServices]);
 
   const openNsfwContent = () => {
     setNsfwAccessGranted(true);
@@ -1432,13 +1616,14 @@ export function HomeServices() {
         onConfirm={openNsfwContent}
       />
       {visibleServices.length > 0 ? (
-        <ul className="home-services-grid">
+        <ul ref={servicesGridRef} className="home-services-grid">
           {visibleServices.map((service, index) => (
             <ServiceCardItem
               key={service.id}
               service={service}
               revealIndex={Math.min(index + 1, 4)}
               currency={currency}
+              onDetailsOpenChange={scheduleCollapsedHeightSync}
             />
           ))}
         </ul>

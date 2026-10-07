@@ -128,7 +128,7 @@ function buildBocetosCard(
         price: formatHomeMoneyDelta(moneyAmount(p.simpleBackground, currency), currency),
       },
     ],
-    extraSectionTitle: bocetos.poseSheetTitle,
+    extraSectionTitle: bocetos.poseSheetCheckboxLabel,
     extraPrices: [
       {
         label: bocetos.poseSheetNoColor,
@@ -181,9 +181,12 @@ function buildCompletosCard(
         label: completos.variationDetailedBackground,
         price: formatHomeMoneyDelta(moneyAmount(p.detailedBackground, currency), currency),
       },
+    ],
+    extraSectionTitle: completos.poseSheetCheckboxLabel,
+    extraPrices: [
       {
         label: completos.variationPoseSheet,
-        price: formatHomeMoneyDelta(moneyAmount(p.poseSheet, currency), currency),
+        price: formatHomeMoney(moneyAmount(p.poseSheet, currency), currency),
       },
     ],
     calculator: true,
