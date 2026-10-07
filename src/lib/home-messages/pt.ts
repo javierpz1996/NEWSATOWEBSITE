@@ -28,6 +28,11 @@ export const homeMessagesPt: HomeMessages = {
     rulesLink: "regras",
     rulesNoticeAfter: " de comissões.",
     rulesCta: "Ver regras",
+    inProgressCarouselAria: "Comissões em andamento",
+    inProgressCarouselPrevAria: "Comissão anterior",
+    inProgressCarouselNextAria: "Próxima comissão",
+    inProgressCarouselCount: (total) =>
+      total === 1 ? "1 comissão em andamento" : `${total} comissões em andamento`,
   },
   services: {
     title: "Serviços",
@@ -319,30 +324,26 @@ export const homeMessagesPt: HomeMessages = {
       comingSoon: "Em breve",
     },
     nav: {
-      animation: { label: "ANIMAÇÃO", sublabel: "アニメ" },
+      animation: { label: "ANIMAÇÃO", sublabel: "アニメーション" },
       commissions: { label: "COMISSÕES", sublabel: "コミッション" },
       contact: { label: "CONTATO", sublabel: "お問い合わせ" },
       gallery: { label: "GALERIA", sublabel: "ギャラリー" },
-      about: { label: "SOBRE", sublabel: "プロフィール" },
-      rules: { label: "REGRAS", sublabel: "じょうけん" },
-      moreInfo: { label: "INFO", sublabel: "しょうさい" },
+      about: { label: "SOBRE", sublabel: "私について" },
+      rules: { label: "REGRAS", sublabel: "ルール" },
+      moreInfo: { label: "INFO", sublabel: "情報" },
     },
   },
   moreInfoPage: {
     backLabel: "← Voltar ao início",
     title: "Mais informações",
     storyParagraphs: [
-      "Este site começou como um projeto pessoal: um lugar para mostrar o trabalho de uma artista e pedir comissões com clareza, sem perder a estética do portfólio.",
-      "Foi crescendo aos poucos — mais seções, carrinho, regras e ferramentas para que quem encomenda e quem cria entendam o processo com menos atrito.",
+      "Esta página começou como um projeto para mostrar meu trabalho e receber comissões de um jeito mais simples, tanto para mim quanto para quem quiser me encomendar algo.",
+      "Sendo sincera, no meu caso como artista, sempre sofri com as tarifas ou comissões que outras páginas cobram de nós artistas para poder vender nosso serviço. Hoje somos uma comunidade meio machucada e sem muitos recursos; quando você está começando, seja pelo motivo que for, esse dinheiro faz muita falta. Só espero que artistas pequenos e iniciantes possam continuar divulgando e vendendo nossa arte sem essas complicações.",
     ],
-    visionTitle: "O que queremos fazer depois",
+    visionTitle: "O que eu gostaria de fazer depois",
     visionParagraphs: [
-      "No futuro, gostaríamos de levar essa ideia adiante: ajudar mais artistas a vender comissões com facilidade, sem abrir mão da própria estética. Páginas próprias, cuidadas, que façam parte da marca e não de um modelo genérico.",
-    ],
-    creditTitle: "Quem montou o site",
-    creditParagraphs: [
-      "Sou Javier. Desenho e desenvolvo páginas web.",
-      "Se você quer uma página pessoal como esta, ou uma para o seu negócio, pode me chamar por mensagem. Obrigado por ler!",
+      "Gostaria de continuar desenvolvendo essa ideia e talvez no futuro fazer com que outros artistas tenham um espaço próprio para oferecer comissões.",
+      "A ideia é que cada artista possa editar o perfil como eu fiz, mantendo identidade e design, sem depender de tarifas altas ou assinaturas para destacar e vender o trabalho.",
     ],
   },
   sns: {

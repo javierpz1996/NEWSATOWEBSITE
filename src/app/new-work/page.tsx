@@ -6,6 +6,8 @@ import { getSalesAccessTokenEnv, isSalesAccessGranted } from "@/lib/sales-access
 import { SalesAccessGate } from "@/app/sales/sales-access-gate";
 import { NewWorkCreateForm } from "@/app/new-work/new-work-create-form";
 import { NewWorkDeleteButton } from "@/app/new-work/new-work-delete-button";
+import { NewWorkProcessStageEditor } from "@/app/new-work/new-work-process-stage-editor";
+import { normalizeCommissionProcessStage } from "@/lib/commission-process-stages";
 import "@/styles/sales-page.css";
 import "@/styles/new-work-page.css";
 
@@ -66,8 +68,15 @@ export default async function NewWorkPage() {
                       <h3 className="sales-page__card-title">{commission.serviceTitle}</h3>
                       <p className="sales-page__card-contact">{commission.clientDisplay}</p>
                     </div>
-                    <span className="new-work-page__status">{commission.statusLabel}</span>
+                    <span className="new-work-page__status">
+                      {normalizeCommissionProcessStage(commission.statusLabel)}
+                    </span>
                   </header>
+                  <NewWorkProcessStageEditor
+                    key={`${commission.id}-${commission.statusLabel}`}
+                    commissionId={commission.id}
+                    initialStage={normalizeCommissionProcessStage(commission.statusLabel)}
+                  />
                   <dl className="new-work-page__meta">
                     <div>
                       <dt>{commission.startedLabel}</dt>

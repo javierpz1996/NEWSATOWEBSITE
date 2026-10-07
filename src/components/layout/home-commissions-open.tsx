@@ -5,6 +5,14 @@ import {
   sectionScrollRevealClassName,
   useSectionScrollReveal,
 } from "@/hooks/use-section-scroll-reveal";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 import { COMMISSION_RULES_HREF } from "@/lib/commission-rules-content";
 import { formatCommissionDateLabel } from "@/lib/commission-date-format";
 import type { HomeCommissionInProgress } from "@/lib/home-commission-in-progress";
@@ -22,6 +30,15 @@ function CommissionStepFrame() {
   );
 }
 
+const COMMISSION_IN_PROGRESS_TONES = ["rose", "lilac", "blue", "mint", "butter"] as const;
+
+type CommissionInProgressTone = (typeof COMMISSION_IN_PROGRESS_TONES)[number];
+
+function commissionInProgressTone(revealIndex: number): CommissionInProgressTone {
+  const index = Math.max(0, revealIndex - 1) % COMMISSION_IN_PROGRESS_TONES.length;
+  return COMMISSION_IN_PROGRESS_TONES[index];
+}
+
 type CommissionInProgressCardProps = {
   commission: HomeCommissionInProgress;
   revealIndex: number;
@@ -34,6 +51,7 @@ function CommissionInProgressCard({ commission, revealIndex }: CommissionInProgr
   return (
     <article
       className={`home-commissions-in-progress home-commissions-reveal-item home-commissions-reveal-item--step home-commissions-reveal-item--in-progress home-commissions-reveal-item--in-progress-${revealIndex}`}
+      data-tone={commissionInProgressTone(revealIndex)}
       aria-labelledby={titleId}
     >
       <CommissionStepFrame />
@@ -58,6 +76,57 @@ function CommissionInProgressCard({ commission, revealIndex }: CommissionInProgr
         </div>
       </dl>
     </article>
+  );
+}
+
+type CommissionsInProgressCarouselProps = {
+  commissions: HomeCommissionInProgress[];
+};
+
+function CommissionsInProgressCarousel({ commissions }: CommissionsInProgressCarouselProps) {
+  const { commissions: copy } = useHomeMessages();
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+
+  useEffect(() => {
+    if (!carouselApi) return;
+    carouselApi.scrollTo(0, true);
+  }, [carouselApi, commissions]);
+
+  return (
+    <div
+      className="home-commissions-in-progress-carousel home-commissions-reveal-item home-commissions-reveal-item--in-progress"
+    >
+      <Carousel
+        setApi={setCarouselApi}
+        opts={{
+          align: "start",
+          loop: false,
+          slidesToScroll: 1,
+          containScroll: "trimSnaps",
+        }}
+        className="home-commissions-in-progress-carousel__viewport"
+        aria-label={copy.inProgressCarouselAria}
+      >
+        <CarouselContent className="home-commissions-in-progress-carousel__content !ml-0">
+          {commissions.map((commission, index) => (
+            <CarouselItem
+              key={commission.id}
+              className="home-commissions-in-progress-carousel__item !basis-auto !pl-0"
+            >
+              <CommissionInProgressCard commission={commission} revealIndex={index + 1} />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious
+          className="home-commissions-in-progress-carousel__control home-commissions-in-progress-carousel__control--prev"
+          aria-label={copy.inProgressCarouselPrevAria}
+        />
+        <CarouselNext
+          className="home-commissions-in-progress-carousel__control home-commissions-in-progress-carousel__control--next"
+          aria-label={copy.inProgressCarouselNextAria}
+        />
+      </Carousel>
+    </div>
   );
 }
 
@@ -105,12 +174,19 @@ export function HomeCommissionsOpen() {
       aria-describedby="home-commissions-open-subtitle"
     >
       <header className="home-commissions-open-header home-commissions-reveal-item home-commissions-reveal-item--header">
-        <h2
-          id="home-commissions-open-title"
-          className="home-commissions-reveal-item home-commissions-reveal-item--title"
-        >
-          {copy.title}
-        </h2>
+        <div className="home-commissions-open-title-row">
+          <h2
+            id="home-commissions-open-title"
+            className="home-commissions-reveal-item home-commissions-reveal-item--title"
+          >
+            {copy.title}
+          </h2>
+          {commissions.length > 0 ? (
+            <p className="home-commissions-in-progress-carousel__count">
+              {copy.inProgressCarouselCount(commissions.length)}
+            </p>
+          ) : null}
+        </div>
         <p
           id="home-commissions-open-subtitle"
           className="home-commissions-open-subtitle home-commissions-reveal-item home-commissions-reveal-item--subtitle"
@@ -118,20 +194,14 @@ export function HomeCommissionsOpen() {
           {copy.subtitle}
         </p>
       </header>
-      <ul className="home-commissions-in-progress-list">
-        {loaded && commissions.length === 0 ? (
-          <li>
-            <p className="home-commissions-in-progress-empty">
-              {copy.emptyInProgress}
-            </p>
-          </li>
-        ) : null}
-        {commissions.map((commission, index) => (
-          <li key={commission.id}>
-            <CommissionInProgressCard commission={commission} revealIndex={index + 1} />
-          </li>
-        ))}
-      </ul>
+      {loaded && commissions.length === 0 ? (
+        <p className="home-commissions-in-progress-empty home-commissions-reveal-item home-commissions-reveal-item--in-progress">
+          {copy.emptyInProgress}
+        </p>
+      ) : null}
+      {commissions.length > 0 ? (
+        <CommissionsInProgressCarousel commissions={commissions} />
+      ) : null}
       <div
         className="home-commissions-rules-notice home-commissions-reveal-item home-commissions-reveal-item--notice"
         role="note"

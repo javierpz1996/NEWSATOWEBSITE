@@ -2,6 +2,9 @@ import { CONTACT_EMAIL } from "@/lib/contact";
 
 export const COMMISSION_RULES_HREF = "/rules" as const;
 
+/** Insert in drawing list copy; renders as a line break on narrow viewports only. */
+export const COMMISSION_RULES_MOBILE_LINE_BREAK = "{{mobile-br}}";
+
 export const COMMISSION_RULES_LAST_UPDATED = "5 de octubre de 2026";
 
 export const COMMISSION_RULES_CONTACT_EMAIL = CONTACT_EMAIL;
@@ -20,13 +23,86 @@ export type CommissionRulesSection = {
   subsections?: CommissionRulesSubsection[];
 };
 
-export const COMMISSION_RULES_SECTIONS: CommissionRulesSection[] = [
+export type CommissionRulesDrawingTone = "green" | "orange" | "pink";
+
+export type CommissionRulesDrawingBlock = {
+  id: string;
+  tone: CommissionRulesDrawingTone;
+  title: string;
+  listItems: string[];
+};
+
+export type CommissionRulesDictionaryEntry = {
+  term: string;
+  definition: string;
+};
+
+export type CommissionRulesDictionaryExampleImage = {
+  src: `/works/placeholder/${string}.png`;
+  alt: string;
+  width: number;
+  height: number;
+};
+
+export type CommissionRulesDictionary = {
+  title: string;
+  beforeExample: CommissionRulesDictionaryEntry[];
+  exampleLabel: string;
+  exampleImages: CommissionRulesDictionaryExampleImage[];
+  afterExample: CommissionRulesDictionaryEntry[];
+};
+
+export const COMMISSION_RULES_DICTIONARY: CommissionRulesDictionary = {
+  title: "Diccionario",
+  beforeExample: [
+    {
+      term: "fondo plano",
+      definition:
+        "color simple a elección, se aceptan detalles decorativos (ej: estrellitas/corazones, efectos, burbujas de texto). **Incluído gratuitamente.**",
+    },
+    {
+      term: "fondo simple",
+      definition:
+        "objetos o detalles decorativos, sin mucho trabajo de composición. Tiene **cargos extra** dependiendo el **tipo de comisión**.",
+    },
+  ],
+  exampleLabel: "Ejemplo:",
+  exampleImages: [
+    {
+      src: "/works/placeholder/fondo1.png",
+      alt: "Ejemplo de fondo simple: rincón con escritorio, silla y estantería.",
+      width: 1230,
+      height: 1280,
+    },
+    {
+      src: "/works/placeholder/fondo2.png",
+      alt: "Ejemplo de fondo simple: habitación con cama, estantería y elementos decorativos.",
+      width: 1230,
+      height: 1280,
+    },
+  ],
+  afterExample: [
+    {
+      term: "fondo detallado",
+      definition:
+        "objetos, perspectiva, decoraciones y composición bien cuidados, incluye **colores, sombreado, iluminación y buen renderizado**. Tiene **cargos extra** dependiendo el **tipo de comisión**.",
+    },
+    {
+      term: "Hoja de poses de 1 personaje",
+      definition:
+        "incluye poses, expresiones, ropa, detalles del diseño, vistas **frontal/lateral/trasera**. sirve para representar mejor su personalidad y características. **Incluye:** **1 cuerpo completo** + **2 busto hacia arriba** + **chibi o cabeza o accesorios**. **extras:** estrellitas/corazones, efectos, burbujas de texto.",
+    },
+  ],
+};
+
+export const COMMISSION_RULES_DRAWING_BLOCKS: CommissionRulesDrawingBlock[] = [
   {
     id: "dibujo",
+    tone: "green",
     title: "Dibujo",
     listItems: [
       "- **SFW**",
-      "- **NSFW** (desnudos, sangre, gore, escenas sexuales explícitas)",
+      `- **NSFW** (desnudos, sangre, ${COMMISSION_RULES_MOBILE_LINE_BREAK}gore, escenas sexuales explícitas)`,
       "- **Nekomimi**",
       "- **OCs** / personajes originales",
       "- **Fanarts**",
@@ -34,25 +110,30 @@ export const COMMISSION_RULES_SECTIONS: CommissionRulesSection[] = [
       "- **Mascotas**",
       "- **Fondos complejos**",
     ],
-    subsections: [
-      {
-        title: "No es mi fuerte pero podria intentar:",
-        listItems: [
-          "- **Furry** (no es mi fuerte)",
-          "- **Perspectivas complejas** (todavía estoy aprendiendo)",
-        ],
-      },
-      {
-        title: "No dibujo:",
-        listItems: [
-          "- **Mechas y robots** (no es mi fuerte)",
-          "- Contenido que promueva el **odio**, la **discriminación**, el **racismo** o la **propaganda política**",
-          "- Contenido que involucre a **menores en situaciones inapropiadas**",
-          "- Cualquier contenido que considere **moralmente incorrecto o perjudicial**",
-        ],
-      },
+  },
+  {
+    id: "dibujo-limitado",
+    tone: "orange",
+    title: "No es mi fuerte pero podría intentar:",
+    listItems: [
+      "- **Furry** (no es mi fuerte)",
+      "- **Perspectivas complejas** (todavía estoy aprendiendo)",
     ],
   },
+  {
+    id: "dibujo-no",
+    tone: "pink",
+    title: "No dibujo:",
+    listItems: [
+      "- **Mechas y robots** (no es mi fuerte)",
+      "- Contenido que promueva el **odio**, la **discriminación**, el **racismo** o la **propaganda política**",
+      "- Contenido que involucre a **menores en situaciones inapropiadas**",
+      "- Cualquier contenido que considere **moralmente incorrecto o perjudicial**",
+    ],
+  },
+];
+
+export const COMMISSION_RULES_SECTIONS: CommissionRulesSection[] = [
   {
     id: "terminos-de-servicio",
     title: "Términos de servicio",

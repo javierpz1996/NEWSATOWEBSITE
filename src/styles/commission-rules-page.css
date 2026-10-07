@@ -1,0 +1,318 @@
+/* /rules — layout de referencia (panel + Lucy). */
+
+.commission-rules-page {
+  flex: 1;
+  background: #ffffff;
+  color: var(--foreground);
+}
+
+.commission-rules-page__inner {
+  position: relative;
+  width: min(100%, 72rem);
+  margin-inline: auto;
+  padding: clamp(1.25rem, 3vw, 2rem) clamp(1.25rem, 4vw, 3rem)
+    clamp(3rem, 8vh, 4.5rem);
+}
+
+.commission-rules-page__back {
+  display: inline-flex;
+  margin-bottom: clamp(1.25rem, 2.5vh, 1.75rem);
+  color: #9a9a9a;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(0.875rem, 1vw, 0.9375rem);
+  font-weight: 500;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.commission-rules-page__back:hover {
+  color: var(--foreground);
+}
+
+.commission-rules-page__back:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.commission-rules-page__header {
+  margin-bottom: clamp(1.5rem, 3vh, 2rem);
+}
+
+.commission-rules-page__intro {
+  position: relative;
+  margin-bottom: clamp(1.75rem, 3vh, 2.25rem);
+}
+
+.commission-rules-page__title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(2rem, 4.8vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: #111111;
+}
+
+.commission-rules-page__updated {
+  margin: 0;
+  color: #9a9a9a;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: clamp(0.625rem, 0.8vw, 0.75rem);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.commission-rules-page__drawing {
+  margin-bottom: 0;
+}
+
+.commission-rules-page__panel {
+  position: relative;
+  z-index: 1;
+  padding: clamp(1.25rem, 2.2vw, 1.75rem) clamp(1rem, 2vw, 1.5rem)
+    clamp(1.5rem, 2.8vw, 2rem);
+  background: #f2f1ed;
+  border: 1px solid color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+
+.commission-rules-page__lucy {
+  position: absolute;
+  z-index: 2;
+  margin: 0;
+  line-height: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Lucy tablet+desktop — tamaño/vertical acordados en /rules */
+@media (min-width: 761px) {
+  .commission-rules-page__lucy {
+    top: auto;
+    right: 0;
+    bottom: clamp(9rem, 18vw, 13.5rem);
+    left: auto;
+    width: clamp(12.5rem, 27vw, 20rem);
+    height: auto;
+    transform-origin: bottom right;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1024px) {
+  .commission-rules-page__lucy {
+    bottom: clamp(15rem, 28vw, 20rem);
+    right: clamp(0.75rem, 3vw, 2rem);
+    transform: translateX(4%);
+  }
+}
+
+/* Desktop ancho — posición horizontal acordada */
+@media (min-width: 1025px) {
+  .commission-rules-page__lucy {
+    right: 0;
+    transform: translateX(30%);
+  }
+}
+
+.commission-rules-page__lucy-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 20px color-mix(in srgb, var(--foreground) 18%, transparent));
+}
+
+@media (max-width: 760px) {
+  .commission-rules-page__lucy-image {
+    width: 100%;
+    height: auto;
+    filter: none;
+  }
+}
+
+.commission-rules-page__block {
+  margin: 0 0 clamp(1.35rem, 2.2vh, 1.75rem);
+}
+
+.commission-rules-page__block:last-child {
+  margin-bottom: 0;
+}
+
+.commission-rules-page__block-badge {
+  display: inline-block;
+  margin: 0 0 clamp(0.65rem, 1vh, 0.85rem);
+  padding: clamp(0.35rem, 0.6vw, 0.45rem) clamp(0.65rem, 1.1vw, 0.85rem);
+  border: 1px solid color-mix(in srgb, var(--foreground) 14%, transparent);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(0.9375rem, 1.15vw, 1.0625rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: #111111;
+}
+
+.commission-rules-page__block--green .commission-rules-page__block-badge {
+  background: color-mix(in srgb, var(--pastel-mint) 92%, #ffffff 8%);
+}
+
+.commission-rules-page__block--orange .commission-rules-page__block-badge {
+  background: color-mix(in srgb, #f5b88a 88%, #ffffff 12%);
+}
+
+.commission-rules-page__block--pink .commission-rules-page__block-badge {
+  background: color-mix(in srgb, var(--pastel-rose) 92%, #ffffff 8%);
+}
+
+.commission-rules-page__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #111111;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(0.9375rem, 1.05vw, 1rem);
+  line-height: 1.55;
+}
+
+.commission-rules-page__list li {
+  margin: 0 0 0.35rem;
+}
+
+.commission-rules-page__list li:last-child {
+  margin-bottom: 0;
+}
+
+.commission-rules-page__list strong {
+  font-weight: 700;
+}
+
+@media (min-width: 761px) {
+  .commission-rules-page__list-mobile-break {
+    display: none;
+  }
+}
+
+.commission-rules-page__dictionary {
+  margin-bottom: clamp(1.75rem, 3vh, 2.25rem);
+}
+
+.commission-rules-page__dictionary-entry {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(0.9375rem, 1.05vw, 1rem);
+  line-height: 1.6;
+  color: #3a3a3a;
+}
+
+.commission-rules-page__dictionary-entry:last-child {
+  margin-bottom: 0;
+}
+
+.commission-rules-page__dictionary-term {
+  font-weight: 700;
+  color: #111111;
+}
+
+.commission-rules-page__dictionary-example {
+  margin: clamp(0.85rem, 1.6vh, 1.1rem) 0;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(0.9375rem, 1.05vw, 1rem);
+  font-weight: 700;
+  line-height: 1.5;
+  color: #111111;
+}
+
+.commission-rules-page__dictionary-examples {
+  display: grid;
+  width: fit-content;
+  max-width: 100%;
+  grid-template-columns: repeat(2, minmax(0, clamp(6.5rem, 22vw, 9.5rem)));
+  gap: clamp(0.5rem, 1.5vw, 0.85rem);
+  margin: 0 0 clamp(1rem, 2vh, 1.35rem);
+}
+
+.commission-rules-page__dictionary-example-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid color-mix(in srgb, var(--foreground) 8%, transparent);
+  border-radius: 4px;
+}
+
+@media (max-width: 560px) {
+  .commission-rules-page__dictionary-examples {
+    grid-template-columns: repeat(2, minmax(0, clamp(5.75rem, 38vw, 8.5rem)));
+  }
+}
+
+.commission-rules-page__terms-intro {
+  margin-bottom: clamp(1.75rem, 3vh, 2.25rem);
+}
+
+.commission-rules-page__dictionary.commission-rules-page__panel--legal + .commission-rules-page__terms-intro,
+.commission-rules-page__terms-intro.commission-rules-page__panel--legal + .commission-rules-page__panel--legal {
+  margin-top: 0;
+}
+
+.commission-rules-page__terms-intro .legal-page__section-title,
+.commission-rules-page__terms-intro .legal-page__paragraph {
+  color: #111111;
+}
+
+.commission-rules-page__terms-intro .legal-page__paragraph {
+  color: #3a3a3a;
+}
+
+.commission-rules-page__terms-intro .legal-page__paragraph strong {
+  color: #111111;
+}
+
+.commission-rules-page__panel--legal {
+  margin-top: clamp(1.75rem, 3vh, 2.25rem);
+  padding: clamp(1.35rem, 2.4vw, 2rem) clamp(1rem, 2vw, 1.5rem);
+  padding-right: clamp(1rem, 2vw, 1.5rem);
+  background: #f2f1ed;
+}
+
+.commission-rules-page__legal-sections {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 3vh, 2.25rem);
+}
+
+.commission-rules-page__legal-sections .legal-page__section-title,
+.commission-rules-page__legal-sections .legal-page__subsection-title {
+  color: #111111;
+}
+
+.commission-rules-page__legal-sections .legal-page__paragraph,
+.commission-rules-page__legal-sections .legal-page__list {
+  color: #3a3a3a;
+}
+
+.commission-rules-page__legal-sections .legal-page__paragraph strong,
+.commission-rules-page__legal-sections .legal-page__list strong {
+  color: #111111;
+}
+
+.commission-rules-page__legal-sections .legal-page__list--text-dash {
+  padding-left: 0;
+}
+
+@media (max-width: 760px) {
+  .commission-rules-page__panel--legal {
+    padding-bottom: clamp(1.35rem, 2.4vw, 2rem);
+  }
+
+  .commission-rules-page__lucy {
+    top: clamp(0.25rem, 2vw, 0.75rem);
+    left: 84%;
+    right: auto;
+    bottom: auto;
+    width: clamp(7rem, 36vw, 9.5rem);
+    max-width: none;
+    height: auto;
+    transform: translateX(-50%);
+  }
+}

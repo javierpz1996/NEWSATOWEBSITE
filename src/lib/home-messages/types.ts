@@ -36,6 +36,10 @@ export type HomeMessages = {
     rulesLink: string;
     rulesNoticeAfter: string;
     rulesCta: string;
+    inProgressCarouselAria: string;
+    inProgressCarouselPrevAria: string;
+    inProgressCarouselNextAria: string;
+    inProgressCarouselCount: (total: number) => string;
   };
   services: {
     title: string;
@@ -247,8 +251,6 @@ export type HomeMessages = {
     storyParagraphs: string[];
     visionTitle: string;
     visionParagraphs: string[];
-    creditTitle: string;
-    creditParagraphs: string[];
   };
   sns: {
     sectionAria: string;

@@ -38,19 +38,6 @@ export function MoreInfoPageContent() {
             ))}
           </section>
 
-          <section
-            className="legal-page__subsection"
-            aria-labelledby="more-info-credit"
-          >
-            <h2 id="more-info-credit" className="legal-page__section-title">
-              {moreInfoPage.creditTitle}
-            </h2>
-            {moreInfoPage.creditParagraphs.map((paragraph, index) => (
-              <p key={`credit-${index}`} className="legal-page__paragraph">
-                {paragraph}
-              </p>
-            ))}
-          </section>
         </div>
       </div>
     </main>

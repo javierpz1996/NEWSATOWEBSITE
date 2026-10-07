@@ -1,3 +1,7 @@
+import {
+  isCommissionProcessStage,
+  normalizeCommissionProcessStage,
+} from "@/lib/commission-process-stages";
 import type { HomeCommissionInProgress } from "@/lib/home-commission-in-progress";
 import { createSupabaseAdminClient } from "@/lib/supabase/server-admin";
 
@@ -23,6 +27,10 @@ export type CreateCommissionInProgressInput = {
   etaOn: string;
 };
 
+export type UpdateCommissionInProgressInput = {
+  statusLabel: string;
+};
+
 function mapRow(row: CommissionInProgressRow): HomeCommissionInProgress {
   return {
     id: row.id,
@@ -41,7 +49,9 @@ function normalizeRow(raw: Record<string, unknown>): CommissionInProgressRow | n
   return {
     id: raw.id,
     created_at: String(raw.created_at ?? ""),
-    status_label: String(raw.status_label ?? "En curso"),
+    status_label: normalizeCommissionProcessStage(
+      typeof raw.status_label === "string" ? raw.status_label : undefined,
+    ),
     service_title: String(raw.service_title ?? ""),
     client_display: String(raw.client_display ?? ""),
     started_label: String(raw.started_label ?? "Inicio"),
@@ -104,7 +114,7 @@ export async function createCommissionInProgress(
   const { data, error } = await supabase
     .from("commissions_in_progress")
     .insert({
-      status_label: input.statusLabel?.trim() || "En curso",
+      status_label: normalizeCommissionProcessStage(input.statusLabel),
       service_title: serviceTitle,
       client_display: clientDisplay,
       started_label: input.startedLabel?.trim() || "Inicio",
@@ -118,6 +128,42 @@ export async function createCommissionInProgress(
     .single();
 
   if (error) return { row: null, error: error.message };
+
+  const normalized = normalizeRow(data as Record<string, unknown>);
+  if (!normalized) return { row: null, error: "Respuesta inválida del servidor." };
+
+  return { row: mapRow(normalized), error: null };
+}
+
+export async function updateCommissionInProgress(
+  id: string,
+  input: UpdateCommissionInProgressInput,
+): Promise<{ row: HomeCommissionInProgress | null; error: string | null }> {
+  if (!isCommissionInProgressId(id)) {
+    return { row: null, error: "ID inválido." };
+  }
+
+  const statusLabel = input.statusLabel.trim();
+  if (!isCommissionProcessStage(statusLabel)) {
+    return { row: null, error: "Etapa del proceso inválida." };
+  }
+
+  const supabase = createSupabaseAdminClient();
+  if (!supabase) {
+    return { row: null, error: "Falta SUPABASE_SERVICE_ROLE_KEY en el servidor." };
+  }
+
+  const { data, error } = await supabase
+    .from("commissions_in_progress")
+    .update({ status_label: statusLabel })
+    .eq("id", id)
+    .select(
+      "id, created_at, status_label, service_title, client_display, started_label, started_on, eta_label, eta_on",
+    )
+    .maybeSingle();
+
+  if (error) return { row: null, error: error.message };
+  if (!data) return { row: null, error: "Comisión no encontrada." };
 
   const normalized = normalizeRow(data as Record<string, unknown>);
   if (!normalized) return { row: null, error: "Respuesta inválida del servidor." };

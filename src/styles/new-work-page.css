@@ -64,6 +64,32 @@
   color: var(--muted-foreground);
 }
 
+.new-work-page__stage-editor {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+}
+
+.new-work-page__stage-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
+}
+
+.new-work-page__stage-save {
+  width: auto;
+  min-height: 2.25rem;
+  padding-inline: 1rem;
+  font-size: 0.82rem;
+}
+
+.new-work-page__stage-saved {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted-foreground);
+}
+
 .home-commissions-in-progress-empty {
   margin: 0;
   padding: clamp(1rem, 2vh, 1.25rem);

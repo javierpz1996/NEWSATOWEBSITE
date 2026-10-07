@@ -3,7 +3,7 @@
 create table if not exists public.commissions_in_progress (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
-  status_label text not null default 'En curso',
+  status_label text not null default 'No empezado',
   service_title text not null,
   client_display text not null,
   started_label text not null default 'Inicio',

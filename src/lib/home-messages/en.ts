@@ -28,6 +28,11 @@ export const homeMessagesEn: HomeMessages = {
     rulesLink: "rules",
     rulesNoticeAfter: ".",
     rulesCta: "View rules",
+    inProgressCarouselAria: "Commissions in progress",
+    inProgressCarouselPrevAria: "Previous commission",
+    inProgressCarouselNextAria: "Next commission",
+    inProgressCarouselCount: (total) =>
+      total === 1 ? "1 commission in progress" : `${total} commissions in progress`,
   },
   services: {
     title: "Services",
@@ -318,30 +323,26 @@ export const homeMessagesEn: HomeMessages = {
       comingSoon: "Coming soon",
     },
     nav: {
-      animation: { label: "ANIMATION", sublabel: "アニメ" },
+      animation: { label: "ANIMATION", sublabel: "アニメーション" },
       commissions: { label: "COMMISSIONS", sublabel: "コミッション" },
       contact: { label: "CONTACT", sublabel: "お問い合わせ" },
       gallery: { label: "GALLERY", sublabel: "ギャラリー" },
-      about: { label: "ABOUT", sublabel: "プロフィール" },
-      rules: { label: "RULES", sublabel: "じょうけん" },
-      moreInfo: { label: "INFO", sublabel: "しょうさい" },
+      about: { label: "ABOUT", sublabel: "私について" },
+      rules: { label: "RULES", sublabel: "ルール" },
+      moreInfo: { label: "INFO", sublabel: "情報" },
     },
   },
   moreInfoPage: {
     backLabel: "← Back to home",
     title: "More information",
     storyParagraphs: [
-      "This site began as a personal project: a place to showcase an artist’s work and request commissions clearly, without losing the portfolio’s own look and feel.",
-      "It kept growing — more sections, a cart, rules, and tools so clients and the artist can follow the process with less friction.",
+      "This site started as a project to show my work and take commissions in a simpler way — for me and for anyone who wants to hire me.",
+      "Honestly, as an artist I’ve always struggled with the fees and commissions other platforms charge us just to sell our work. Today our community is pretty beaten down and broke; when you’re just starting out, for whatever reason, you really need that money. I just hope small, new artists can keep promoting and selling our art without those hurdles.",
     ],
-    visionTitle: "What we hope to build next",
+    visionTitle: "What I’d like to do next",
     visionParagraphs: [
-      "We’d like to take this further and help more artists sell commissions easily, without giving up their aesthetic — custom, thoughtful pages that feel like part of their brand, not a generic template.",
-    ],
-    creditTitle: "About the site developer",
-    creditParagraphs: [
-      "I’m Javier. I design and build websites.",
-      "If you want a personal page like this one, or one for your business, you can reach out by message. Thanks for reading!",
+      "I’d like to keep developing this idea and maybe someday give other artists their own space to offer commissions.",
+      "The goal is for each artist to edit their profile the way I did — keeping their identity and design — without relying on high fees or subscriptions to make their work stand out and sell.",
     ],
   },
   sns: {

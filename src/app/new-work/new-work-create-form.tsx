@@ -1,6 +1,8 @@
 "use client";
 
 import { CommissionDatePicker } from "@/components/commission-date-picker";
+import { CommissionProcessStageSelect } from "@/components/commission-process-stage-select";
+import { COMMISSION_PROCESS_STAGE_DEFAULT } from "@/lib/commission-process-stages";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import "@/styles/commission-date-picker.css";
@@ -35,6 +37,7 @@ export function NewWorkCreateForm() {
         body: JSON.stringify({
           serviceTitle: data.get("serviceTitle"),
           clientDisplay: data.get("clientDisplay"),
+          statusLabel: data.get("statusLabel"),
           startedOn,
           etaOn,
         }),
@@ -89,6 +92,13 @@ export function NewWorkCreateForm() {
         name="clientDisplay"
         type="text"
         placeholder="Ej. Tipo: SFW"
+        required
+      />
+
+      <CommissionProcessStageSelect
+        id="new-work-process-stage"
+        label="Etapa del proceso"
+        defaultValue={COMMISSION_PROCESS_STAGE_DEFAULT}
         required
       />
 
