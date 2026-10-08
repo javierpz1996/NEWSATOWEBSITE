@@ -170,8 +170,9 @@ export default function CommissionRulesPage() {
               alt=""
               width={HOME_FOOTER_LOGO_WIDTH}
               height={HOME_FOOTER_LOGO_HEIGHT}
-              unoptimized
               priority
+              unoptimized
+              sizes="(max-width: 760px) 36vw, 320px"
             />
           </figure>
         </div>
@@ -198,6 +199,7 @@ export default function CommissionRulesPage() {
                 alt={image.alt}
                 width={image.width}
                 height={image.height}
+                unoptimized
                 sizes="(max-width: 560px) 100vw, 50vw"
               />
             ))}

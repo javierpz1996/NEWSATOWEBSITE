@@ -5,6 +5,8 @@ export const PORTAL_MENU_RULE_CAT_HEIGHT = 763;
 
 /** Shown when the rule is dragged to max width — same on-screen size as teo1. */
 export const PORTAL_MENU_RULE_CAT_AT_MAX_SRC = "/works/animation-nav/teo2.png" as const;
+export const PORTAL_MENU_RULE_CAT_AT_MAX_WIDTH = 499;
+export const PORTAL_MENU_RULE_CAT_AT_MAX_HEIGHT = 683;
 
 /** Both Teo sprites for the portal rule — preload together to avoid first-stretch flicker. */
 export const PORTAL_MENU_RULE_CAT_SRCS = [

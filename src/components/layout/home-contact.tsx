@@ -18,10 +18,11 @@ import {
   getEmptyFormFieldNames,
 } from "@/lib/home-form-validation";
 
-const HOME_CONTACT_ILLUSTRATION_SRC =
-  "/works/placeholder/milo_teo_luki.png" as const;
-const HOME_CONTACT_ILLUSTRATION_WIDTH = 2532;
-const HOME_CONTACT_ILLUSTRATION_HEIGHT = 1908;
+import {
+  HOME_MILO_TEO_LUKI_HEIGHT,
+  HOME_MILO_TEO_LUKI_SRC,
+  HOME_MILO_TEO_LUKI_WIDTH,
+} from "@/lib/home-placeholder-illustrations";
 
 const CONTACT_REQUIRED_FIELDS = ["title", "message"] as const;
 
@@ -109,11 +110,13 @@ export function HomeContact() {
           >
             <Image
               className="home-contact-illustration__image"
-              src={HOME_CONTACT_ILLUSTRATION_SRC}
+              src={HOME_MILO_TEO_LUKI_SRC}
               alt={contact.illustrationAlt}
-              width={HOME_CONTACT_ILLUSTRATION_WIDTH}
-              height={HOME_CONTACT_ILLUSTRATION_HEIGHT}
+              width={HOME_MILO_TEO_LUKI_WIDTH}
+              height={HOME_MILO_TEO_LUKI_HEIGHT}
               unoptimized
+              loading="lazy"
+              sizes="(max-width: 760px) 80vw, 400px"
             />
           </figure>
         </div>

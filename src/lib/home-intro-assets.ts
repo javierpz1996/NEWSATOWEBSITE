@@ -13,7 +13,7 @@ export const HOME_INTRO_LOADING_HINT = "Ya casi cargamos todo" as const;
 /** Looping art on the intro loading overlay (not part of hero preload). */
 export const HOME_INTRO_LOADING_GIF = "/works/animation/animation6-intro.gif" as const;
 
-export const HOME_INTRO_HERO_COVER_SRC = "/works/placeholder/herocover.jpg" as const;
+export const HOME_INTRO_HERO_COVER_SRC = "/hero/heroComprimido.jpg" as const;
 
 /** Luminance strip (source art). */
 export const HOME_INTRO_OPEN_MASK_SRC = "/intro/splatter-open-strip.png" as const;

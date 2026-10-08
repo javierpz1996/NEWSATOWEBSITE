@@ -20,6 +20,8 @@ import { SKETCH_CAROUSEL_WORKS } from "@/lib/sketch-carousel-works";
 type CarouselSlideWork = {
   src: string;
   alt: string;
+  width: number;
+  height: number;
 };
 
 /** Embla turns loop off when the track is too short; extra copies keep infinite scroll enabled. */
@@ -118,7 +120,8 @@ function ArtworkCarouselLightbox({ works, workIndex, copy, onClose }: ArtworkCar
             className="home-artwork-lightbox__image"
             src={work.src}
             alt={work.alt}
-            fill
+            width={work.width}
+            height={work.height}
             unoptimized
             sizes="(max-width: 760px) 92vw, 760px"
             priority
@@ -170,6 +173,8 @@ export function ArtworkCarousel({ variant }: ArtworkCarouselProps) {
     return source.map((work, index) => ({
       src: work.src,
       alt: sampleAlt(index + 1),
+      width: work.width,
+      height: work.height,
     }));
   }, [services, variant]);
 
@@ -219,12 +224,12 @@ export function ArtworkCarousel({ variant }: ArtworkCarouselProps) {
                 onClick={() => setLightboxWorkIndex(workIndexFromSrc(galleryWorks, slide.src))}
               >
                 <Image
-                  className="home-artwork-carousel-image object-cover object-center"
+                  className="home-artwork-carousel-image"
                   src={slide.src}
                   alt=""
-                  fill
+                  width={slide.width}
+                  height={slide.height}
                   unoptimized
-                  sizes="(max-width: 760px) 28vw, 14vw"
                   draggable={false}
                 />
               </button>

@@ -18,7 +18,6 @@ import {
   formatHomeCartLine,
 } from "@/lib/home-cart";
 import { useHomeCurrency } from "@/hooks/use-home-currency";
-import { fireHomeCartProposalConfetti } from "@/lib/home-cart-proposal-confetti";
 import {
   CartProposalSubmitError,
   submitCartProposalToSupabase,
@@ -380,7 +379,9 @@ export function HomeCartDrawer() {
           setStageHeight(undefined);
         }
         requestAnimationFrame(() => {
-          fireHomeCartProposalConfetti(panelRef.current);
+          void import("@/lib/home-cart-proposal-confetti").then(({ fireHomeCartProposalConfetti }) => {
+            fireHomeCartProposalConfetti(panelRef.current);
+          });
         });
       } catch (error) {
         const message =

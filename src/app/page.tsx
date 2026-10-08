@@ -1,26 +1,22 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { HomeAnimations } from "@/components/layout/home-animations";
 import { HomeArtistLockup } from "@/components/layout/home-artist-lockup";
 import { HomeContact } from "@/components/layout/home-contact";
 import { HomeCookieConsent } from "@/components/layout/home-cookie-consent";
 import { HomeCommissionsOpen } from "@/components/layout/home-commissions-open";
 import { HomeFaq } from "@/components/layout/home-faq";
-import { HomeSectionsDotBook } from "@/components/layout/home-sections-dot-book";
 import { HomeSectionsDotBorders } from "@/components/layout/home-sections-dot-borders";
 import { HomePageIntro } from "@/components/layout/home-page-intro";
 import { HomePageTop } from "@/components/layout/home-page-top";
 import { HomeScrollRightSquare } from "@/components/layout/home-scroll-right-square";
-import { HomePortalMenuModal } from "@/components/layout/home-portal-menu-modal";
-import { HomeCartDrawer } from "@/components/layout/home-cart-drawer";
 import { HomeCartProvider } from "@/components/layout/home-cart-context";
 import { HomeStickyCart } from "@/components/layout/home-sticky-cart";
 import { HomeHeaderPortalCluster } from "../components/layout/home-header-portal-cluster";
 import type { HomePortalMenuTriggerHandle } from "@/components/layout/home-portal-menu-trigger";
-import { HomeServices } from "@/components/layout/home-services";
 import { HomeSnsBar } from "@/components/layout/home-sns-bar";
 import {
   homeHeroReplayRowClassName,
@@ -39,10 +35,27 @@ import { useHomeMessages } from "@/hooks/use-home-messages";
 import { HOME_HERO_EDITORIAL_TILES } from "@/lib/home-hero-editorial-tiles";
 import { ensurePortalMenuRuleCatsPreloaded } from "@/lib/portal-menu-assets";
 
+const HomeServices = dynamic(
+  () => import("@/components/layout/home-services").then((mod) => mod.HomeServices),
+);
+
+const HomeAnimations = dynamic(
+  () => import("@/components/layout/home-animations").then((mod) => mod.HomeAnimations),
+);
+
+const HomePortalMenuModal = dynamic(
+  () => import("@/components/layout/home-portal-menu-modal").then((mod) => mod.HomePortalMenuModal),
+);
+
+const HomeCartDrawer = dynamic(
+  () => import("@/components/layout/home-cart-drawer").then((mod) => mod.HomeCartDrawer),
+  { ssr: false },
+);
+
 /** Temporary: hide header nav links until routes/sections are ready for launch. */
 const HOME_HEADER_NAV_VISIBLE = false;
 
-/** Temporary: hide left dot strip + book stack on Comisiones → Animaciones. */
+/** Temporary: hide left dot strip on Comisiones → Animaciones. */
 const HOME_SECTIONS_LEFT_DECOR_VISIBLE = false;
 
 export default function Home() {
@@ -137,6 +150,7 @@ export default function Home() {
               height={SATO_LOGO_HEIGHT}
               priority
               unoptimized
+              sizes="(max-width: 760px) 28vw, 172px"
             />
           </Link>
           {HOME_HEADER_NAV_VISIBLE ? (
@@ -198,9 +212,11 @@ export default function Home() {
                       }`}
                       src={tile.src}
                       alt={`Obra de muestra ${tile.id}`}
-                      fill
+                      width={tile.width}
+                      height={tile.height}
                       unoptimized
-                      sizes="(max-width: 760px) 28vw, 13vw"
+                      priority={index === 0}
+                      sizes="(max-width: 760px) 22vw, 12vw"
                     />
                   </div>
                 ))}
@@ -242,7 +258,6 @@ export default function Home() {
         {HOME_SECTIONS_LEFT_DECOR_VISIBLE ? (
           <div className="home-sections-left-decor">
             <HomeSectionsDotBorders />
-            <HomeSectionsDotBook />
           </div>
         ) : null}
 
@@ -295,7 +310,9 @@ export default function Home() {
               <Image
                 src={HOME_HERO_EDITORIAL_TILES[activeWork].src}
                 alt={`Obra ampliada ${HOME_HERO_EDITORIAL_TILES[activeWork].id}`}
-                fill
+                width={HOME_HERO_EDITORIAL_TILES[activeWork].width}
+                height={HOME_HERO_EDITORIAL_TILES[activeWork].height}
+                unoptimized
                 sizes="100vw"
               />
               <figcaption>
@@ -323,6 +340,8 @@ export default function Home() {
             width={HOME_FOOTER_LOGO_WIDTH}
             height={HOME_FOOTER_LOGO_HEIGHT}
             unoptimized
+            loading="lazy"
+            sizes="132px"
           />
         </Link>
         <nav className="home-footer-nav" aria-label={messages.footer.navAriaLabel}>

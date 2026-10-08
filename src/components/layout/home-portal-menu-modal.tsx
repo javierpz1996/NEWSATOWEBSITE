@@ -109,8 +109,8 @@ export function HomePortalMenuModal({ onClose }: HomePortalMenuModalProps) {
               alt=""
               width={SATO_LOGO_WIDTH}
               height={SATO_LOGO_HEIGHT}
-              unoptimized
               priority
+              sizes="120px"
             />
           </div>
 

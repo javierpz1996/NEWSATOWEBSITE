@@ -38,8 +38,6 @@
   --home-sections-dot-step-y: clamp(14px, 1.65vw, 20px);
   --home-sections-dot-edge: var(--background);
   --home-sections-dot-inset-bottom: clamp(20px, 2.8vh, 36px);
-  --home-sections-dot-book-size: clamp(42px, 4.8vw, 62px);
-  --home-sections-dot-book-gap: clamp(20px, 3vh, 36px);
   /* Superficies de sección — grises neutros (misma familia que SNS / comisiones). */
   --home-surface-services: color-mix(in srgb, var(--foreground) 11%, var(--background) 89%);
   --home-surface-animations: color-mix(in srgb, var(--pastel-lilac) 26%, var(--background) 74%);
@@ -53,7 +51,7 @@
   background-color: var(--home-hero-stage);
   background-image:
     linear-gradient(rgb(0 0 0 / 34%), rgb(0 0 0 / 34%)),
-    url("/works/placeholder/herocover.jpg");
+    url("/hero/heroComprimido.jpg");
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -1513,6 +1511,9 @@
 }
 
 .home-hero-top-row .home-editorial-tile-image {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center;
 }
@@ -3480,6 +3481,15 @@
   background: var(--home-surface-animations);
 }
 
+.home-page .home-animations-tile video.home-animations-media-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
 .home-page .home-animations-subtitle-wrap {
   min-width: 0;
 }
@@ -3763,8 +3773,20 @@
 }
 
 .home-page .home-artwork-carousel-slide-service .home-artwork-carousel-image {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center;
+}
+
+.home-page .home-artwork-lightbox__figure .home-artwork-lightbox__image {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 /* Lightbox del carrusel de servicios — portal en `body`, fuera de `.home-service-card-visual`. */
@@ -4331,34 +4353,6 @@
   background-position: center top;
   border-inline: 2px solid var(--home-sections-dot-edge);
   box-sizing: border-box;
-}
-
-/* Books — cycle book.png … book8.png over the dot strip. */
-.home-sections-dot-book {
-  position: absolute;
-  top: clamp(18px, 2.4vh, 32px);
-  bottom: 0;
-  left: 50%;
-  z-index: 3;
-  width: var(--home-sections-dot-book-size);
-  overflow: hidden;
-  pointer-events: none;
-  transform: translateX(-50%);
-}
-
-.home-sections-dot-book__stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--home-sections-dot-book-gap);
-}
-
-.home-sections-dot-book__item {
-  display: block;
-  flex-shrink: 0;
-  width: var(--home-sections-dot-book-size);
-  height: var(--home-sections-dot-book-size);
-  object-fit: contain;
 }
 
 @media (max-width: 1080px) {

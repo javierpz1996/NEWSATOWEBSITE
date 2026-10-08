@@ -123,7 +123,7 @@ export function HomeScrollRightSquare() {
                 alt=""
                 width={HOME_READ_BALLOON_MILO_WIDTH}
                 height={HOME_READ_BALLOON_MILO_HEIGHT}
-                unoptimized
+                sizes="40px"
               />
             </figure>
           </div>

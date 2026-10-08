@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useState, type RefObject } from "react";
-
-const TEO_PAGE_TOP_SRC = "/works/placeholder/teoup.png" as const;
-const TEO_PAGE_TOP_WIDTH = 1029;
-const TEO_PAGE_TOP_HEIGHT = 1529;
+import {
+  HOME_PAGE_TOP_TEO_HEIGHT,
+  HOME_PAGE_TOP_TEO_SRC,
+  HOME_PAGE_TOP_TEO_WIDTH,
+} from "@/lib/home-placeholder-illustrations";
 
 type HomePageTopProps = {
   headerFocusRef?: RefObject<HTMLElement | null>;
@@ -52,11 +53,12 @@ export function HomePageTop({ headerFocusRef }: HomePageTopProps) {
       <div className="home-page-top__figure" aria-hidden="true">
         <Image
           className="home-page-top__teo"
-          src={TEO_PAGE_TOP_SRC}
+          src={HOME_PAGE_TOP_TEO_SRC}
           alt=""
-          width={TEO_PAGE_TOP_WIDTH}
-          height={TEO_PAGE_TOP_HEIGHT}
+          width={HOME_PAGE_TOP_TEO_WIDTH}
+          height={HOME_PAGE_TOP_TEO_HEIGHT}
           unoptimized
+          sizes="(max-width: 760px) 22vw, 112px"
         />
       </div>
       <button

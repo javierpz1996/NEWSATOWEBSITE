@@ -1,23 +1,18 @@
 "use client";
 
-import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useHomeMessages } from "@/hooks/use-home-messages";
+import {
+  HOME_ANIMATION_SRC_BY_ID,
+  isHomeAnimationVideoSrc,
+} from "@/lib/home-animation-media";
 
 type AnimationWork = {
   id: string;
   number: string;
   title: string;
-  src: `/works/animation/${string}`;
+  src: string;
   alt: string;
-};
-
-const ANIMATION_SRC_BY_ID: Record<string, `/works/animation/${string}`> = {
-  "animation-1": "/works/animation/animation8.gif",
-  "animation-2": "/works/animation/animation2.gif",
-  "animation-3": "/works/animation/animation7.gif",
-  "animation-4": "/works/animation/animation4.gif",
-  "animation-5": "/works/animation/animation9.gif",
 };
 
 function workById(works: AnimationWork[], id: string) {
@@ -29,31 +24,52 @@ function workById(works: AnimationWork[], id: string) {
 function AnimationTile({
   work,
   priority = false,
-  sizes,
   variant,
   tileAria,
 }: {
   work: AnimationWork;
   priority?: boolean;
-  sizes: string;
   variant: "featured" | "thumb";
   tileAria: (number: string, title: string) => string;
 }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !isHomeAnimationVideoSrc(work.src)) return;
+
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncPlayback = () => {
+      if (mediaQuery.matches) {
+        video.pause();
+        return;
+      }
+      void video.play();
+    };
+
+    syncPlayback();
+    mediaQuery.addEventListener("change", syncPlayback);
+    return () => mediaQuery.removeEventListener("change", syncPlayback);
+  }, [work.src]);
+
   return (
     <figure
       className={`home-animations-tile home-animations-tile-${variant}`}
       aria-label={tileAria(work.number, work.title)}
     >
       <span className="home-animations-tile-number">{work.number}</span>
-      <Image
-        className="home-animations-media-image"
-        src={work.src}
-        alt={work.alt}
-        fill
-        unoptimized
-        sizes={sizes}
-        priority={priority}
-      />
+      {isHomeAnimationVideoSrc(work.src) ? (
+        <video
+          ref={videoRef}
+          className="home-animations-media-image"
+          src={work.src}
+          loop
+          muted
+          playsInline
+          preload={priority ? "metadata" : "none"}
+          aria-hidden="true"
+        />
+      ) : null}
     </figure>
   );
 }
@@ -61,10 +77,11 @@ function AnimationTile({
 export function HomeAnimations() {
   const { animations } = useHomeMessages();
   const [subtitleExpanded, setSubtitleExpanded] = useState(false);
-  const animationWorks: AnimationWork[] = animations.works.map((work) => ({
-    ...work,
-    src: ANIMATION_SRC_BY_ID[work.id]!,
-  }));
+  const animationWorks: AnimationWork[] = animations.works.map((work) => {
+    const src = HOME_ANIMATION_SRC_BY_ID[work.id as keyof typeof HOME_ANIMATION_SRC_BY_ID];
+    if (!src) throw new Error(`Missing animation media: ${work.id}`);
+    return { ...work, src };
+  });
 
   const topRowWorks = [workById(animationWorks, "animation-1"), workById(animationWorks, "animation-3")];
   const bottomRowWorks = [
@@ -116,7 +133,6 @@ export function HomeAnimations() {
               work={work}
               variant="featured"
               priority={index === 0}
-              sizes="(max-width: 900px) 50vw, 780px"
               tileAria={animations.tileAria}
             />
           ))}
@@ -127,7 +143,6 @@ export function HomeAnimations() {
               key={work.id}
               work={work}
               variant="thumb"
-              sizes="(max-width: 560px) 33vw, 520px"
               tileAria={animations.tileAria}
             />
           ))}

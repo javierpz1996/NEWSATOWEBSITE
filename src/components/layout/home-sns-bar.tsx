@@ -119,7 +119,6 @@ function SocialLinkItem({ link }: { link: SocialLink }) {
               width={500}
               height={461}
               sizes="(max-width: 760px) 20px, 36px"
-              unoptimized
             />
           ) : (
             link.icon

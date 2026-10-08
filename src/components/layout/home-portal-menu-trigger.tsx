@@ -27,7 +27,9 @@ import {
 } from "@/components/layout/home-portal-menu-stretch";
 import {
   ensurePortalMenuRuleCatsPreloaded,
+  PORTAL_MENU_RULE_CAT_AT_MAX_HEIGHT,
   PORTAL_MENU_RULE_CAT_AT_MAX_SRC,
+  PORTAL_MENU_RULE_CAT_AT_MAX_WIDTH,
   PORTAL_MENU_RULE_CAT_HEIGHT,
   PORTAL_MENU_RULE_CAT_SRC,
   PORTAL_MENU_RULE_CAT_WIDTH,
@@ -310,11 +312,9 @@ export const HomePortalMenuTrigger = forwardRef<
               alt=""
               width={PORTAL_MENU_RULE_CAT_WIDTH}
               height={PORTAL_MENU_RULE_CAT_HEIGHT}
-              style={{
-                aspectRatio: `${PORTAL_MENU_RULE_CAT_WIDTH} / ${PORTAL_MENU_RULE_CAT_HEIGHT}`,
-              }}
               unoptimized
               priority
+              sizes="70px"
               draggable={false}
               aria-hidden="true"
             />
@@ -322,13 +322,11 @@ export const HomePortalMenuTrigger = forwardRef<
               className="home-portal-menu-label-rule__cat home-portal-menu-label-rule__cat--max"
               src={PORTAL_MENU_RULE_CAT_AT_MAX_SRC}
               alt=""
-              width={PORTAL_MENU_RULE_CAT_WIDTH}
-              height={PORTAL_MENU_RULE_CAT_HEIGHT}
-              style={{
-                aspectRatio: `${PORTAL_MENU_RULE_CAT_WIDTH} / ${PORTAL_MENU_RULE_CAT_HEIGHT}`,
-              }}
+              width={PORTAL_MENU_RULE_CAT_AT_MAX_WIDTH}
+              height={PORTAL_MENU_RULE_CAT_AT_MAX_HEIGHT}
               unoptimized
               priority
+              sizes="70px"
               draggable={false}
               aria-hidden="true"
             />
